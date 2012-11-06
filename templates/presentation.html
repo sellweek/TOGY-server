@@ -1,0 +1,85 @@
+<h1>{{.P.Name}}</h1>
+<table>
+	<tr>
+		<td>
+			<b>Typ súboru:</b>
+		</td>
+		<td>
+			{{.P.FileType}}
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<b>Dátum pridania:</b>
+		</td>
+		<td>
+			{{.P.Created}}
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<b>Priemerný čas sťahovania</b>
+		</td>
+		<td>
+			{{.Avg}} sekúnd
+		</td>
+	</tr>
+</table>
+<h2>Akcie</h2>
+<div id="buttons">
+	{{if .P.Active}}
+	Táto prezentácia je práve aktívna
+	{{else}}
+		<form method="POST" action="/admin/activate">
+			<input type="hidden" name="id" value="{{.P.Key}}">
+			<input type="submit" value="Aktivovať">
+		</form>
+	
+		<form method="POST" action="/admin/delete">
+			<input type="hidden" name="id" value="{{.P.Key}}">
+			<input type="submit" value="Vymazať">
+		</form>
+	{{end}}
+	<div id="download">
+		<b>Odkaz na stiahnutie:</b><input type="text" value="http://togpm5.appspot.com/download?id={{.P.Key}}"><br>
+		<a href="/download?id={{.P.Key}}">Stiahnuť prezentáciu</a>
+	</div>
+</div>
+
+{{$zt := .ZeroTime}}
+
+<h2>Informácie klientov</h2>
+<table border="1">
+	<tr>
+		<th>
+			Klient
+		</th>
+		<th>
+			Informácia o aktualizáci
+		</th>
+		<th>
+			Začiatok sťahovania
+		</th>
+		<th>
+			Koniec sťahovania
+		</th>
+	</tr>
+	{{range $k, $v  := .Q}}
+	{{if $k}}
+		<tr>
+			<td>
+				{{$k}}
+			</td>
+			{{range $v}}
+				<td>
+					{{if .Equal $zt}}
+						Ešte nevykonané
+					{{else}}
+						{{.Format "15:04:05, 2.1.2006"}}
+					{{end}}
+				</td>
+			{{end}}
+		</tr>
+	{{end}}
+	{{end}}
+</table>

@@ -1,0 +1,54 @@
+<table borders="1">
+	<tr>
+		<th>
+			Meno
+		</th>
+		<th>
+			Pridaná
+		</th>
+		<th>
+			Stiahnuté
+		</th>
+		<th>
+			Vymazať
+		</th>
+		<th>
+			Aktivovať
+		</th>
+	</tr>
+	{{range .}}
+		<tr {{if .P.Active }}class="active"{{end}}>
+			<td>
+				<a href="/admin/archive/{{.P.Key}}">{{.P.Name}}</a>
+			</td>
+			<td>
+				{{.P.Created.Format "15:04, 2.1.2006"}}
+			</td>
+			<td>
+				{{.C}}x
+			</td>
+			<td>
+				{{if .P.Active}}
+					--
+				{{else}}
+					<form method="POST" action="/admin/delete">
+						<input type="hidden" name="id" value="{{.P.Key}}">
+						<input type="submit" value="Vymazať">
+					</form>
+				{{end}}
+			</td>
+			<td>
+				{{if .P.Active}}
+					--
+				{{else}}
+					<form method="POST" action="/admin/activate">
+						<input type="hidden" name="id" value="{{.P.Key}}">
+						<input type="submit" value="Aktivovať">
+					</form>
+				{{end}}
+			</td>
+		</tr>
+	{{else}}
+		Nie sú pridané žiadne prezentácie
+	{{end}}
+</table>

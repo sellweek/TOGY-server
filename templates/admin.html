@@ -1,0 +1,9 @@
+<!-- <h1>Nahratie novej prezentácie</h1> -->
+<form action="{{.UploadURL}}" method="POST" enctype="multipart/form-data">
+	Názov prezentácie: <input class="title" type="text" name="name"><br>
+	Súbor: <input type="file" name="file"><br>
+	Aktivovať: <input type="checkbox" name="activate" checked> <br>
+	<input type="submit" name="submit" value="Submit">
+</form>
+<p>Prosím, nenahrávajte súbory s diakritikou v názve, App Engine to nemá rád.</p>
+<p><b>Aktívna prezentácia: </b>{{.ActivePresentation}}</p>

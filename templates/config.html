@@ -1,0 +1,44 @@
+<form method="POST" action="/admin/config">
+	<textarea name="config">
+		{{.Conf}}
+	</textarea><br>
+	<input type="submit">
+</form>
+
+<h2>Informácie klientov</h2>
+{{/*I know this is copy-pasted from presentation.html, but go's templates are shit*/}}
+{{$zt := .ZeroTime}}
+<table border="1">
+	<tr>
+		<th>
+			Klient
+		</th>
+		<th>
+			Informácia o aktualizácií
+		</th>
+		<th>
+			Začiatok sťahovania
+		</th>
+		<th>
+			Koniec sťahovania
+		</th>
+	</tr>
+	{{range $k, $v  := .Q}}
+	{{if $k}}
+		<tr>
+			<td>
+				{{$k}}
+			</td>
+			{{range $v}}
+				<td>
+					{{if .Equal $zt}}
+						Ešte nevykonané
+					{{else}}
+						{{.Format "15:04:05, 2.1.2006"}}
+					{{end}}
+				</td>
+			{{end}}
+		</tr>
+	{{end}}
+	{{end}}
+</table>
