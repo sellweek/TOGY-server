@@ -94,6 +94,7 @@ func Archive(c util.Context) {
 	util.RenderLayout("archive.html", "Archív prezentácií", downloads, c)
 }
 
+//Handles showing page with details about a presentation.
 func Presentation(c util.Context) {
 	p, err := models.GetByKey(c.Vars["id"], c.Ac)
 	if err != nil {
@@ -153,6 +154,8 @@ func Delete(c util.Context) {
 	http.Redirect(c.W, c.R, "/admin/archive", 301)
 }
 
+//Handles showing the page in which user can see and edit
+//the central configuration for clients.
 func ShowConfig(c util.Context) {
 	conf, err := models.GetConfig(c.Ac)
 	if err != nil {
@@ -175,6 +178,7 @@ func ShowConfig(c util.Context) {
 	}{string(conf), q, time.Date(0001, 01, 01, 00, 00, 00, 00, utc)}, c)
 }
 
+//Handles saving the new configuration to Datastore.
 func SetConfig(c util.Context) {
 	err := models.SaveConfig([]byte(c.R.FormValue("config")), c.Ac)
 	if err != nil {

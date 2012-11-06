@@ -11,13 +11,17 @@ import (
 
 //Handles queries of clients about whether they should download a new
 //presentation.
-//Clients insert the timecode of their active presentation into the "d" querystring parameter.
-//	http://togy.appspot.com?d=20121012150456
-//Server responds either with:
-//	false
-//if theit presentation is active and doesn't need updating or with
-//	true,20121013105512.ppt
-//where the part after comma is the filename of the presentation that the client should download.
+//Clients call address with their ID like
+//	togpm5.appspot.com/?client=A1
+//and the server responds with JSON:
+//	{
+//		"Broadcast": true,
+//		"FileType": "ppt",
+//		"Config": false
+//	}
+//Where Broadcast and Config fields signal whether client should download
+//new presentation or configuration and FileType contains file type
+//of the broadcast file.
 func Update(c util.Context) {
 	type updateInfo struct {
 		Broadcast bool
@@ -68,7 +72,7 @@ func Update(c util.Context) {
 
 }
 
-//Serves a presentation from blobstore.
+//Serves the broadcast from blobstore.
 func Download(c util.Context) {
 	id := c.R.FormValue("id")
 	var p *models.Presentation
@@ -86,6 +90,8 @@ func Download(c util.Context) {
 	blobstore.Send(c.W, p.BlobKey)
 }
 
+//Clients call it with ther ID to inform the server
+//that they have finished downloading the broadcast.
 func DownloadFinish(c util.Context) {
 	p, err := models.GetActive(c.Ac)
 	if err != nil {
@@ -95,6 +101,7 @@ func DownloadFinish(c util.Context) {
 	models.LogQueryTime(*p, c.R.FormValue("client"), models.DownloadFinish, c.Ac)
 }
 
+//Serves the configuration.
 func GetConfig(c util.Context) {
 	conf, err := models.GetConfig(c.Ac)
 	if err != nil {
@@ -104,6 +111,8 @@ func GetConfig(c util.Context) {
 	models.LogQueryTime(models.Config{}, c.R.FormValue("client"), models.DownloadStart, c.Ac)
 }
 
+//Used by clients in the same manner as DownloadFinish to inform 
+//that they have downloaded the configuration file.
 func GotConfig(c util.Context) {
 	models.LogQueryTime(models.Config{}, c.R.FormValue("client"), models.DownloadFinish, c.Ac)
 }
