@@ -22,4 +22,4 @@ _testmain.go
 *.exe
 
 # OS X metadata
-.DS_Store
+*.DS_Store
