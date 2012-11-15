@@ -9,8 +9,8 @@ handlers:
   login: admin
   auth_fail_action: redirect
 - url: /favicon.ico
-  static_files: templates/static/favicon.ico
-  upload: templates/static/favicon.ico
+  static_files: templates/static/images/favicon.ico
+  upload: templates/static/images/favicon.ico
 - url: /static
   static_dir: templates/static
 - url: /.*
