@@ -6,16 +6,20 @@ import (
 	"time"
 )
 
-const confTimeFormat = "15:04"
-const confDateFormat = "2006-1-2"
+const (
+	ConfTimeFormat = "15:04"
+	ConfDateFormat = "2006-1-2"
+	OverrideOn     = 1
+	OverrideOff    = -1
+	NoOverride     = 0
+)
 
 //Config stores central configuration in Datastore.
 //There is always only one Config record in Datastore.
 type Config struct {
 	StandardOn     time.Time
 	StandardOff    time.Time
-	OverrideOn     bool
-	OverrideOff    bool
+	OverrideState  int8
 	UpdateInterval int
 }
 
