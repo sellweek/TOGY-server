@@ -48,7 +48,7 @@ func Update(c util.Context) {
 
 	ui.FileType = p.FileType
 
-	conf, err := models.WasDownloadedBy(models.Config{}, client, c.Ac)
+	conf, err := models.WasDownloadedBy(new(models.Config), client, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -67,7 +67,7 @@ func Update(c util.Context) {
 		models.LogQueryTime(*p, client, models.UpdateNotification, c.Ac)
 	}
 	if ui.Config {
-		models.LogQueryTime(models.Config{}, client, models.UpdateNotification, c.Ac)
+		models.LogQueryTime(new(models.Config), client, models.UpdateNotification, c.Ac)
 	}
 
 }
@@ -103,16 +103,18 @@ func DownloadFinish(c util.Context) {
 
 //Serves the configuration.
 func GetConfig(c util.Context) {
-	conf, err := models.GetConfig(c.Ac)
-	if err != nil {
-		util.Log500(err, c)
-	}
-	fmt.Fprint(c.W, string(conf))
-	models.LogQueryTime(models.Config{}, c.R.FormValue("client"), models.DownloadStart, c.Ac)
+	/*
+		conf, err := models.GetConfig(c.Ac)
+		if err != nil {
+			util.Log500(err, c)
+		}
+		fmt.Fprint(c.W, string(conf))
+		models.LogQueryTime(models.Config{}, c.R.FormValue("client"), models.DownloadStart, c.Ac)
+	*/
 }
 
 //Used by clients in the same manner as DownloadFinish to inform 
 //that they have downloaded the configuration file.
 func GotConfig(c util.Context) {
-	models.LogQueryTime(models.Config{}, c.R.FormValue("client"), models.DownloadFinish, c.Ac)
+	models.LogQueryTime(new(models.Config), c.R.FormValue("client"), models.DownloadFinish, c.Ac)
 }

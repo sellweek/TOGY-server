@@ -7,6 +7,7 @@ import (
 	"models"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 	"util"
@@ -172,15 +173,39 @@ func ShowConfig(c util.Context) {
 	q := prepareQueryTimes(qts)
 
 	util.RenderLayout("config.html", "Konfigurácia obrazoviek", struct {
-		Conf     string
+		Conf     models.Config
 		Q        map[string][]time.Time
 		ZeroTime time.Time
-	}{string(conf), q, time.Date(0001, 01, 01, 00, 00, 00, 00, utc)}, c)
+	}{conf, q, time.Date(0001, 01, 01, 00, 00, 00, 00, utc)}, c)
 }
 
 //Handles saving the new configuration to Datastore.
 func SetConfig(c util.Context) {
-	err := models.SaveConfig([]byte(c.R.FormValue("config")), c.Ac)
+	var err error
+	conf := new(models.Config)
+	conf.StandardOn, err = time.Parse(models.ConfTimeFormat, c.R.FormValue("standardOn"))
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	conf.StandardOff, err = time.Parse(models.ConfTimeFormat, c.R.FormValue("standardOff"))
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	overrideState, err := strconv.Atoi(c.R.FormValue("overrideState"))
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	conf.OverrideState = int8(overrideState)
+
+	conf.UpdateInterval, err = strconv.Atoi(c.R.FormValue("updateInterval"))
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	err = conf.Save(c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -198,7 +223,11 @@ func Bootstrap(c util.Context) {
 		fmt.Fprintln(c.W, "Error with presentation: ", err)
 	}
 
-	err = models.SaveConfig([]byte("No config set"), c.Ac)
+	//	zeroTime := time.Date(0001, 01, 01, 00, 00, 00, 00, utc)
+
+	conf := new(models.Config)
+
+	err = conf.Save(c.Ac)
 
 	if err != nil {
 		fmt.Fprintln(c.W, "Error with config:", err)

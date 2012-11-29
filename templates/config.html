@@ -1,7 +1,8 @@
 <form method="POST" action="/admin/config">
-	<textarea name="config">
-		{{.Conf}}
-	</textarea><br>
+	Štandardné zapnutie: <input type="text" name="standardOn"><br>
+	Štandardné vypnutie: <input type="text" name="standardOff"><br>
+	Override: <input type="text" name="overrideState"><br>
+	Interval updatu: <input type="text" name="updateInterval"><br>
 	<input type="submit">
 </form>
 

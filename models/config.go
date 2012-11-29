@@ -3,6 +3,7 @@ package models
 import (
 	"appengine"
 	"appengine/datastore"
+	"fmt"
 	"time"
 )
 
@@ -13,6 +14,8 @@ const (
 	OverrideOff    = -1
 	NoOverride     = 0
 )
+
+var tz, _ = time.LoadLocation("UTC")
 
 //Config stores central configuration in Datastore.
 //There is always only one Config record in Datastore.
@@ -30,31 +33,31 @@ func (c Config) GetKey(ctx appengine.Context) (k *datastore.Key, err error) {
 }
 
 //SaveConfig saves data provided into the Config record.
-func (c Config) SaveConfig(ctx appengine.Context) (err error) {
+func (c *Config) Save(ctx appengine.Context) (err error) {
 	var key *datastore.Key
 	key, err = c.GetKey(ctx)
 	if err == datastore.Done {
+		ctx.Infof("Creating new config key")
 		key = datastore.NewIncompleteKey(ctx, "Config", nil)
 	} else if err != nil {
 		return
 	}
 
-	c.StandardOn = normalizeTime(standardOn)
-	c.StandardOff = normalizeTime(standardOff)
+	c.StandardOn = normalizeTime(c.StandardOn)
+	c.StandardOff = normalizeTime(c.StandardOff)
 
 	_, err = datastore.Put(ctx, key, c)
 	if err != nil {
-		return
+		return fmt.Errorf("Error when putting: %v", err)
 	}
 
-	DeleteQueryTimesFor(Config{}, ctx)
+	DeleteQueryTimesFor(&Config{}, ctx)
 	return
 }
 
 //GetConfig fetches the Config record from Datastore and
 //returns its data.
 func GetConfig(ctx appengine.Context) (c Config, err error) {
-	var conf Config
 	_, err = datastore.NewQuery("Config").Run(ctx).Next(&c)
 	if err != nil {
 		return
@@ -66,35 +69,37 @@ type TimeConfig struct {
 	Date time.Time
 	On   time.Time
 	Off  time.Time
-	Key  datastore.Key `datastore:"-"`
+	Key  string `datastore:"-"`
 }
 
-func NewTimeConfig(date, on, off time.Time) (tc TimeConfig) {
+func NewTimeConfig(date, on, off time.Time) (tc *TimeConfig) {
 	tc = new(TimeConfig)
-	tc.Date = date
-	tc.Off = off
-	tc.On = on
+	tc.Date = normalizeDate(date)
+	tc.Off = normalizeTime(off)
+	tc.On = normalizeTime(on)
 	return
 }
 
-func MakeTimeConfig(date, on, off time.Time, c appengine.Context) (tc TimeConfig, err error) {
+func MakeTimeConfig(date, on, off time.Time, c appengine.Context) (tc *TimeConfig, err error) {
 	tc = NewTimeConfig(date, on, off)
-	err = tc.Save()
+	err = tc.Save(c)
 	return
 }
 
 func (tc *TimeConfig) Save(c appengine.Context) (err error) {
+	tc.On = normalizeTime(tc.On)
+	tc.Off = normalizeTime(tc.Off)
+	tc.Date = normalizeDate(tc.Date)
+
 	var k *datastore.Key
-	if tc.Key == nil {
-		confKey, err := Config{}.GetKey(c)
+	if tc.Key == "" {
+		var confKey *datastore.Key
+		confKey, err = new(Config).GetKey(c)
 		if err != nil {
 			return
 		}
 
-		k, err = datastore.NewIncompleteKey(c, "TimeConfig", confKey)
-		if err != nil {
-			return
-		}
+		k = datastore.NewIncompleteKey(c, "TimeConfig", confKey)
 		tc.Key = k.Encode()
 	} else {
 		k, err = datastore.DecodeKey(tc.Key)
@@ -107,9 +112,9 @@ func (tc *TimeConfig) Save(c appengine.Context) (err error) {
 }
 
 func normalizeDate(t time.Time) time.Time {
-	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, Tz)
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)
 }
 
 func normalizeTime(t time.Time) time.Time {
-	return time.Date(0, 0, 0, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), Tz)
+	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), tz)
 }
