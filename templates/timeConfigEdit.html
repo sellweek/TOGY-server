@@ -1,0 +1,6 @@
+<form action="/admin/config/timeOverride/edit/{{if .}}{{.Key}}{{end}}" method="POST">
+	Dátum: <input type="text" name="date" id="date" value="{{if .}}{{.Date.Format "2006-1-2"}}{{end}}"><br>
+	Čas zapnutia: <input type="text" name="on" class="time" value="{{if .}}{{.On.Format "15:04"}}{{end}}"><br>
+	Čas vypnutia: <input type="text" name="off" class="time" value="{{if .}}{{.Off.Format "15:04"}}{{end}}"><br>
+	<input type="submit">
+</form>

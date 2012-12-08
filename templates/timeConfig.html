@@ -1,0 +1,37 @@
+{{template "configMenu.html"}}
+<table>
+	<th>
+		Dátum
+	</th>
+	<th>
+		Čas zapnutia
+	</th>
+	<th>
+		Čas vypnutia
+	</th>
+	<th>
+		Vymazať
+	</th>
+	{{range .}}
+	<tr>
+		<td>
+			<a href="/admin/config/timeOverride/edit/{{.Key}}">{{.Date.Format "2006-1-2"}}</a>
+		</td>
+		<td>
+			{{.On.Format "15:04"}}
+		</td>
+		<td>
+			{{.Off.Format "15:04"}}
+		</td>
+		<td>
+			<form method="POST" action="/admin/config/timeOverride/delete">
+				<input type="hidden" name="key" value="{{.Key}}">
+				<input type="submit" value="Vymazať">
+			</form>
+		</td>
+	</tr>
+	{{end}}
+</table>
+<a href="/admin/config/timeOverride/edit">
+	Pridať novú
+</a>
