@@ -109,6 +109,9 @@ func GetConfig(c util.Context) {
 		return
 	}
 	fmt.Fprint(c.W, string(json))
+	if client := c.R.FormValue("client"); client != "" {
+		models.LogQueryTime(&models.Config{}, client, models.DownloadStart, c.Ac)
+	}
 }
 
 //Used by clients in the same manner as DownloadFinish to inform 

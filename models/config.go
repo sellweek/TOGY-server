@@ -109,6 +109,7 @@ func (tc *TimeConfig) Save(c appengine.Context) (err error) {
 		}
 	}
 	_, err = datastore.Put(c, k, tc)
+	DeleteQueryTimesFor(&Config{}, c)
 	return
 }
 
