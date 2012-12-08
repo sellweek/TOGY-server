@@ -103,14 +103,12 @@ func DownloadFinish(c util.Context) {
 
 //Serves the configuration.
 func GetConfig(c util.Context) {
-	/*
-		conf, err := models.GetConfig(c.Ac)
-		if err != nil {
-			util.Log500(err, c)
-		}
-		fmt.Fprint(c.W, string(conf))
-		models.LogQueryTime(models.Config{}, c.R.FormValue("client"), models.DownloadStart, c.Ac)
-	*/
+	json, err := models.ConfigJSON(c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	fmt.Fprint(c.W, string(json))
 }
 
 //Used by clients in the same manner as DownloadFinish to inform 

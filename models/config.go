@@ -3,6 +3,7 @@ package models
 import (
 	"appengine"
 	"appengine/datastore"
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -149,6 +150,47 @@ func GetTimeConfig(key string, c appengine.Context) (tc *TimeConfig, err error) 
 		return
 	}
 	tc.Key = key
+	return
+}
+
+func ConfigJSON(c appengine.Context) (js []byte, err error) {
+	j := make(map[string]interface{})
+	conf, err := GetConfig(c)
+	if err != nil {
+		return
+	}
+
+	tcs, err := GetTimeConfigs(c)
+	if err != nil {
+		return
+	}
+
+	j["StandardTimeSettings"] = map[string]string{
+		"TurnOn":  conf.StandardOn.Format(ConfTimeFormat),
+		"TurnOff": conf.StandardOff.Format(ConfTimeFormat),
+	}
+	j["UpdateInterval"] = conf.UpdateInterval
+	switch conf.OverrideState {
+	case NoOverride:
+		j["OverrideOn"] = false
+		j["OverrideOff"] = false
+	case OverrideOn:
+		j["OverrideOn"] = true
+		j["OverrideOff"] = false
+	case OverrideOff:
+		j["OverrideOn"] = false
+		j["OverrideOff"] = true
+	}
+	for _, tc := range tcs {
+		timeMap := make(map[string]string)
+		timeMap["TurnOn"] = tc.On.Format(ConfTimeFormat)
+		timeMap["TurnOff"] = tc.Off.Format(ConfTimeFormat)
+
+		j["OverrideDays"] = make(map[string]map[string]string)
+		j["OverrideDays"].(map[string]map[string]string)[tc.Date.Format(ConfDateFormat)] = timeMap
+	}
+
+	js, err = json.Marshal(j)
 	return
 }
 
