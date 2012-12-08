@@ -21,6 +21,13 @@ func init() {
 	r.HandleFunc("/admin/archive/{id}", util.Handler(controllers.Presentation))
 	r.HandleFunc("/admin/config", util.Handler(controllers.ShowConfig)).Methods("GET")
 	r.HandleFunc("/admin/config", util.Handler(controllers.SetConfig)).Methods("POST")
+	r.HandleFunc("/admin/config/timeOverride", util.Handler(controllers.TimeOverride))
+	r.HandleFunc("/admin/config/timeOverride/edit/{id}", util.Handler(controllers.TimeOverrideEdit)).Methods("GET")
+	r.HandleFunc("/admin/config/timeOverride/edit", util.Handler(controllers.TimeOverrideEdit)).Methods("GET")
+	r.HandleFunc("/admin/config/timeOverride/edit/{id}", util.Handler(controllers.TimeOverrideSubmit)).Methods("POST")
+	r.HandleFunc("/admin/config/timeOverride/edit/", util.Handler(controllers.TimeOverrideSubmit)).Methods("POST")
+	r.HandleFunc("/admin/config/timeOverride/delete", util.Handler(controllers.TimeOverrideDelete)).Methods("POST")
+
 	//Functions used by the clients
 	r.HandleFunc("/download", util.Handler(controllers.Download))
 	r.HandleFunc("/downloadComplete", util.Handler(controllers.DownloadFinish))

@@ -176,7 +176,7 @@ func ShowConfig(c util.Context) {
 		Conf     models.Config
 		Q        map[string][]time.Time
 		ZeroTime time.Time
-	}{conf, q, time.Date(0001, 01, 01, 00, 00, 00, 00, utc)}, c)
+	}{conf, q, time.Date(0001, 01, 01, 00, 00, 00, 00, utc)}, c, "/static/js/jquery-1.8.3.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker.js", "/static/js/config.js")
 }
 
 //Handles saving the new configuration to Datastore.
@@ -193,12 +193,11 @@ func SetConfig(c util.Context) {
 		util.Log500(err, c)
 		return
 	}
-	overrideState, err := strconv.Atoi(c.R.FormValue("overrideState"))
+	conf.OverrideState, err = strconv.Atoi(c.R.FormValue("overrideState"))
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
-	conf.OverrideState = int8(overrideState)
 
 	conf.UpdateInterval, err = strconv.Atoi(c.R.FormValue("updateInterval"))
 	if err != nil {
@@ -211,6 +210,75 @@ func SetConfig(c util.Context) {
 		return
 	}
 	http.Redirect(c.W, c.R, "/admin/config", 301)
+}
+
+func TimeOverride(c util.Context) {
+	tcs, err := models.GetTimeConfigs(c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	util.RenderLayout("timeConfig.html", "Zoznam časových výnimiek", tcs, c)
+}
+
+func TimeOverrideEdit(c util.Context) {
+	var tc *models.TimeConfig
+	var err error
+	if key := c.Vars["id"]; key == "" {
+		tc = nil
+	} else {
+		tc, err = models.GetTimeConfig(key, c.Ac)
+		if err != nil {
+			util.Log500(err, c)
+			return
+		}
+	}
+	util.RenderLayout("timeConfigEdit.html", "Úprava výnimky", tc, c, "/static/js/jquery-1.8.3.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker.js", "/static/js/editTC.js")
+
+}
+
+func TimeOverrideSubmit(c util.Context) {
+	date, err := time.Parse(models.ConfDateFormat, c.R.FormValue("date"))
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	on, err := time.Parse(models.ConfTimeFormat, c.R.FormValue("on"))
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	off, err := time.Parse(models.ConfTimeFormat, c.R.FormValue("off"))
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	tc := models.NewTimeConfig(date, on, off)
+	tc.Key = c.Vars["id"]
+	err = tc.Save(c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	http.Redirect(c.W, c.R, "/admin/config/timeOverride", 301)
+}
+
+//Handles deleting of a time override.
+func TimeOverrideDelete(c util.Context) {
+	key := c.R.FormValue("key")
+	tc, err := models.GetTimeConfig(key, c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	err = tc.Delete(c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	http.Redirect(c.W, c.R, "/admin/config/timeOverride", 301)
 }
 
 //Inserts fake presentation and config into datastore.

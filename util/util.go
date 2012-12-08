@@ -14,6 +14,17 @@ const (
 	t          = "templates/"     //Directory with templates
 )
 
+var templates *template.Template
+
+func init() {
+	temp := template.New("").Funcs(template.FuncMap{
+		"equal": func(x, y int) bool {
+			return x == y
+		}})
+	// List of template files. When creating new template, add it here.
+	templates = template.Must(temp.ParseFiles(t+"admin.html", t+"layout/header.html", t+"layout/footer.html", t+"archive.html", t+"presentation.html", t+"config.html", t+"layout/configMenu.html", t+"timeConfig.html", t+"timeConfigEdit.html"))
+}
+
 //Type used for passing data to handlers
 type Context struct {
 	Ac   appengine.Context
@@ -30,9 +41,6 @@ func Handler(hand func(Context)) http.HandlerFunc {
 		hand(Context{Ac: ac, W: w, R: r, Vars: vars})
 	}
 }
-
-// List of template files. When creating new template, add it here.
-var templates = template.Must(template.ParseFiles(t+"admin.html", t+"layout/header.html", t+"layout/footer.html", t+"archive.html", t+"presentation.html", t+"config.html"))
 
 //Sends an Internal Server Error to user with error message from the error.
 func Log500(err error, c Context) {

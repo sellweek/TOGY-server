@@ -22,7 +22,7 @@ var tz, _ = time.LoadLocation("UTC")
 type Config struct {
 	StandardOn     time.Time
 	StandardOff    time.Time
-	OverrideState  int8
+	OverrideState  int
 	UpdateInterval int
 }
 
@@ -108,6 +108,47 @@ func (tc *TimeConfig) Save(c appengine.Context) (err error) {
 		}
 	}
 	_, err = datastore.Put(c, k, tc)
+	return
+}
+
+func (tc *TimeConfig) Delete(c appengine.Context) (err error) {
+	k, err := datastore.DecodeKey(tc.Key)
+	if err != nil {
+		return
+	}
+
+	err = datastore.Delete(c, k)
+	if err != nil {
+		return
+	}
+	tc.Key = ""
+
+	return
+}
+
+func GetTimeConfigs(c appengine.Context) (tcs []*TimeConfig, err error) {
+	keys, err := datastore.NewQuery("TimeConfig").GetAll(c, &tcs)
+	if err != nil {
+		return
+	}
+	for i, k := range keys {
+		tcs[i].Key = k.Encode()
+	}
+	return
+}
+
+//GetTimeConfig gets the TimeConfig with given key from Datastore and returns a pointer to it.
+func GetTimeConfig(key string, c appengine.Context) (tc *TimeConfig, err error) {
+	k, err := datastore.DecodeKey(key)
+	if err != nil {
+		return
+	}
+	tc = new(TimeConfig)
+	err = datastore.Get(c, k, tc)
+	if err != nil {
+		return
+	}
+	tc.Key = key
 	return
 }
 

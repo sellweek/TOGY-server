@@ -4,6 +4,7 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<link rel="stylesheet" href="/static/css/screen.css" type="text/css" media="screen, projection">
 	<link rel="stylesheet" href="/static/css/print.css" type="text/css" media="print"> 
+	<link rel="stylesheet" href="/static/css/jquery-ui-1.9.2.custom.min.css" type="text/css">
 	<link rel="stylesheet" href="/static/css/custom.css" type="text/css">
 	<!--[if lt IE 8]>
   		<link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection">
@@ -14,9 +15,9 @@
 </head>
 <body>
 	<div id="titlebar">
-		TOGY - {{.}}
+		TOGY - {{.Title}}
 	</div>
-	<div id="menu">
+	<div id="centralMenu" class="menu">
 		<a href="/admin">Nahrať novú</a> 
 		<a href="/admin/archive">Archív prezentácií</a> 
 		<a href="/admin/config">Konfigurácia</a>
