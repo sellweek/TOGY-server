@@ -26,11 +26,11 @@ func (at ActionType) String() string {
 	return "Unknown action"
 }
 
-//QueryTime (better name would be Action, but it would be hard to change it now)
+//Action (better name would be Action, but it would be hard to change it now)
 //is a type used for recording whe time when clients
 //did an action specified by the ActionType.
-type QueryTime struct {
-	Action       ActionType     //The action client did
+type Action struct {
+	Type         ActionType     //Type of action
 	Client       string         //Name of the client
 	Time         time.Time      //Time of the action
 	Presentation *datastore.Key //What object is the action related to.
@@ -42,82 +42,82 @@ type Model interface {
 	GetKey(appengine.Context) (*datastore.Key, error)
 }
 
-func (qt QueryTime) GetKey() (k *datastore.Key, err error) {
-	k, err = datastore.DecodeKey(qt.Key)
+func (a Action) GetKey() (k *datastore.Key, err error) {
+	k, err = datastore.DecodeKey(a.Key)
 	return
 }
 
-//NewQueryTime returns a pointer to a QueryTime with its fields set according
+//Newreturns a pointer to an action with its fields set according
 //to arguments.
-func NewQueryTime(k *datastore.Key, at ActionType, client string) (qt *QueryTime) {
-	qt = new(QueryTime)
-	qt.Presentation = k
-	qt.Action = at
-	qt.Client = client
-	qt.Time = time.Now()
-	return qt
+func New(k *datastore.Key, at ActionType, client string) (a *Action) {
+	a = new(Action)
+	a.Presentation = k
+	a.Type = at
+	a.Client = client
+	a.Time = time.Now()
+	return a
 }
 
-//MakeQueryTime creates a new QueryTime using NewQueryTime and then saves
+//Make creates a new Action using New and then saves
 //it to Datastore.
-func MakeQueryTime(m Model, at ActionType, client string, c appengine.Context) (qt *QueryTime, err error) {
+func Make(m Model, at ActionType, client string, c appengine.Context) (a *Action, err error) {
 	k, err := m.GetKey(c)
 	if err != nil {
 		return
 	}
-	qt = NewQueryTime(k, at, client)
-	err = qt.Save(c)
+	a = New(k, at, client)
+	err = a.Save(c)
 	return
 }
 
-//Save saves a QuryTime to Datastore.
+//Save saves an Action to Datastore.
 //If its Key field is set, it will use it, replacing
 //existing records. If not, it will use datastore.NewIncompleteKey()
 //to create a new key and set the field.
-func (qt *QueryTime) Save(c appengine.Context) (err error) {
-	if qt.Key == "" {
+func (a *Action) Save(c appengine.Context) (err error) {
+	if a.Key == "" {
 		var key *datastore.Key
-		key, err = datastore.Put(c, datastore.NewIncompleteKey(c, "QueryTime", qt.Presentation), qt)
-		qt.Key = key.Encode()
+		key, err = datastore.Put(c, datastore.NewIncompleteKey(c, "Action", a.Presentation), a)
+		a.Key = key.Encode()
 		return
 	} else {
 		var key *datastore.Key
-		key, err = datastore.DecodeKey(qt.Key)
+		key, err = datastore.DecodeKey(a.Key)
 		if err != nil {
 			return
 		}
-		_, err = datastore.Put(c, key, qt)
+		_, err = datastore.Put(c, key, a)
 	}
 	return
 }
 
-//Functions like MakeQueryTime but logs errors instead of returning them.
-func LogQueryTime(m Model, client string, at ActionType, c appengine.Context) {
+//Works like Make but logs errors instead of returning them.
+func LogAction(m Model, client string, at ActionType, c appengine.Context) {
 	if client == "" {
 		c.Infof("%v called without client name.", at)
 		return
 	}
 
-	_, err := MakeQueryTime(m, at, client, c)
+	_, err := Make(m, at, client, c)
 	if err != nil {
-		c.Infof("Can't log QueryTime to Datastore: %v", err)
+		c.Infof("Can't log Action to Datastore: %v", err)
 	}
 }
 
-//GetQueryTimes returns a slice containing all the QueryTimes for
+//GetFor returns a slice containing all the Actions for
 //a given Model.
-func GetQueryTimes(m Model, c appengine.Context) (qts []QueryTime, err error) {
+func GetFor(m Model, c appengine.Context) (as []Action, err error) {
 	key, err := m.GetKey(c)
 	if err != nil {
 		return
 	}
-	qts = make([]QueryTime, 12)
-	keys, err := datastore.NewQuery("QueryTime").Ancestor(key).GetAll(c, &qts)
+	as = make([]Action, 12)
+	keys, err := datastore.NewQuery("Action").Ancestor(key).GetAll(c, &as)
 	if err != nil {
 		return
 	}
 	for i := range keys {
-		qts[i].Key = keys[i].Encode()
+		as[i].Key = keys[i].Encode()
 	}
 	return
 }
@@ -128,7 +128,7 @@ func GetDownloadCount(m Model, c appengine.Context) (count int, err error) {
 	if err != nil {
 		return
 	}
-	count, err = datastore.NewQuery("QueryTime").Ancestor(key).Filter("Action =", DownloadFinish).Count(c)
+	count, err = datastore.NewQuery("Action").Ancestor(key).Filter("Type =", DownloadFinish).Count(c)
 	return
 }
 
@@ -139,7 +139,7 @@ func WasDownloadedBy(m Model, client string, c appengine.Context) (bool, error) 
 	if err != nil {
 		return false, err
 	}
-	i := datastore.NewQuery("QueryTime").Ancestor(key).Filter("Client =", client).Filter("Action =", DownloadFinish).KeysOnly().Run(c)
+	i := datastore.NewQuery("Action").Ancestor(key).Filter("Client =", client).Filter("Type =", DownloadFinish).KeysOnly().Run(c)
 	_, err = i.Next(nil)
 	if err == datastore.Done {
 		return false, nil
@@ -147,14 +147,14 @@ func WasDownloadedBy(m Model, client string, c appengine.Context) (bool, error) 
 	return true, err
 }
 
-//DeleteQueryTimesFor deletes all the QueryTimes for a specified Model.
-func DeleteQueryTimesFor(m Model, c appengine.Context) (err error) {
+//DeleteFor deletes all Actions for a specified Model.
+func DeleteFor(m Model, c appengine.Context) (err error) {
 	var keys []*datastore.Key
 	key, err := m.GetKey(c)
 	if err != nil {
 		return
 	}
-	keys, err = datastore.NewQuery("QueryTime").Ancestor(key).KeysOnly().GetAll(c, nil)
+	keys, err = datastore.NewQuery("Action").Ancestor(key).KeysOnly().GetAll(c, nil)
 	if err != nil {
 		return
 	}
