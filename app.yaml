@@ -1,5 +1,5 @@
-application: sellweek-testing
-version: 4
+application: togpm5
+version: 5
 runtime: go
 api_version: go1
 

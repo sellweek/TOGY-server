@@ -1,5 +1,5 @@
 //Package models provides models used in application.
-package models
+package presentation
 
 import (
 	"appengine"
