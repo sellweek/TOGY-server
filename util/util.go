@@ -102,3 +102,11 @@ func Round(x float64, prec int) float64 {
 
 	return rounder / float64(pow)
 }
+
+func NormalizeDate(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)
+}
+
+func NormalizeTime(t time.Time) time.Time {
+	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), tz)
+}
