@@ -122,13 +122,13 @@ func GetFor(m Model, c appengine.Context) (as []Action, err error) {
 	return
 }
 
-//GetDownloadCount returns how many times given Model was downloaded.
-func GetDownloadCount(m Model, c appengine.Context) (count int, err error) {
+//GetDownloadCount returns how many times given ActionType was performed on a Model.
+func GetCountFor(at ActionType, m Model, c appengine.Context) (count int, err error) {
 	key, err := m.GetKey(c)
 	if err != nil {
 		return
 	}
-	count, err = datastore.NewQuery("Action").Ancestor(key).Filter("Type =", DownloadFinish).Count(c)
+	count, err = datastore.NewQuery("Action").Ancestor(key).Filter("Type =", at).Count(c)
 	return
 }
 
