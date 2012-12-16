@@ -4,7 +4,10 @@ import (
 	"appengine/blobstore"
 	"appengine/datastore"
 	"fmt"
-	"models"
+	"models/action"
+	"models/configuration/config"
+	"models/configuration/timeConfig"
+	"models/presentation"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -18,7 +21,7 @@ var utc, _ = time.LoadLocation("UTC")
 
 //Handles the new presentation upload page.
 func Admin(c util.Context) {
-	p, err := models.GetActive(c.Ac)
+	p, err := presentation.GetActive(c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -63,7 +66,7 @@ func Upload(c util.Context) {
 		name = "Neznáma prezentácia z " + time.Now().Format("2.1.2006")
 	}
 
-	_, err = models.Make(blob.BlobKey, fileType, name, active, c.Ac)
+	_, err = presentation.Make(blob.BlobKey, fileType, name, active, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 	}
@@ -74,10 +77,10 @@ func Upload(c util.Context) {
 //Handles showing listing of presentations.
 func Archive(c util.Context) {
 	type tmplData struct {
-		P *models.Presentation
+		P *presentation.Presentation
 		C int
 	}
-	ps, err := models.GetAll(c.Ac)
+	ps, err := presentation.GetAll(c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -85,7 +88,7 @@ func Archive(c util.Context) {
 
 	downloads := make([]tmplData, 0)
 	for _, p := range ps {
-		count, err := models.GetDownloadCount(p, c.Ac)
+		count, err := action.GetCountFor(action.DownloadFinish, p, c.Ac)
 		if err != nil {
 			c.Ac.Infof("Error when getting download count: %v", err)
 			count = -1
@@ -97,21 +100,21 @@ func Archive(c util.Context) {
 
 //Handles showing page with details about a presentation.
 func Presentation(c util.Context) {
-	p, err := models.GetByKey(c.Vars["id"], c.Ac)
+	p, err := presentation.GetByKey(c.Vars["id"], c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
-	qts, err := models.GetQueryTimes(p, c.Ac)
+	as, err := action.GetFor(p, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
 
-	q := prepareQueryTimes(qts)
+	a := prepareActions(as)
 
 	secs := make([]float64, 0)
-	for _, t := range q {
+	for _, t := range a {
 		dur := t[2].Sub(t[1])
 		secs = append(secs, dur.Seconds())
 	}
@@ -119,17 +122,17 @@ func Presentation(c util.Context) {
 	avgDL := util.Round(util.Average(secs...), 2)
 
 	util.RenderLayout("presentation.html", "Info o prezentácií", struct {
-		P        *models.Presentation
-		Q        map[string][]time.Time
+		P        *presentation.Presentation
+		A        map[string][]time.Time
 		ZeroTime time.Time
 		Avg      float64
-	}{p, q, time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL}, c)
+	}{p, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL}, c)
 }
 
 //Handles activation of presentation.
 func Activate(c util.Context) {
 	key := c.R.FormValue("id")
-	p, err := models.GetByKey(key, c.Ac)
+	p, err := presentation.GetByKey(key, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -142,7 +145,7 @@ func Activate(c util.Context) {
 //Handles deleting of presentation.
 func Delete(c util.Context) {
 	key := c.R.FormValue("id")
-	p, err := models.GetByKey(key, c.Ac)
+	p, err := presentation.GetByKey(key, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -158,37 +161,37 @@ func Delete(c util.Context) {
 //Handles showing the page in which user can see and edit
 //the central configuration for clients.
 func ShowConfig(c util.Context) {
-	conf, err := models.GetConfig(c.Ac)
+	conf, err := config.Get(c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
 
-	qts, err := models.GetQueryTimes(&models.Config{}, c.Ac)
+	as, err := action.GetFor(&config.Config{}, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
 
-	q := prepareQueryTimes(qts)
+	a := prepareActions(as)
 
 	util.RenderLayout("config.html", "Konfigurácia obrazoviek", struct {
-		Conf     models.Config
-		Q        map[string][]time.Time
+		Conf     config.Config
+		A        map[string][]time.Time
 		ZeroTime time.Time
-	}{conf, q, time.Date(0001, 01, 01, 00, 00, 00, 00, utc)}, c, "/static/js/jquery-1.8.3.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker.js", "/static/js/config.js")
+	}{conf, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc)}, c, "/static/js/jquery-1.8.3.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker.js", "/static/js/config.js")
 }
 
 //Handles saving the new configuration to Datastore.
 func SetConfig(c util.Context) {
 	var err error
-	conf := new(models.Config)
-	conf.StandardOn, err = time.Parse(models.ConfTimeFormat, c.R.FormValue("standardOn"))
+	conf := new(config.Config)
+	conf.StandardOn, err = time.Parse(config.ConfTimeFormat, c.R.FormValue("standardOn"))
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
-	conf.StandardOff, err = time.Parse(models.ConfTimeFormat, c.R.FormValue("standardOff"))
+	conf.StandardOff, err = time.Parse(config.ConfTimeFormat, c.R.FormValue("standardOff"))
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -213,7 +216,7 @@ func SetConfig(c util.Context) {
 }
 
 func TimeOverride(c util.Context) {
-	tcs, err := models.GetTimeConfigs(c.Ac)
+	tcs, err := timeConfig.GetAll(c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -222,12 +225,12 @@ func TimeOverride(c util.Context) {
 }
 
 func TimeOverrideEdit(c util.Context) {
-	var tc *models.TimeConfig
+	var tc *timeConfig.TimeConfig
 	var err error
 	if key := c.Vars["id"]; key == "" {
 		tc = nil
 	} else {
-		tc, err = models.GetTimeConfig(key, c.Ac)
+		tc, err = timeConfig.GetByKey(key, c.Ac)
 		if err != nil {
 			util.Log500(err, c)
 			return
@@ -238,24 +241,24 @@ func TimeOverrideEdit(c util.Context) {
 }
 
 func TimeOverrideSubmit(c util.Context) {
-	date, err := time.Parse(models.ConfDateFormat, c.R.FormValue("date"))
+	date, err := time.Parse(config.ConfDateFormat, c.R.FormValue("date"))
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
 
-	on, err := time.Parse(models.ConfTimeFormat, c.R.FormValue("on"))
+	on, err := time.Parse(config.ConfTimeFormat, c.R.FormValue("on"))
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
 
-	off, err := time.Parse(models.ConfTimeFormat, c.R.FormValue("off"))
+	off, err := time.Parse(config.ConfTimeFormat, c.R.FormValue("off"))
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
-	tc := models.NewTimeConfig(date, on, off)
+	tc := timeConfig.New(date, on, off)
 	tc.Key = c.Vars["id"]
 	err = tc.Save(c.Ac)
 	if err != nil {
@@ -268,7 +271,7 @@ func TimeOverrideSubmit(c util.Context) {
 //Handles deleting of a time override.
 func TimeOverrideDelete(c util.Context) {
 	key := c.R.FormValue("key")
-	tc, err := models.GetTimeConfig(key, c.Ac)
+	tc, err := timeConfig.GetByKey(key, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -285,7 +288,7 @@ func TimeOverrideDelete(c util.Context) {
 //Used when the system doesn't have any presentation inserted
 //and is in an inconsistent state because of that.
 func Bootstrap(c util.Context) {
-	p := models.New("test", "xxx", "DO NOT USE! DO NOT ACTIVATE IF YOU DON'T KNOW WHAT YOU'RE DOING", true)
+	p := presentation.New("test", "xxx", "DO NOT USE! DO NOT ACTIVATE IF YOU DON'T KNOW WHAT YOU'RE DOING", true)
 	_, err := datastore.Put(c.Ac, datastore.NewIncompleteKey(c.Ac, "Presentation", nil), p)
 	if err != nil {
 		fmt.Fprintln(c.W, "Error with presentation: ", err)
@@ -293,7 +296,7 @@ func Bootstrap(c util.Context) {
 
 	//	zeroTime := time.Date(0001, 01, 01, 00, 00, 00, 00, utc)
 
-	conf := new(models.Config)
+	conf := new(config.Config)
 
 	err = conf.Save(c.Ac)
 
@@ -303,14 +306,14 @@ func Bootstrap(c util.Context) {
 	fmt.Fprint(c.W, "Do not start any clients until you have replaced this presentation.")
 }
 
-func prepareQueryTimes(qts []models.QueryTime) map[string][]time.Time {
-	q := make(map[string][]time.Time)
+func prepareActions(as []action.Action) map[string][]time.Time {
+	a := make(map[string][]time.Time)
 
-	for _, v := range qts {
-		if q[v.Client] == nil {
-			q[v.Client] = make([]time.Time, 3, 3)
+	for _, v := range as {
+		if a[v.Client] == nil {
+			a[v.Client] = make([]time.Time, 3, 3)
 		}
-		q[v.Client][int(v.Action)] = v.Time
+		a[v.Client][int(v.Type)] = v.Time
 	}
-	return q
+	return a
 }

@@ -6,6 +6,7 @@ import (
 	"appengine/blobstore"
 	"appengine/datastore"
 	"fmt"
+	"models/action"
 	"time"
 )
 
@@ -89,7 +90,7 @@ func (p *Presentation) Save(c appengine.Context) (err error) {
 			if err != nil {
 				return
 			}
-			DeleteQueryTimesFor(p, c)
+			action.DeleteFor(p, c)
 		}
 		_, err = datastore.Put(c, k, p)
 		if err != nil {

@@ -47,7 +47,7 @@ func (a Action) GetKey() (k *datastore.Key, err error) {
 	return
 }
 
-//Newreturns a pointer to an action with its fields set according
+//New returns a pointer to an action with its fields set according
 //to arguments.
 func New(k *datastore.Key, at ActionType, client string) (a *Action) {
 	a = new(Action)
@@ -91,8 +91,8 @@ func (a *Action) Save(c appengine.Context) (err error) {
 	return
 }
 
-//Works like Make but logs errors instead of returning them.
-func LogAction(m Model, client string, at ActionType, c appengine.Context) {
+//Log works like Make but logs errors instead of returning them.
+func Log(m Model, client string, at ActionType, c appengine.Context) {
 	if client == "" {
 		c.Infof("%v called without client name.", at)
 		return

@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"math"
 	"net/http"
+	"time"
 )
 
 const (
@@ -15,6 +16,7 @@ const (
 )
 
 var templates *template.Template
+var Tz, _ = time.LoadLocation("UTC")
 
 func init() {
 	temp := template.New("").Funcs(template.FuncMap{
@@ -104,9 +106,9 @@ func Round(x float64, prec int) float64 {
 }
 
 func NormalizeDate(t time.Time) time.Time {
-	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, Tz)
 }
 
 func NormalizeTime(t time.Time) time.Time {
-	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), tz)
+	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), Tz)
 }

@@ -5,7 +5,10 @@ import (
 	"appengine/blobstore"
 	"encoding/json"
 	"fmt"
-	"models"
+	"models/action"
+	"models/configuration"
+	"models/configuration/config"
+	"models/presentation"
 	"util"
 )
 
@@ -33,13 +36,13 @@ func Update(c util.Context) {
 
 	client := c.R.FormValue("client")
 
-	p, err := models.GetActive(c.Ac)
+	p, err := presentation.GetActive(c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
 
-	bc, err := models.WasDownloadedBy(p, client, c.Ac)
+	bc, err := action.WasDownloadedBy(p, client, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -48,7 +51,7 @@ func Update(c util.Context) {
 
 	ui.FileType = p.FileType
 
-	conf, err := models.WasDownloadedBy(new(models.Config), client, c.Ac)
+	conf, err := action.WasDownloadedBy(new(config.Config), client, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -64,10 +67,10 @@ func Update(c util.Context) {
 	fmt.Fprint(c.W, string(data))
 
 	if ui.Broadcast {
-		models.LogQueryTime(*p, client, models.UpdateNotification, c.Ac)
+		action.Log(*p, client, action.UpdateNotification, c.Ac)
 	}
 	if ui.Config {
-		models.LogQueryTime(new(models.Config), client, models.UpdateNotification, c.Ac)
+		action.Log(new(config.Config), client, action.UpdateNotification, c.Ac)
 	}
 
 }
@@ -75,13 +78,13 @@ func Update(c util.Context) {
 //Serves the broadcast from blobstore.
 func Download(c util.Context) {
 	id := c.R.FormValue("id")
-	var p *models.Presentation
+	var p *presentation.Presentation
 	var err error
 	if id == "" {
-		p, err = models.GetActive(c.Ac)
-		models.LogQueryTime(*p, c.R.FormValue("client"), models.DownloadStart, c.Ac)
+		p, err = presentation.GetActive(c.Ac)
+		action.Log(*p, c.R.FormValue("client"), action.DownloadStart, c.Ac)
 	} else {
-		p, err = models.GetByKey(id, c.Ac)
+		p, err = presentation.GetByKey(id, c.Ac)
 	}
 	if err != nil {
 		util.Log500(err, c)
@@ -93,29 +96,29 @@ func Download(c util.Context) {
 //Clients call it with ther ID to inform the server
 //that they have finished downloading the broadcast.
 func DownloadFinish(c util.Context) {
-	p, err := models.GetActive(c.Ac)
+	p, err := presentation.GetActive(c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
-	models.LogQueryTime(*p, c.R.FormValue("client"), models.DownloadFinish, c.Ac)
+	action.Log(*p, c.R.FormValue("client"), action.DownloadFinish, c.Ac)
 }
 
 //Serves the configuration.
 func GetConfig(c util.Context) {
-	json, err := models.ConfigJSON(c.Ac)
+	json, err := configuration.JSON(c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
 	fmt.Fprint(c.W, string(json))
 	if client := c.R.FormValue("client"); client != "" {
-		models.LogQueryTime(&models.Config{}, client, models.DownloadStart, c.Ac)
+		action.Log(&config.Config{}, client, action.DownloadStart, c.Ac)
 	}
 }
 
 //Used by clients in the same manner as DownloadFinish to inform 
 //that they have downloaded the configuration file.
 func GotConfig(c util.Context) {
-	models.LogQueryTime(new(models.Config), c.R.FormValue("client"), models.DownloadFinish, c.Ac)
+	action.Log(new(config.Config), c.R.FormValue("client"), action.DownloadFinish, c.Ac)
 }
