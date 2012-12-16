@@ -30,11 +30,11 @@ func (at ActionType) String() string {
 //is a type used for recording whe time when clients
 //did an action specified by the ActionType.
 type Action struct {
-	Type         ActionType     //Type of action
-	Client       string         //Name of the client
-	Time         time.Time      //Time of the action
-	Presentation *datastore.Key //What object is the action related to.
-	Key          string         `datastore:"-"`
+	Type   ActionType     //Type of action
+	Client string         //Name of the client
+	Time   time.Time      //Time of the action
+	Model  *datastore.Key //What object is the action related to.
+	Key    string         `datastore:"-"`
 }
 
 //Model is an nterface specifying models - structs which Datastore keys can be obtained.
@@ -51,7 +51,7 @@ func (a Action) GetKey() (k *datastore.Key, err error) {
 //to arguments.
 func New(k *datastore.Key, at ActionType, client string) (a *Action) {
 	a = new(Action)
-	a.Presentation = k
+	a.Model = k
 	a.Type = at
 	a.Client = client
 	a.Time = time.Now()
@@ -77,7 +77,7 @@ func Make(m Model, at ActionType, client string, c appengine.Context) (a *Action
 func (a *Action) Save(c appengine.Context) (err error) {
 	if a.Key == "" {
 		var key *datastore.Key
-		key, err = datastore.Put(c, datastore.NewIncompleteKey(c, "Action", a.Presentation), a)
+		key, err = datastore.Put(c, datastore.NewIncompleteKey(c, "Action", a.Model), a)
 		a.Key = key.Encode()
 		return
 	} else {
