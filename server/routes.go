@@ -17,7 +17,6 @@ func init() {
 	r.HandleFunc("/admin/archive", util.Handler(controllers.Archive))
 	r.HandleFunc("/admin/activate", util.Handler(controllers.Activate)).Methods("POST")
 	r.HandleFunc("/admin/delete", util.Handler(controllers.Delete)).Methods("POST")
-	r.HandleFunc("/admin/bootstrap", util.Handler(controllers.Bootstrap))
 	r.HandleFunc("/admin/archive/{id}", util.Handler(controllers.Presentation))
 	r.HandleFunc("/admin/config", util.Handler(controllers.ShowConfig)).Methods("GET")
 	r.HandleFunc("/admin/config", util.Handler(controllers.SetConfig)).Methods("POST")
@@ -27,6 +26,10 @@ func init() {
 	r.HandleFunc("/admin/config/timeOverride/edit/{id}", util.Handler(controllers.TimeOverrideSubmit)).Methods("POST")
 	r.HandleFunc("/admin/config/timeOverride/edit/", util.Handler(controllers.TimeOverrideSubmit)).Methods("POST")
 	r.HandleFunc("/admin/config/timeOverride/delete", util.Handler(controllers.TimeOverrideDelete)).Methods("POST")
+
+	//Auxiliary admin routes
+	r.HandleFunc("/admin/bootstrap", util.Handler(controllers.Bootstrap))
+	r.HandleFunc("/admin/migrate", util.Handler(controllers.Migrate))
 
 	//Functions used by the clients
 	r.HandleFunc("/download", util.Handler(controllers.Download))

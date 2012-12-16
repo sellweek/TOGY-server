@@ -306,6 +306,40 @@ func Bootstrap(c util.Context) {
 	fmt.Fprint(c.W, "Do not start any clients until you have replaced this presentation.")
 }
 
+func Migrate(c util.Context) {
+	type queryTime struct {
+		Action       action.ActionType
+		Presentation *datastore.Key
+		Time         time.Time
+		Client       string
+	}
+	ps, err := presentation.GetAll(c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	for _, p := range ps {
+		pKey, _ := datastore.DecodeKey(p.Key)
+		qts := make([]queryTime, 15)
+		_, err := datastore.NewQuery("QueryTime").Ancestor(pKey).GetAll(c.Ac, &qts)
+		if err != nil {
+			util.Log500(err, c)
+			return
+		}
+
+		for _, q := range qts {
+			a := action.New(q.Presentation, q.Action, q.Client)
+			a.Time = q.Time
+			err = a.Save(c.Ac)
+			if err != nil {
+				util.Log500(fmt.Errorf("Couldn't put: %v", err), c)
+				return
+			}
+		}
+	}
+
+}
+
 func prepareActions(as []action.Action) map[string][]time.Time {
 	a := make(map[string][]time.Time)
 
