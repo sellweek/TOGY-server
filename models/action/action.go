@@ -8,7 +8,7 @@ import (
 
 const (
 	UpdateNotification ActionType = iota //Client was notified it should update.
-	DownloadStart      ActionType = iota //Client startde downloading.
+	DownloadStart      ActionType = iota //Client started download.
 	DownloadFinish     ActionType = iota //Client finished download.
 )
 
@@ -26,8 +26,7 @@ func (at ActionType) String() string {
 	return "Unknown action"
 }
 
-//Action (better name would be Action, but it would be hard to change it now)
-//is a type used for recording whe time when clients
+//Action is a type used for recording the time when clients
 //did an action specified by the ActionType.
 type Action struct {
 	Type   ActionType     //Type of action
@@ -37,18 +36,18 @@ type Action struct {
 	Key    string         `datastore:"-"`
 }
 
-//Model is an nterface specifying models - structs which Datastore keys can be obtained.
+//Model is an interface specifying models - structs stored in Datastore.
 type Model interface {
 	GetKey(appengine.Context) (*datastore.Key, error)
 }
 
+//GetKey is used to obtain Model's key.
 func (a Action) GetKey() (k *datastore.Key, err error) {
 	k, err = datastore.DecodeKey(a.Key)
 	return
 }
 
-//New returns a pointer to an action with its fields set according
-//to arguments.
+//New returns a pointer to an Action with its fields set according to arguments.
 func New(k *datastore.Key, at ActionType, client string) (a *Action) {
 	a = new(Action)
 	a.Model = k
@@ -58,8 +57,7 @@ func New(k *datastore.Key, at ActionType, client string) (a *Action) {
 	return a
 }
 
-//Make creates a new Action using New and then saves
-//it to Datastore.
+//Make creates a new Action using New and then saves it to Datastore.
 func Make(m Model, at ActionType, client string, c appengine.Context) (a *Action, err error) {
 	k, err := m.GetKey(c)
 	if err != nil {
@@ -71,8 +69,8 @@ func Make(m Model, at ActionType, client string, c appengine.Context) (a *Action
 }
 
 //Save saves an Action to Datastore.
-//If its Key field is set, it will use it, replacing
-//existing records. If not, it will use datastore.NewIncompleteKey()
+//If its Key field is set, it will replace existing record
+//that has that key. If not, it will use datastore.NewIncompleteKey()
 //to create a new key and set the field.
 func (a *Action) Save(c appengine.Context) (err error) {
 	if a.Key == "" {
@@ -104,8 +102,7 @@ func Log(m Model, client string, at ActionType, c appengine.Context) {
 	}
 }
 
-//GetFor returns a slice containing all the Actions for
-//a given Model.
+//GetFor returns a slice containing all the Actions for a given Model.
 func GetFor(m Model, c appengine.Context) (as []Action, err error) {
 	key, err := m.GetKey(c)
 	if err != nil {
@@ -122,7 +119,7 @@ func GetFor(m Model, c appengine.Context) (as []Action, err error) {
 	return
 }
 
-//GetDownloadCount returns how many times given ActionType was performed on a Model.
+//GetCountFor returns how many times given ActionType was performed on a Model.
 func GetCountFor(at ActionType, m Model, c appengine.Context) (count int, err error) {
 	key, err := m.GetKey(c)
 	if err != nil {
@@ -132,14 +129,13 @@ func GetCountFor(at ActionType, m Model, c appengine.Context) (count int, err er
 	return
 }
 
-//WasDownloadedBy returns whether given client downloaded file associated
-//with given Model.
-func WasDownloadedBy(m Model, client string, c appengine.Context) (bool, error) {
+//WasPerformedOn returns whether given client performed given ActionType on gived Model.
+func WasPerformedOn(at ActionType, m Model, client string, c appengine.Context) (bool, error) {
 	key, err := m.GetKey(c)
 	if err != nil {
 		return false, err
 	}
-	i := datastore.NewQuery("Action").Ancestor(key).Filter("Client =", client).Filter("Type =", DownloadFinish).KeysOnly().Run(c)
+	i := datastore.NewQuery("Action").Ancestor(key).Filter("Client =", client).Filter("Type =", at).KeysOnly().Run(c)
 	_, err = i.Next(nil)
 	if err == datastore.Done {
 		return false, nil
