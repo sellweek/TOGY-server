@@ -7,6 +7,8 @@ import (
 	"models/configuration/timeConfig"
 )
 
+//JSON returns JSON representation of config and time override settings
+//for use in clients.
 func JSON(c appengine.Context) (js []byte, err error) {
 	j := make(map[string]interface{})
 	conf, err := config.Get(c)

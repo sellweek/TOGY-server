@@ -19,6 +19,7 @@ const (
 
 //Config stores central configuration in Datastore.
 //There is always only one Config record in Datastore.
+//Because of that, Key field is not needed.
 type Config struct {
 	StandardOn     time.Time
 	StandardOff    time.Time
@@ -27,6 +28,9 @@ type Config struct {
 }
 
 //GetKey returns key of the Datastore Config record.
+//It will always return the key of the one Datastore record,
+//even if its called like 
+//	Config{}.GetKey
 func (c Config) GetKey(ctx appengine.Context) (k *datastore.Key, err error) {
 	k, err = datastore.NewQuery("Config").KeysOnly().Run(ctx).Next(nil)
 	return
