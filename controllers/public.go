@@ -42,7 +42,7 @@ func Update(c util.Context) {
 		return
 	}
 
-	bc, err := action.WasDownloadedBy(p, client, c.Ac)
+	bc, err := action.WasPerformedOn(action.DownloadFinish, p, client, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -51,7 +51,7 @@ func Update(c util.Context) {
 
 	ui.FileType = p.FileType
 
-	conf, err := action.WasDownloadedBy(new(config.Config), client, c.Ac)
+	conf, err := action.WasPerformedOn(action.DownloadFinish, new(config.Config), client, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
