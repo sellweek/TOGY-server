@@ -35,7 +35,7 @@ func Upload(c util.Context) {
 		util.Log500(err, c)
 		return
 	}
-	util.RenderLayout("admin.html", "Nahrať prezentáciu", struct {
+	util.RenderLayout("upload.html", "Nahrať prezentáciu", struct {
 		ActivePresentation string
 		UploadURL          *url.URL
 	}{p.Name, uploadURL}, c)
