@@ -12,11 +12,12 @@ import (
 
 //Presentation stores data about uploaded presentations in Datastore.
 type Presentation struct {
-	BlobKey  appengine.BlobKey //Key linking the metadata with file stored in Blobstore
-	Created  time.Time         //Time of upload
-	Name     string            //Name used to identify presentation in administration
-	FileType string            //Name that clients should store the presentation under
-	Active   bool              //If true, presentation is distributed to clients. Only one presentation can be active.
+	BlobKey     appengine.BlobKey //Key linking the metadata with file stored in Blobstore
+	Created     time.Time         //Time of upload
+	Name        string            //Name used to identify presentation in administration
+	Description []byte            //Textual description used in UI
+	FileType    string            //Name that clients should store the presentation under
+	Active      bool              //If true, presentation is distributed to clients. Only one presentation can be active.
 
 	//Used for storage of Datastore key when passing the struct around. Doesn't get saved to DS.
 	//The key is stored as an encoded string
@@ -43,19 +44,20 @@ func GetActive(c appengine.Context) (*Presentation, error) {
 }
 
 //New returns pointer to a presentation with fields set to given values.
-func New(k appengine.BlobKey, fileType, name string, active bool) *Presentation {
+func New(k appengine.BlobKey, fileType, name string, desc []byte, active bool) *Presentation {
 	p := new(Presentation)
 	p.BlobKey = k
 	p.Created = time.Now()
 	p.FileType = fileType
 	p.Name = name
+	p.Description = desc
 	p.Active = active
 	return p
 }
 
 //Make creates a new presentation with New, saves it to Datastore and returns a pointer to it.
-func Make(k appengine.BlobKey, fileType, name string, active bool, c appengine.Context) (p *Presentation, err error) {
-	p = New(k, fileType, name, active)
+func Make(k appengine.BlobKey, fileType, name string, desc []byte, active bool, c appengine.Context) (p *Presentation, err error) {
+	p = New(k, fileType, name, desc, active)
 	err = p.Save(c)
 	return
 }

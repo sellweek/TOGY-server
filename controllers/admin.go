@@ -70,7 +70,7 @@ func UploadHandler(c util.Context) {
 		name = "Neznáma prezentácia z " + time.Now().Format("2.1.2006")
 	}
 
-	p, err := presentation.Make(blob.BlobKey, fileType, name, active, c.Ac)
+	p, err := presentation.Make(blob.BlobKey, fileType, name, nil, active, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 	}
@@ -292,7 +292,7 @@ func TimeOverrideDelete(c util.Context) {
 //Used when the system doesn't have any presentation inserted
 //and is in an inconsistent state because of that.
 func Bootstrap(c util.Context) {
-	p := presentation.New("test", "xxx", "DO NOT USE! DO NOT ACTIVATE IF YOU DON'T KNOW WHAT YOU'RE DOING", true)
+	p := presentation.New("test", "xxx", "DO NOT USE!", []byte("This is just a bootstrap presentation that can't be downloaded"), true)
 	_, err := datastore.Put(c.Ac, datastore.NewIncompleteKey(c.Ac, "Presentation", nil), p)
 	if err != nil {
 		fmt.Fprintln(c.W, "Error with presentation: ", err)
