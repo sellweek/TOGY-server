@@ -19,7 +19,7 @@
 	{{range .}}
 		<tr {{if .P.Active }}class="active"{{end}}>
 			<td>
-				<a href="/admin/archive/{{.P.Key}}">{{.P.Name}}</a>
+				<a href="/admin/presentation/{{.P.Key}}">{{.P.Name}}</a>
 			</td>
 			<td>
 				{{.P.Created.Format "15:04, 2.1.2006"}}
@@ -31,7 +31,7 @@
 				{{if .P.Active}}
 					--
 				{{else}}
-					<form method="POST" action="/admin/delete">
+					<form method="POST" action="/admin/presentation/delete">
 						<input type="hidden" name="id" value="{{.P.Key}}">
 						<input type="submit" value="Vymazať">
 					</form>
@@ -41,7 +41,7 @@
 				{{if .P.Active}}
 					--
 				{{else}}
-					<form method="POST" action="/admin/activate">
+					<form method="POST" action="/admin/presentation/activate">
 						<input type="hidden" name="id" value="{{.P.Key}}">
 						<input type="submit" value="Aktivovať">
 					</form>

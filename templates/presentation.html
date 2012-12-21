@@ -30,12 +30,12 @@
 	{{if .P.Active}}
 	Táto prezentácia je práve aktívna
 	{{else}}
-		<form method="POST" action="/admin/activate">
+		<form method="POST" action="/admin/presentation/activate">
 			<input type="hidden" name="id" value="{{.P.Key}}">
 			<input type="submit" value="Aktivovať">
 		</form>
 	
-		<form method="POST" action="/admin/delete">
+		<form method="POST" action="/admin/presentation/delete">
 			<input type="hidden" name="id" value="{{.P.Key}}">
 			<input type="submit" value="Vymazať">
 		</form>
