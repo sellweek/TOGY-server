@@ -31,12 +31,12 @@ func init() {
 	r.HandleFunc("/admin/bootstrap", util.Handler(controllers.Bootstrap))
 	r.HandleFunc("/admin/migrate", util.Handler(controllers.Migrate))
 
-	//Functions used by the clients
-	r.HandleFunc("/download", util.Handler(controllers.Download))
-	r.HandleFunc("/downloadComplete", util.Handler(controllers.DownloadFinish))
-	r.HandleFunc("/config", util.Handler(controllers.GetConfig))
-	r.HandleFunc("/gotConfig", util.Handler(controllers.GotConfig))
-	r.HandleFunc("/", util.Handler(controllers.Update))
+	//Client API routes
+	r.HandleFunc("/api/download", util.Handler(controllers.Download))
+	r.HandleFunc("/api/downloadComplete", util.Handler(controllers.DownloadFinish))
+	r.HandleFunc("/api/config", util.Handler(controllers.GetConfig))
+	r.HandleFunc("/api/gotConfig", util.Handler(controllers.GotConfig))
+	r.HandleFunc("/api/update", util.Handler(controllers.Update))
 	r.StrictSlash(true)
 	http.Handle("/", r)
 }
