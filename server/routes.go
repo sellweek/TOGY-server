@@ -2,8 +2,8 @@
 package main
 
 import (
-	"code.google.com/p/gorilla/mux"
 	"controllers"
+	"github.com/gorilla/mux"
 	"net/http"
 	"util"
 )
