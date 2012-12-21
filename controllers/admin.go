@@ -19,6 +19,7 @@ import (
 //UTC time zone
 var utc, _ = time.LoadLocation("UTC")
 
+//Redirects to presentation upload page
 func Admin(c util.Context) {
 	http.Redirect(c.W, c.R, "/admin/presentation/upload", 301)
 }

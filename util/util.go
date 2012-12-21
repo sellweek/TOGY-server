@@ -24,7 +24,7 @@ func init() {
 			return x == y
 		}})
 	// List of template files. When creating new template, add it here.
-	templates = template.Must(temp.ParseFiles(t+"admin.html", t+"layout/header.html", t+"layout/footer.html", t+"archive.html", t+"presentation.html", t+"config.html", t+"layout/configMenu.html", t+"timeConfig.html", t+"timeConfigEdit.html"))
+	templates = template.Must(temp.ParseFiles(t+"upload.html", t+"layout/header.html", t+"layout/footer.html", t+"archive.html", t+"presentation.html", t+"config.html", t+"layout/configMenu.html", t+"timeConfig.html", t+"timeConfigEdit.html"))
 }
 
 //Type used for passing data to handlers
