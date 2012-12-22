@@ -4,6 +4,8 @@ import (
 	"appengine/blobstore"
 	"appengine/datastore"
 	"fmt"
+	"github.com/russross/blackfriday"
+	"html/template"
 	"models/action"
 	"models/configuration/config"
 	"models/configuration/timeConfig"
@@ -71,7 +73,7 @@ func UploadHandler(c util.Context) {
 		name = "Neznáma prezentácia z " + time.Now().Format("2.1.2006")
 	}
 
-	p, err := presentation.Make(blob.BlobKey, fileType, name, nil, active, c.Ac)
+	p, err := presentation.Make(blob.BlobKey, fileType, name, []byte(formVal["description"][0]), active, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 	}
@@ -118,6 +120,8 @@ func Presentation(c util.Context) {
 
 	a := prepareActions(as)
 
+	desc := blackfriday.MarkdownCommon(p.Description)
+
 	secs := make([]float64, 0)
 	for _, t := range a {
 		dur := t[2].Sub(t[1])
@@ -129,9 +133,10 @@ func Presentation(c util.Context) {
 	util.RenderLayout("presentation.html", "Info o prezentácií", struct {
 		P        *presentation.Presentation
 		A        map[string][]time.Time
+		Desc     template.HTML
 		ZeroTime time.Time
 		Avg      float64
-	}{p, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL}, c)
+	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL}, c)
 }
 
 //Handles activation of presentation.

@@ -17,6 +17,10 @@ body {
     border-top-right-radius: 10px;*/
 }
 
+#presentation-description {
+	height: 10em;
+}
+
 .menu {
 	font-size: 14; 
 	color: white; 

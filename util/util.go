@@ -3,7 +3,7 @@ package util
 
 import (
 	"appengine"
-	"code.google.com/p/gorilla/mux"
+	"github.com/gorilla/mux"
 	"html/template"
 	"math"
 	"net/http"

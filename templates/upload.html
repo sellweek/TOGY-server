@@ -1,5 +1,12 @@
 <form action="{{.UploadURL}}" method="POST" enctype="multipart/form-data">
 	Názov prezentácie: <input class="title" type="text" name="name"><br>
+	Popis: 
+	<p>
+		<textarea id="presentation-description" name="description"></textarea><br>
+		<span class="small quiet">
+			Ak chcete, aby bol popis prezentácie pekný a prehľadný, používajte <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a>
+		</span>
+	</p>
 	Súbor: <input type="file" name="file"><br>
 	Aktivovať: <input type="checkbox" name="activate" checked> <br>
 	<input type="submit" name="submit" value="Submit">
