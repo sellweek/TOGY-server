@@ -77,14 +77,14 @@ func Update(c util.Context) {
 
 //Serves the broadcast from blobstore.
 func Download(c util.Context) {
-	id := c.R.FormValue("id")
+	key := c.Vars["key"]
 	var p *presentation.Presentation
 	var err error
-	if id == "" {
+	if key == "active" {
 		p, err = presentation.GetActive(c.Ac)
 		action.Log(*p, c.R.FormValue("client"), action.DownloadStart, c.Ac)
 	} else {
-		p, err = presentation.GetByKey(id, c.Ac)
+		p, err = presentation.GetByKey(key, c.Ac)
 	}
 	if err != nil {
 		util.Log500(err, c)
@@ -96,12 +96,27 @@ func Download(c util.Context) {
 //Clients call it with ther ID to inform the server
 //that they have finished downloading the broadcast.
 func DownloadFinish(c util.Context) {
-	p, err := presentation.GetActive(c.Ac)
+	key := c.Vars["key"]
+	var p *presentation.Presentation
+	var err error
+	if key == "active" {
+		p, err = presentation.GetActive(c.Ac)
+	} else {
+		p, err = presentation.GetByKey(key, c.Ac)
+	}
+
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
-	action.Log(*p, c.R.FormValue("client"), action.DownloadFinish, c.Ac)
+
+	//Here, we're using Make instead of Log because the sole purpose of this controller
+	//is to log the action, so we want to see the errors.
+	_, err = action.Make(*p, action.DownloadFinish, c.R.FormValue("client"), c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
 }
 
 //Serves the configuration.

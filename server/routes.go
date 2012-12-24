@@ -33,10 +33,12 @@ func init() {
 	r.HandleFunc("/admin/migrate", util.Handler(controllers.Migrate))
 
 	//Client API routes
-	r.HandleFunc("/api/download", util.Handler(controllers.Download))
-	r.HandleFunc("/api/downloadComplete", util.Handler(controllers.DownloadFinish))
-	r.HandleFunc("/api/config", util.Handler(controllers.GetConfig))
-	r.HandleFunc("/api/gotConfig", util.Handler(controllers.GotConfig))
+	//For download and downloadComplete actions of presentations
+	//"active" can be used instead of key to select the currently active presentation
+	r.HandleFunc("/api/presentation/{key}/download", util.Handler(controllers.Download))
+	r.HandleFunc("/api/presentation/{key}/downloadComplete", util.Handler(controllers.DownloadFinish))
+	r.HandleFunc("/api/config/download", util.Handler(controllers.GetConfig))
+	r.HandleFunc("/api/cofig/downloadComplete", util.Handler(controllers.GotConfig))
 	r.HandleFunc("/api/update", util.Handler(controllers.Update))
 	r.StrictSlash(true)
 	http.Handle("/", r)

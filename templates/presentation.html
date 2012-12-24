@@ -47,8 +47,8 @@
 		</form>
 	{{end}}
 	<div id="download">
-		<b>Odkaz na stiahnutie:</b><input type="text" value="http://togpm5.appspot.com/download?id={{.P.Key}}"><br>
-		<a href="/download?id={{.P.Key}}">Stiahnuť prezentáciu</a>
+		<b>Odkaz na stiahnutie:</b><input type="text" value="http://togpm5.appspot.com/api/presentation/{{.P.Key}}/download"><br>
+		<a href="/api/presentation/{{.P.Key}}/download">Stiahnuť prezentáciu</a>
 	</div>
 </div>
 
