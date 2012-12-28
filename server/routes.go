@@ -37,6 +37,10 @@ func init() {
 	//"active" can be used instead of key to select the currently active presentation
 	r.HandleFunc("/api/presentation/{key}/download", util.Handler(controllers.Download))
 	r.HandleFunc("/api/presentation/{key}/downloadComplete", util.Handler(controllers.DownloadFinish))
+	r.HandleFunc("/api/presentation/{key}/description", util.Handler(controllers.GetDescription)).Methods("GET")
+	r.HandleFunc("/api/presentation/{key}/description", util.Handler(controllers.UpdateDescription)).Methods("POST")
+	r.HandleFunc("/api/presentation/{key}/name", util.Handler(controllers.GetName)).Methods("GET")
+	r.HandleFunc("/api/presentation/{key}/name", util.Handler(controllers.UpdateName)).Methods("POST")
 	r.HandleFunc("/api/config/download", util.Handler(controllers.GetConfig))
 	r.HandleFunc("/api/cofig/downloadComplete", util.Handler(controllers.GotConfig))
 	r.HandleFunc("/api/update", util.Handler(controllers.Update))

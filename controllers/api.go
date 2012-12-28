@@ -5,6 +5,8 @@ import (
 	"appengine/blobstore"
 	"encoding/json"
 	"fmt"
+	"github.com/russross/blackfriday"
+	"io/ioutil"
 	"models/action"
 	"models/configuration"
 	"models/configuration/config"
@@ -77,18 +79,13 @@ func Update(c util.Context) {
 
 //Serves the broadcast from blobstore.
 func Download(c util.Context) {
-	key := c.Vars["key"]
-	var p *presentation.Presentation
-	var err error
-	if key == "active" {
-		p, err = presentation.GetActive(c.Ac)
-		action.Log(*p, c.R.FormValue("client"), action.DownloadStart, c.Ac)
-	} else {
-		p, err = presentation.GetByKey(key, c.Ac)
-	}
+	p, err := getPresentation(c)
 	if err != nil {
 		util.Log500(err, c)
 		return
+	}
+	if client := c.R.FormValue("client"); client != "" {
+		action.Log(*p, c.R.FormValue("client"), action.DownloadStart, c.Ac)
 	}
 	blobstore.Send(c.W, p.BlobKey)
 }
@@ -96,15 +93,7 @@ func Download(c util.Context) {
 //Clients call it with ther ID to inform the server
 //that they have finished downloading the broadcast.
 func DownloadFinish(c util.Context) {
-	key := c.Vars["key"]
-	var p *presentation.Presentation
-	var err error
-	if key == "active" {
-		p, err = presentation.GetActive(c.Ac)
-	} else {
-		p, err = presentation.GetByKey(key, c.Ac)
-	}
-
+	p, err := getPresentation(c)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -113,6 +102,65 @@ func DownloadFinish(c util.Context) {
 	//Here, we're using Make instead of Log because the sole purpose of this controller
 	//is to log the action, so we want to see the errors.
 	_, err = action.Make(*p, action.DownloadFinish, c.R.FormValue("client"), c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+}
+
+func GetDescription(c util.Context) {
+	p, err := getPresentation(c)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	fmt.Fprint(c.W, string(p.Description))
+}
+
+func UpdateDescription(c util.Context) {
+	p, err := getPresentation(c)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	defer c.R.Body.Close()
+	body, err := ioutil.ReadAll(c.R.Body)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	p.Description = body
+	err = p.Save(c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	fmt.Fprint(c.W, blackfriday.MarkdownCommon(body))
+}
+
+func GetName(c util.Context) {
+	p, err := getPresentation(c)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	fmt.Fprint(c.W, p.Name)
+}
+
+func UpdateName(c util.Context) {
+	p, err := getPresentation(c)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	defer c.R.Body.Close()
+	body, err := ioutil.ReadAll(c.R.Body)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+	p.Name = string(body)
+	err = p.Save(c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -136,4 +184,14 @@ func GetConfig(c util.Context) {
 //that they have downloaded the configuration file.
 func GotConfig(c util.Context) {
 	action.Log(new(config.Config), c.R.FormValue("client"), action.DownloadFinish, c.Ac)
+}
+
+func getPresentation(c util.Context) (p *presentation.Presentation, err error) {
+	key := c.Vars["key"]
+	if key == "active" {
+		p, err = presentation.GetActive(c.Ac)
+	} else {
+		p, err = presentation.GetByKey(key, c.Ac)
+	}
+	return
 }
