@@ -1,4 +1,9 @@
-<h1>{{.P.Name}}</h1>
+<script type="text/javascript">
+	presentationKey = {{.P.Key}}
+</script>
+<div id="title-container">
+	<h1 id="title">{{.P.Name}}</h1>
+</div>
 <table>
 	<tr>
 		<td>
@@ -27,8 +32,10 @@
 </table>
 
 <h2>Popis</h2>
-<div id="description">
-	{{.Desc}}
+<div id="description-container">
+	<div id="description">
+		{{.Desc}}
+	</div>
 </div>
 
 <h2>Akcie</h2>
@@ -89,3 +96,26 @@
 	{{end}}
 	{{end}}
 </table>
+
+<script type="text/template" id="title-show-template">
+	<h1 id="title"> <%= title %> </h1>
+</script>
+
+<script type="text/template" id="title-edit-template">
+	<form class="title-form">
+		<input type="text" value="<%= title %>" class="title" id="title-field">
+		<input type="submit">
+	</form>
+</script>
+
+<script type="text/template" id="description-show-template">
+
+</script>
+
+<script type="text/template" id="description-edit-template">
+
+</script>
+
+<script type="text/template" id="loading-template">
+	<img src="/static/images/spinner.gif" alt="loading" width="30" height="30">
+</script>
