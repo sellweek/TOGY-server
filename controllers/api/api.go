@@ -1,5 +1,5 @@
-//Package controllers provides functions that handle the requests and respond to them.
-package controllers
+//Package api provides controllers for the API
+package api
 
 import (
 	"appengine/blobstore"
