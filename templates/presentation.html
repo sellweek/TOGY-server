@@ -68,7 +68,7 @@
 			Klient
 		</th>
 		<th>
-			Informácia o aktualizáci
+			Informácia o aktualizácií
 		</th>
 		<th>
 			Začiatok sťahovania
@@ -97,25 +97,35 @@
 	{{end}}
 </table>
 
+<p id="help" class="quiet">Názov a popis prezentácie môžete editovať po dvojitom kliknutí na ne.</p>
+
 <script type="text/template" id="title-show-template">
 	<h1 id="title"> <%= title %> </h1>
 </script>
 
 <script type="text/template" id="title-edit-template">
-	<form class="title-form">
-		<input type="text" value="<%= title %>" class="title" id="title-field">
+	<form>
+		<input type="text" value="<%=title%>" class="title" id="title-field">
 		<input type="submit">
 	</form>
 </script>
 
 <script type="text/template" id="description-show-template">
-
+<div id="description">
+<%= text %>
+</div>
 </script>
 
 <script type="text/template" id="description-edit-template">
-
+<form>
+<textarea id="description-field">
+<%=markdown %>
+</textarea><br>
+<div class="small quiet">Markdown je povolený</div>
+<input type="submit">
+</form>
 </script>
 
 <script type="text/template" id="loading-template">
-	<img src="/static/images/spinner.gif" alt="loading" width="30" height="30">
+<img src="/static/images/spinner.gif" alt="loading" width="30" height="30">
 </script>

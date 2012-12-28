@@ -6,7 +6,7 @@ $(function() {
 	var descEdit = _.template($("#description-edit-template").html());
 	var loading = _.template($("#loading-template").html());
 
-	$("#title").on("dblclick", function(e) {
+	$("#title-container").on("dblclick", "h1", function(e) {
 		$("#title-container").html(titleEdit({title: $(e.currentTarget).html()}));
 	});
 
@@ -15,6 +15,22 @@ $(function() {
 		$("#title-container").html(loading());
 		$.post("/api/presentation/"+presentationKey+"/name", title, function() {
 			$("#title-container").html(titleShow({title: title}));
+		});
+		return false;
+	});
+
+	$("#description-container").on("dblclick", "p", function() {
+		$("#description-container").html(loading());
+		$.get("/api/presentation/"+presentationKey+"/description", "", function(data) {
+			$("#description-container").html(descEdit({markdown: data}));
+		});
+	});
+
+	$("#description-container").on("submit", "form", function() {
+		var text = $("#description-field").val()
+		$("#description-container").html(loading());
+		$.post("/api/presentation/"+presentationKey+"/description", text, function(data) {
+			$("#description-container").html(descShow({text: data}));
 		});
 		return false;
 	});

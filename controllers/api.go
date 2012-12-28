@@ -135,7 +135,7 @@ func UpdateDescription(c util.Context) {
 		util.Log500(err, c)
 		return
 	}
-	fmt.Fprint(c.W, blackfriday.MarkdownCommon(body))
+	fmt.Fprint(c.W, string(blackfriday.MarkdownCommon(body)))
 }
 
 func GetName(c util.Context) {
