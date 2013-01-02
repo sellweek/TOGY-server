@@ -1,0 +1,35 @@
+{{range .Data}}
+{{if .P.Name}}
+	<div class="presentation">
+		<h2>
+			{{.P.Name}}
+		</h2>
+		<p>
+			{{.D}}
+		</p>
+		<iframe src="http://docs.google.com/viewer?url=http://togpm5.appspot.com/api/presentation/{{.P.Key}}/download&embedded=true">
+		</iframe>
+		<p>
+			<a href="/api/presentation/{{.P.Key}}/download">Stiahnuť</a>
+		</p>
+		<p class="quiet">
+			Pridané {{.P.Created.Format "2.1.2006"}}
+		</p>
+	<div class="presentation">
+{{end}}
+{{end}}
+<div id="pagination">
+	{{if equal .Page 1}}
+	{{else}}
+		<a href="/presentation?p={{subtract .Page  1}}">
+			Novšie vysielania
+		</a>
+	{{end}}
+	 Strana {{.Page}}
+	 {{if equal .Page .MaxPages}}
+	 {{else}}
+	 	<a href="/presentation?p={{add .Page  1}}">
+				Staršie vysielania
+		</a>
+	{{end}}
+</div>

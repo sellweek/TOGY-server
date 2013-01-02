@@ -18,8 +18,11 @@
 		TOGY - {{.Title}}
 	</div>
 	<div id="centralMenu" class="menu">
-		<a href="/admin/presentation/upload">Nahrať novú prezentáciu</a> 
-		<a href="/admin/presentation/archive">Archív prezentácií</a> 
-		<a href="/admin/config">Konfigurácia</a>
+		<a href="/">Domov</a>
+		{{if .Admin}}
+			<a href="/admin/presentation/upload">Nahrať novú prezentáciu</a> 
+			<a href="/admin/presentation/archive">Archív prezentácií</a> 
+			<a href="/admin/config">Konfigurácia</a>
+		{{end}}
 	</div>
 	<div id="content">

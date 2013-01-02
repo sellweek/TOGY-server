@@ -4,6 +4,7 @@ package main
 import (
 	"controllers/admin"
 	"controllers/api"
+	"controllers/public"
 	"github.com/gorilla/mux"
 	"net/http"
 	"util"
@@ -12,6 +13,11 @@ import (
 //init sets up routes for Google App Engine
 func init() {
 	r := mux.NewRouter()
+
+	//Public routes
+	r.HandleFunc("/", util.Handler(public.Index))
+	r.HandleFunc("/presentation", util.Handler(public.Presentations))
+
 	//Administrative routes
 	r.HandleFunc("/admin", util.Handler(admin.Admin))
 	r.HandleFunc("/admin/presentation/upload", util.Handler(admin.Upload)).Methods("GET")
@@ -45,6 +51,7 @@ func init() {
 	r.HandleFunc("/api/config/download", util.Handler(api.GetConfig))
 	r.HandleFunc("/api/cofig/downloadComplete", util.Handler(api.GotConfig))
 	r.HandleFunc("/api/update", util.Handler(api.Update))
+
 	r.StrictSlash(true)
 	http.Handle("/", r)
 }

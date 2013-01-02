@@ -6,6 +6,7 @@ import (
 	"appengine/blobstore"
 	"appengine/datastore"
 	"fmt"
+	"math"
 	"models/action"
 	"time"
 )
@@ -133,6 +134,33 @@ func GetAll(c appengine.Context) (ps []*Presentation, err error) {
 	for i := 0; i < len(ps); i++ {
 		ps[i].Key = keys[i].Encode()
 	}
+	return
+}
+
+func GetListing(page int, perPage int, c appengine.Context) (ps []*Presentation, err error) {
+	var q *datastore.Query
+	if page == 1 {
+		q = datastore.NewQuery("Presentation").Limit(perPage).Order("-Created")
+	} else {
+		q = datastore.NewQuery("Presentation").Limit(perPage).Offset(perPage * (page - 1)).Order("-Created")
+	}
+
+	keys, err := q.GetAll(c, &ps)
+	if err != nil {
+		return
+	}
+	for i, p := range ps {
+		p.Key = keys[i].Encode()
+	}
+	return
+}
+
+func PageCount(c appengine.Context, perPage int) (pgs int, err error) {
+	ps, err := datastore.NewQuery("Presentation").Count(c)
+	if err != nil {
+		return
+	}
+	pgs = int(math.Ceil(float64(ps) / float64(perPage)))
 	return
 }
 

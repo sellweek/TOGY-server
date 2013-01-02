@@ -3,6 +3,7 @@ package util
 
 import (
 	"appengine"
+	"appengine/user"
 	"github.com/gorilla/mux"
 	"html/template"
 	"math"
@@ -22,9 +23,15 @@ func init() {
 	temp := template.New("").Funcs(template.FuncMap{
 		"equal": func(x, y int) bool {
 			return x == y
+		},
+		"subtract": func(x, y int) int {
+			return x - y
+		},
+		"add": func(x, y int) int {
+			return x + y
 		}})
 	// List of template files. When creating new template, add it here.
-	templates = template.Must(temp.ParseFiles(t+"upload.html", t+"layout/header.html", t+"layout/footer.html", t+"archive.html", t+"presentation.html", t+"config.html", t+"layout/configMenu.html", t+"timeConfig.html", t+"timeConfigEdit.html"))
+	templates = template.Must(temp.ParseFiles(t+"upload.html", t+"layout/header.html", t+"layout/footer.html", t+"archive.html", t+"presentation.html", t+"config.html", t+"layout/configMenu.html", t+"timeConfig.html", t+"timeConfigEdit.html", t+"index.html"))
 }
 
 //Type used for passing data to handlers
@@ -64,7 +71,8 @@ func RenderLayout(tmpl string, title string, data interface{}, c Context, jsIncl
 	renderTemplate("header.html", struct {
 		Title      string
 		JsIncludes []string
-	}{title, jsIncludes}, c)
+		Admin      bool
+	}{title, jsIncludes, user.IsAdmin(c.Ac)}, c)
 	renderTemplate(tmpl, data, c)
 	renderTemplate("footer.html", nil, c)
 }
