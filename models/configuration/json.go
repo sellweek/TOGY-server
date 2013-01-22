@@ -37,6 +37,9 @@ func JSON(c appengine.Context) (js []byte, err error) {
 		j["OverrideOn"] = false
 		j["OverrideOff"] = true
 	}
+
+	j["Weekends"] = conf.Weekends
+
 	for _, tc := range tcs {
 		timeMap := make(map[string]string)
 		timeMap["TurnOn"] = tc.On.Format(config.ConfTimeFormat)

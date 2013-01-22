@@ -25,6 +25,7 @@ type Config struct {
 	StandardOff    time.Time
 	OverrideState  int
 	UpdateInterval int
+	Weekends       bool
 }
 
 //GetKey returns key of the Datastore Config record.

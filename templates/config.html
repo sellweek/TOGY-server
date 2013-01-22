@@ -7,6 +7,10 @@
 	<input type="radio" name="overrideState" value="0" {{if equal .Conf.OverrideState 0}} checked{{end}}> Používať časové nastavenia<br>
 	<input type="radio" name="overrideState" value="-1" {{if equal .Conf.OverrideState -1}} checked{{end}}> Vysielanie vypnuté<br>
 	<input type="radio" name="overrideState" value="1" {{if equal .Conf.OverrideState 1}} checked{{end}}> Vysielanie zapnuté<br>
+	<br>
+	<p>
+		<input type="checkbox" name="weekends" value="true" {{if .Conf.Weekends}} checked {{end}}> Cez víkendy používať štandarné nastavenie
+	</p>
 	<input type="submit">
 </form>
 

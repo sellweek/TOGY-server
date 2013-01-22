@@ -59,6 +59,11 @@ func SetConfig(c util.Context) {
 		util.Log500(err, c)
 		return
 	}
+
+	if c.R.FormValue("weekends") == "true" {
+		conf.Weekends = true
+	}
+
 	err = conf.Save(c.Ac)
 	if err != nil {
 		util.Log500(err, c)
