@@ -16,12 +16,12 @@ import (
 //UTC time zone
 var utc, _ = time.LoadLocation("UTC")
 
-//Redirects to presentation upload page
+//Admin redirects to presentation upload page
 func Admin(c util.Context) {
 	http.Redirect(c.W, c.R, "/admin/presentation/upload", 301)
 }
 
-//Handles the new presentation upload page.
+//Upload renders the new presentation upload page.
 func Upload(c util.Context) {
 	p, err := presentation.GetActive(c.Ac)
 	if err != nil {
@@ -39,7 +39,7 @@ func Upload(c util.Context) {
 	}{p.Name, uploadURL}, c)
 }
 
-//Handles upload of a new presentation and saving its metadata
+//UploadHandler handles upload of a new presentation and saving its metadata
 //to Datastore.
 //
 //Doesn't support filenames with non-ASCII characters. GAE encodes
@@ -76,7 +76,7 @@ func UploadHandler(c util.Context) {
 	http.Redirect(c.W, c.R, "/admin/presentation/"+p.Key, 303)
 }
 
-//Handles showing listing of presentations.
+//Archive handles showing listing of presentations.
 func Archive(c util.Context) {
 	type tmplData struct {
 		P *presentation.Presentation
@@ -100,7 +100,7 @@ func Archive(c util.Context) {
 	util.RenderLayout("archive.html", "Archív prezentácií", downloads, c)
 }
 
-//Handles showing page with details about a presentation.
+//Presentation handles showing page with details about a presentation.
 func Presentation(c util.Context) {
 	p, err := presentation.GetByKey(c.Vars["id"], c.Ac)
 	if err != nil {
@@ -134,7 +134,7 @@ func Presentation(c util.Context) {
 	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL}, c, "/static/js/jquery-1.8.3.js", "/static/js/underscore-min.js", "/static/js/presentation.js")
 }
 
-//Handles activation of presentation.
+//Activate handles activation of presentation.
 func Activate(c util.Context) {
 	key := c.R.FormValue("id")
 	p, err := presentation.GetByKey(key, c.Ac)
@@ -147,7 +147,7 @@ func Activate(c util.Context) {
 	http.Redirect(c.W, c.R, "/admin/presentation/archive", 303)
 }
 
-//Handles deleting of presentation.
+//Delete handles deleting of presentation.
 func Delete(c util.Context) {
 	key := c.R.FormValue("id")
 	p, err := presentation.GetByKey(key, c.Ac)

@@ -14,7 +14,7 @@ import (
 	"util"
 )
 
-//Handles queries of clients about whether they should download a new
+//Update handles queries of clients about whether they should download a new
 //presentation.
 //Clients call address with their ID like
 //	togpm5.appspot.com/?client=A1
@@ -77,7 +77,7 @@ func Update(c util.Context) {
 
 }
 
-//Serves the broadcast from blobstore.
+//Download serves the broadcast from blobstore.
 func Download(c util.Context) {
 	p, err := getPresentation(c)
 	if err != nil {
@@ -90,8 +90,8 @@ func Download(c util.Context) {
 	blobstore.Send(c.W, p.BlobKey)
 }
 
-//Clients call it with ther ID to inform the server
-//that they have finished downloading the broadcast.
+//DownloadFinish is called by clients to announce that
+//they have downloaded the broadcast.
 func DownloadFinish(c util.Context) {
 	p, err := getPresentation(c)
 	if err != nil {
@@ -108,6 +108,7 @@ func DownloadFinish(c util.Context) {
 	}
 }
 
+//GetDescription responds with the description of a broadcast.
 func GetDescription(c util.Context) {
 	p, err := getPresentation(c)
 	if err != nil {
@@ -117,6 +118,7 @@ func GetDescription(c util.Context) {
 	fmt.Fprint(c.W, string(p.Description))
 }
 
+//UpdateDescription changes the description of a broadcast.
 func UpdateDescription(c util.Context) {
 	p, err := getPresentation(c)
 	if err != nil {
@@ -138,6 +140,7 @@ func UpdateDescription(c util.Context) {
 	fmt.Fprint(c.W, string(blackfriday.MarkdownCommon(body)))
 }
 
+//GetName responds with the name of a broadcast. 
 func GetName(c util.Context) {
 	p, err := getPresentation(c)
 	if err != nil {
@@ -147,6 +150,7 @@ func GetName(c util.Context) {
 	fmt.Fprint(c.W, p.Name)
 }
 
+//UpdateName changes the name of a broadcast.
 func UpdateName(c util.Context) {
 	p, err := getPresentation(c)
 	if err != nil {
@@ -167,7 +171,7 @@ func UpdateName(c util.Context) {
 	}
 }
 
-//Serves the configuration.
+//GetConfig serves the configuration.
 func GetConfig(c util.Context) {
 	json, err := configuration.JSON(c.Ac)
 	if err != nil {
@@ -180,8 +184,8 @@ func GetConfig(c util.Context) {
 	}
 }
 
-//Used by clients in the same manner as DownloadFinish to inform 
-//that they have downloaded the configuration file.
+//GotConfig is called by clients to announce that
+//they have downloaded the broadcast.
 func GotConfig(c util.Context) {
 	action.Log(new(config.Config), c.R.FormValue("client"), action.DownloadFinish, c.Ac)
 }

@@ -11,10 +11,12 @@ import (
 
 const perPage = 5
 
+//Index redirects user to the first page of presentation listing.
 func Index(c util.Context) {
 	http.Redirect(c.W, c.R, "/presentation?p=1", 301)
 }
 
+//Presentations shows listing of presentations in paginated form.
 func Presentations(c util.Context) {
 	page, err := strconv.Atoi(c.R.FormValue("p"))
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 	"util"
 )
 
-//Inserts fake presentation and config into datastore.
+//Bootstrap inserts fake presentation and config into datastore.
 //Used when the system doesn't have any presentation inserted
 //and is in an inconsistent state because of that.
 func Bootstrap(c util.Context) {
@@ -30,6 +30,7 @@ func Bootstrap(c util.Context) {
 	fmt.Fprint(c.W, "Do not start any clients until you have replaced this presentation.")
 }
 
+//Migrate migrates Datastore data from a previous version.
 func Migrate(c util.Context) {
 	fmt.Fprintf(c.W, "There is nothing to migrate in current version.")
 }
