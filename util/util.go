@@ -19,6 +19,7 @@ const (
 var templates *template.Template
 var Tz, _ = time.LoadLocation("UTC")
 
+//In init we inject few utility functions into templates we're using
 func init() {
 	temp := template.New("").Funcs(template.FuncMap{
 		"equal": func(x, y int) bool {
@@ -34,7 +35,7 @@ func init() {
 	templates = template.Must(temp.ParseFiles(t+"upload.html", t+"layout/header.html", t+"layout/footer.html", t+"archive.html", t+"presentation.html", t+"config.html", t+"layout/configMenu.html", t+"timeConfig.html", t+"timeConfigEdit.html", t+"index.html"))
 }
 
-//Type used for passing data to handlers
+//Context is the type used for passing data to handlers
 type Context struct {
 	Ac   appengine.Context
 	W    http.ResponseWriter
@@ -42,7 +43,7 @@ type Context struct {
 	Vars map[string]string
 }
 
-//Maps standard net/http handlers to handlers accepting Context
+//Handler maps standard net/http handlers to handlers accepting Context
 func Handler(hand func(Context)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ac := appengine.NewContext(r)
@@ -51,19 +52,19 @@ func Handler(hand func(Context)) http.HandlerFunc {
 	}
 }
 
-//Sends an Internal Server Error to user with error message from the error.
+//Log500 sends an Internal Server Error to user with error message from the error.
 func Log500(err error, c Context) {
 	c.Ac.Warningf("Error 500. %v", err)
 	http.Error(c.W, err.Error(), http.StatusInternalServerError)
 }
 
-//Sends a Not Found Error to user with error message from the error.
+//Log404 sends a Not Found Error to user with error message from the error.
 func Log404(err error, c Context) {
 	c.Ac.Infof("Error 404. %v", err)
 	http.Error(c.W, err.Error(), http.StatusNotFound)
 }
 
-//Inserts template with given name into the layout and sets the title and pipeline.
+//RenderLayout inserts template with given name into the layout and sets the title and pipeline.
 //The template should be loaded inside templates variable
 //If any arguments are provided after the context, they will be treated like links
 //to JavaScript scripts to load in the header of the template.
@@ -77,13 +78,14 @@ func RenderLayout(tmpl string, title string, data interface{}, c Context, jsIncl
 	renderTemplate("footer.html", nil, c)
 }
 
-//Renders a single template
+//renderTemplate renders a single template
 func renderTemplate(tmpl string, data interface{}, c Context) {
 	if err := templates.ExecuteTemplate(c.W, tmpl, data); err != nil {
 		Log500(err, c)
 	}
 }
 
+//Average returns an Average of its arguments
 func Average(nums ...float64) float64 {
 	var total float64
 	for _, x := range nums {
@@ -113,10 +115,14 @@ func Round(x float64, prec int) float64 {
 	return rounder / float64(pow)
 }
 
+//NormalizeDate strips the time part from time.Date leaving only
+//year, month and day.
 func NormalizeDate(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, Tz)
 }
 
+//NormalizeTime strips the date part from time.Date leaving only
+//hours, minutes, seconds and nanoseconds.
 func NormalizeTime(t time.Time) time.Time {
 	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), Tz)
 }
