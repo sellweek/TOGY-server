@@ -12,8 +12,10 @@ const (
 	DownloadFinish     ActionType = iota //Client finished download.
 )
 
+//ActionType defines the type of the Action performed
 type ActionType int
 
+//String returns the type of action in human-readable form
 func (at ActionType) String() string {
 	switch at {
 	case UpdateNotification:
