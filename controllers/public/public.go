@@ -1,6 +1,7 @@
 package public
 
 import (
+	"appengine"
 	"github.com/russross/blackfriday"
 	"html/template"
 	"models/presentation"
@@ -29,15 +30,15 @@ func Presentations(c util.Context) {
 		return
 	}
 
-	type tplData struct {
+	type templateData struct {
 		P presentation.Presentation
 		D template.HTML
 	}
 
-	data := make([]tplData, len(ps), len(ps))
+	data := make([]templateData, len(ps), len(ps))
 
 	for _, p := range ps {
-		data = append(data, tplData{P: *p, D: template.HTML(blackfriday.MarkdownCommon(p.Description))})
+		data = append(data, templateData{P: *p, D: template.HTML(blackfriday.MarkdownCommon(p.Description))})
 	}
 
 	maxPages, err := presentation.PageCount(c.Ac, perPage)
@@ -46,9 +47,12 @@ func Presentations(c util.Context) {
 		return
 	}
 
+	c.Ac.Infof("Hostname: %v", appengine.DefaultVersionHostname(c.Ac))
+
 	util.RenderLayout("index.html", "Zoznam vysielaní", struct {
 		Page     int
 		MaxPages int
-		Data     []tplData
-	}{page, maxPages, data}, c)
+		Data     []templateData
+		Domain   string
+	}{Page: page, MaxPages: maxPages, Data: data, Domain: appengine.DefaultVersionHostname(c.Ac)}, c)
 }
