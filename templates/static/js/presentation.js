@@ -19,7 +19,7 @@ $(function() {
 		return false;
 	});
 
-	$("#description-container").on("dblclick", "p", function() {
+	$("#description-container").on("dblclick", "div", function() {
 		$("#description-container").html(loading());
 		$.get("/api/presentation/"+presentationKey+"/description", "", function(data) {
 			$("#description-container").html(descEdit({markdown: data}));
