@@ -8,10 +8,10 @@
 		<p>
 			{{.D}}
 		</p>
-		<iframe src="http://docs.google.com/viewer?url={{$domain}}/api/presentation/{{.P.Key}}/download&embedded=true">
+		<iframe src="http://docs.google.com/viewer?url={{$domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}&embedded=true">
 		</iframe>
 		<p>
-			<a href="/api/presentation/{{.P.Key}}/download">Stiahnuť</a>
+			<a href="/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}">Stiahnuť</a>
 		</p>
 		<p class="quiet">
 			Pridané {{.P.Created.Format "2.1.2006"}}

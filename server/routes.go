@@ -43,6 +43,9 @@ func init() {
 	//For download and downloadComplete actions of presentations
 	//"active" can be used instead of key to select the currently active presentation
 	r.HandleFunc("/api/presentation/{key}/download", util.Handler(api.Download))
+	//This rute is the same as the one above, but is used in UI so that
+	//file downloaded by users will not be called "download"
+	r.HandleFunc("/api/presentation/{key}/download/{filename}", util.Handler(api.Download))
 	r.HandleFunc("/api/presentation/{key}/downloadComplete", util.Handler(api.DownloadFinish))
 	r.HandleFunc("/api/presentation/{key}/description", util.Handler(api.GetDescription)).Methods("GET")
 	r.HandleFunc("/api/presentation/{key}/description", util.Handler(api.UpdateDescription)).Methods("POST")
