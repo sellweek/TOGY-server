@@ -34,7 +34,13 @@
 <h2>Popis</h2>
 <div id="description-container">
 	<div id="description">
-		{{.Desc}}
+		{{if .Desc}}
+			{{.Desc}}
+		{{else}}
+			<p>
+				Pre toto vysielanie zatiaľ nie je popis
+			</p>
+		{{end}}
 	</div>
 </div>
 
