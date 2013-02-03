@@ -23,20 +23,24 @@ func Admin(c util.Context) {
 
 //Upload renders the new presentation upload page.
 func Upload(c util.Context) {
+	var activeName string
 	p, err := presentation.GetActive(c.Ac)
 	if err != nil {
-		util.Log500(err, c)
-		return
+		activeName = "Aktívna prezentácia sa nedala získať."
 	}
+
+	activeName = p.Name
+
 	uploadURL, err := blobstore.UploadURL(c.Ac, "/admin/presentation/upload", nil)
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
+
 	util.RenderLayout("upload.html", "Nahrať prezentáciu", struct {
 		ActivePresentation string
 		UploadURL          *url.URL
-	}{p.Name, uploadURL}, c)
+	}{activeName, uploadURL}, c)
 }
 
 //UploadHandler handles upload of a new presentation and saving its metadata
