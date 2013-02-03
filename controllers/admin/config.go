@@ -31,7 +31,7 @@ func ShowConfig(c util.Context) {
 		Conf     config.Config
 		A        map[string][]time.Time
 		ZeroTime time.Time
-	}{conf, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc)}, c, "/static/js/jquery-1.8.3.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker.js", "/static/js/config.js")
+	}{conf, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc)}, c, util.JqCDN, "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker.js", "/static/js/config.js")
 }
 
 //SetConfig handles saving the new configuration to Datastore.

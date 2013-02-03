@@ -135,7 +135,7 @@ func Presentation(c util.Context) {
 		Desc     template.HTML
 		ZeroTime time.Time
 		Avg      float64
-	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL}, c, "/static/js/jquery-1.8.3.js", "/static/js/underscore-min.js", "/static/js/presentation.js")
+	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL}, c, util.JqCDN, "/static/js/underscore-min.js", "/static/js/presentation.js")
 }
 
 //Activate handles activation of presentation.

@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	TimeFormat = "20060102150405" //Time format used in update queries and reponses and in filenames.
-	t          = "templates/"     //Directory with templates
+	TimeFormat = "20060102150405"                                                   //Time format used in update queries and reponses and in filenames.
+	t          = "templates/"                                                       //Directory with templates
+	JqCDN      = "https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" //Address of jQuery
 )
 
 var templates *template.Template
