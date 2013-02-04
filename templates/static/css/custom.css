@@ -4,6 +4,15 @@ body {
 
 .active td {background: #98E3A3 !important;}
 
+.viewer {
+	width: 500;
+	height: 300;
+}
+
+.viewer-url { 
+	display: none;
+}
+
 #content {
 	margin: 5px;
 }
