@@ -1,16 +1,23 @@
 {{template "configMenu.html" 1}}
 <form method="POST" action="/admin/config">
-	Štandardné zapnutie: <input type="text" name="standardOn" class="timeField" value="{{.Conf.StandardOn.Format "15:04"}}"><br>
-	Štandardné vypnutie: <input type="text" name="standardOff" class="timeField" value="{{.Conf.StandardOff.Format "15:04"}}"><br>
-	Interval updatu: <input type="text" name="updateInterval" value="{{.Conf.UpdateInterval}}"><br>
-	Časové nastavenie:<br>
-	<input type="radio" name="overrideState" value="0" {{if equal .Conf.OverrideState 0}} checked{{end}}> Používať časové nastavenia<br>
-	<input type="radio" name="overrideState" value="-1" {{if equal .Conf.OverrideState -1}} checked{{end}}> Vysielanie vypnuté<br>
-	<input type="radio" name="overrideState" value="1" {{if equal .Conf.OverrideState 1}} checked{{end}}> Vysielanie zapnuté<br>
-	<br>
-	<p>
+	<label>Štandardné zapnutie</label>
+	<input type="text" name="standardOn" class="timeField" value="{{.Conf.StandardOn.Format "15:04"}}"><br>
+	<label>Štandardné vypnutie</label> <input type="text" name="standardOff" class="timeField" value="{{.Conf.StandardOff.Format "15:04"}}"><br>
+	<label>Interval updatu</label>
+	<input type="text" name="updateInterval" value="{{.Conf.UpdateInterval}}"><br>
+	
+	<label class="radio">
+		<input type="radio" name="overrideState" value="0" {{if equal .Conf.OverrideState 0}} checked{{end}}> Používať štandardné nastavenia
+	</label>
+	<label class="radio">
+		<input type="radio" name="overrideState" value="-1" {{if equal .Conf.OverrideState -1}} checked{{end}}> Vysielanie vypnuté
+	</label>
+	<label class="radio">
+		<input type="radio" name="overrideState" value="1" {{if equal .Conf.OverrideState 1}} checked{{end}}> Vysielanie zapnuté
+	</label>
+	<label class="checkbox">
 		<input type="checkbox" name="weekends" value="true" {{if .Conf.Weekends}} checked {{end}}> Cez víkendy používať štandarné nastavenie
-	</p>
+	</label>
 	<input type="submit">
 </form>
 
