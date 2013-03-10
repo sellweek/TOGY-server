@@ -1,61 +1,16 @@
-body { 
-	background-color: #B1DE5D;
+body {
+	padding-top: 60px;
 }
 
-.active td {background: #98E3A3 !important;}
-
-.viewer {
-	width: 500;
-	height: 300;
-}
-
-.viewer-url { 
+.viewer-url {
 	display: none;
 }
 
-#content {
-	margin: 5px;
+.download {
+	margin-top: 10px;
 }
 
-#titlebar {
-	font-size: 20; 
-	background-color: #A60000; 
-	color: white; 
-	padding:10px;
-/*    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;*/
+.button-form {
+	margin: 0px;
+	display: inline;
 }
-
-#presentation-description {
-	height: 10em;
-}
-
-.menu {
-	font-size: 14; 
-	color: white; 
-	padding:3px;
-}
-
-#centralMenu {
-	background-color: #BF3030; 
-}
-
-#configMenu {
-	background-color: #8BBF28;
-}
-
-#menu a {
-	color: #91E1ED;
-}
-
-/* css for timepicker */
-.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
-.ui-timepicker-div dl { text-align: left; }
-.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
-.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
-.ui-timepicker-div td { font-size: 90%; }
-.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
-
-.ui-timepicker-rtl{ direction: rtl; }
-.ui-timepicker-rtl dl { text-align: right; }
-.ui-timepicker-rtl dl dd { margin: 0 65px 10px 10px; }

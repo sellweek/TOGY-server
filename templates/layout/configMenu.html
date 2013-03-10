@@ -1,4 +1,4 @@
-<div id="configMenu" class="menu">
-	<a href="/admin/config">Hlavná konfigurácia</a>
-	<a href="/admin/config/timeOverride">Časové výnimky</a>
-</div>
+<ul class="nav nav-tabs">
+	<li {{if equal . 1}} class="active" {{end}}><a href="/admin/config">Hlavná konfigurácia</a></li>
+	<li {{if equal . 2}} class="active" {{end}}><a href="/admin/config/timeOverride">Časové výnimky</a></li>
+</ul>

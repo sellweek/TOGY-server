@@ -54,5 +54,5 @@ func Presentations(c util.Context) {
 		MaxPages int
 		Data     []templateData
 		Domain   string
-	}{Page: page, MaxPages: maxPages, Data: data, Domain: appengine.DefaultVersionHostname(c.Ac)}, c, util.JqCDN, "/static/js/index.js")
+	}{Page: page, MaxPages: maxPages, Data: data, Domain: appengine.DefaultVersionHostname(c.Ac)}, c, "/static/js/index.js")
 }

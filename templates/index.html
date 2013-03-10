@@ -14,27 +14,39 @@
 				http://docs.google.com/viewer?url={{$domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}&embedded=true
 			</div>
 		</div>
-		<p>
-			<a href="/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}">Stiahnuť</a>
+		<p class="download">
+			<a href="/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" class="btn">Stiahnuť</a>
 		</p>
-		<p class="quiet">
+		<small>
 			Pridané {{.P.Created.Format "2.1.2006"}}
-		</p>
-	<div class="presentation">
+		</small>
+	</div>
 {{end}}
 {{end}}
 <div id="pagination">
-	{{if equal .Page 1}}
+	 
+</div>
+
+<ul class="pager">
+  <li class="previous">
+    {{if equal .Page 1}}
 	{{else}}
 		<a href="/presentation?p={{subtract .Page  1}}">
 			Novšie vysielania
 		</a>
 	{{end}}
-	 Strana {{.Page}}
-	 {{if equal .Page .MaxPages}}
+  </li>
+
+  <li>
+  	<p class="text-center">Strana {{.Page}}</p>
+  </li>
+
+  <li class="next">
+	{{if equal .Page .MaxPages}}
 	 {{else}}
 	 	<a href="/presentation?p={{add .Page  1}}">
 				Staršie vysielania
 		</a>
 	{{end}}
-</div>
+  </li>
+</ul>

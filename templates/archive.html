@@ -1,23 +1,26 @@
-<table borders="1">
-	<tr>
-		<th>
-			Meno
-		</th>
-		<th>
-			Pridaná
-		</th>
-		<th>
-			Stiahnuté
-		</th>
-		<th>
-			Vymazať
-		</th>
-		<th>
-			Aktivovať
-		</th>
-	</tr>
-	{{range .}}
-		<tr {{if .P.Active }}class="active"{{end}}>
+<table class="table">
+	<thead>
+		<tr>
+			<th>
+				Meno
+			</th>
+			<th>
+				Pridaná
+			</th>
+			<th>
+				Stiahnuté
+			</th>
+			<th>
+				Vymazať
+			</th>
+			<th>
+				Aktivovať
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{range .}}
+		<tr {{if .P.Active }}class="info"{{end}}>
 			<td>
 				<a href="/admin/presentation
 				/{{.P.Key}}">{{.P.Name}}</a>
@@ -30,26 +33,29 @@
 			</td>
 			<td>
 				{{if .P.Active}}
-					--
+				--
 				{{else}}
-					<form method="POST" action="/admin/presentation/delete">
-						<input type="hidden" name="id" value="{{.P.Key}}">
-						<input type="submit" value="Vymazať">
-					</form>
+				<form method="POST" action="/admin/presentation/delete" class="button-form">
+					<input type="hidden" name="id" value="{{.P.Key}}">
+					<button type="submit" class="btn btn-danger btn-small">Vymazať</button>
+				</form>
 				{{end}}
 			</td>
 			<td>
 				{{if .P.Active}}
-					--
+				--
 				{{else}}
-					<form method="POST" action="/admin/presentation/activate">
-						<input type="hidden" name="id" value="{{.P.Key}}">
-						<input type="submit" value="Aktivovať">
-					</form>
+				<form method="POST" action="/admin/presentation/activate" class="button-form">
+					<input type="hidden" name="id" value="{{.P.Key}}">
+					<button type="submit" class="btn btn-success btn-small">Aktivovať</button>
+				</form>
 				{{end}}
 			</td>
 		</tr>
-	{{else}}
-		Nie sú pridané žiadne prezentácie
-	{{end}}
+		{{else}}
+		<div class="alert alert-info">
+			Zatiaľ ste nepridali žiadne prezentácie
+		</div>
+		{{end}}
+	</tbody>
 </table>

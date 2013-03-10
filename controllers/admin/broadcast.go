@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"appengine"
 	"appengine/blobstore"
 	"github.com/russross/blackfriday"
 	"html/template"
@@ -135,7 +136,8 @@ func Presentation(c util.Context) {
 		Desc     template.HTML
 		ZeroTime time.Time
 		Avg      float64
-	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL}, c, util.JqCDN, "/static/js/underscore-min.js", "/static/js/presentation.js")
+		Domain   string
+	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL, appengine.DefaultVersionHostname(c.Ac)}, c, "/static/js/underscore-min.js", "/static/js/presentation.js")
 }
 
 //Activate handles activation of presentation.

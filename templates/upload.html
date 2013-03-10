@@ -1,15 +1,26 @@
+<div class="alert">
+	<strong>Pozor!</strong>
+	Ospravedlňujem sa, ale tento formulár nepodporuje diakritiku. Ak ju chcete použiť,
+	môžete ju pridať na stránke pre úpravu jednotlivej prezentácie.
+</div>
+
 <form action="{{.UploadURL}}" method="POST" enctype="multipart/form-data">
-	Názov prezentácie: <input class="title" type="text" name="name"><br>
-	Popis: 
-	<p>
+	<fieldset>
+		<legend>Nahrať novú prezentáciu</legend>
+		<label>Názov prezentácie</label>
+		<input class="title" type="text" name="name" required><br>
+		<label>Popis</label>
 		<textarea id="presentation-description" name="description"></textarea><br>
-		<span class="small quiet">
+		<span class="help-block">
 			Ak chcete, aby bol popis prezentácie pekný a prehľadný, používajte <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a>
 		</span>
-	</p>
-	Súbor: <input type="file" name="file"><br>
-	Aktivovať: <input type="checkbox" name="activate" checked> <br>
-	<input type="submit" name="submit" value="Submit">
+		<label>Súbor</label>
+		<input type="file" name="file">
+		<label class="checkbox">
+			<input type="checkbox" name="activate" checked> Aktivovať
+		</label>
+		<button type="submit" class="btn btn-primary">Nahrať</button>
+	</fieldset>
 </form>
-<p>Prosím, nenahrávajte súbory s diakritikou v názve, App Engine to nemá rád.</p>
+
 <p><b>Aktívna prezentácia: </b>{{.ActivePresentation}}</p>

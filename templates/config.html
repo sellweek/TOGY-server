@@ -1,4 +1,4 @@
-{{template "configMenu.html"}}
+{{template "configMenu.html" 1}}
 <form method="POST" action="/admin/config">
 	Štandardné zapnutie: <input type="text" name="standardOn" class="timeField" value="{{.Conf.StandardOn.Format "15:04"}}"><br>
 	Štandardné vypnutie: <input type="text" name="standardOff" class="timeField" value="{{.Conf.StandardOff.Format "15:04"}}"><br>
@@ -17,37 +17,49 @@
 <h2>Informácie klientov</h2>
 {{/*I know this is copy-pasted from presentation.html, but go's templates are shit*/}}
 {{$zt := .ZeroTime}}
-<table border="1">
-	<tr>
-		<th>
-			Klient
-		</th>
-		<th>
-			Informácia o aktualizácií
-		</th>
-		<th>
-			Začiatok sťahovania
-		</th>
-		<th>
-			Koniec sťahovania
-		</th>
-	</tr>
-	{{range $k, $v  := .A}}
-	{{if $k}}
-		<tr>
-			<td>
-				{{$k}}
-			</td>
-			{{range $v}}
-				<td>
-					{{if .Equal $zt}}
-						Ešte nevykonané
-					{{else}}
-						{{.Format "15:04:05, 2.1.2006"}}
-					{{end}}
-				</td>
+{{$len := len .A}}
+{{$eq := equal $len 0}}
+{{if not $eq}}
+	<table class="table">
+		<thead>
+			<tr>
+				<th>
+					Klient
+				</th>
+				<th>
+					Informácia o aktualizácií
+				</th>
+				<th>
+					Začiatok sťahovania
+				</th>
+				<th>
+					Koniec sťahovania
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{range $k, $v  := .A}}
+				{{if $k}}
+					<tr>
+						<td>
+							{{$k}}
+						</td>
+						{{range $v}}
+							<td>
+								{{if .Equal $zt}}
+									Ešte nevykonané
+								{{else}}
+									{{.Format "15:04:05, 2.1.2006"}}
+								{{end}}
+							</td>
+						{{end}}
+					</tr>
+				{{end}}
 			{{end}}
-		</tr>
-	{{end}}
-	{{end}}
-</table>
+		</tbody>
+	</table>
+{{else}}
+	<div class="alert alert-info">
+		Klienti o tejto konfigurácií ešte nevedia. To sa však čoskoro zmení...
+	</div>
+{{end}}

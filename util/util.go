@@ -70,17 +70,17 @@ func Log404(err error, c Context) {
 //If any arguments are provided after the context, they will be treated like links
 //to JavaScript scripts to load in the header of the template.
 func RenderLayout(tmpl string, title string, data interface{}, c Context, jsIncludes ...string) {
-	renderTemplate("header.html", struct {
+	RenderTemplate("header.html", struct {
 		Title      string
 		JsIncludes []string
 		Admin      bool
 	}{title, jsIncludes, user.IsAdmin(c.Ac)}, c)
-	renderTemplate(tmpl, data, c)
-	renderTemplate("footer.html", nil, c)
+	RenderTemplate(tmpl, data, c)
+	RenderTemplate("footer.html", nil, c)
 }
 
 //renderTemplate renders a single template
-func renderTemplate(tmpl string, data interface{}, c Context) {
+func RenderTemplate(tmpl string, data interface{}, c Context) {
 	if err := templates.ExecuteTemplate(c.W, tmpl, data); err != nil {
 		Log500(err, c)
 	}
