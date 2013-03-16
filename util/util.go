@@ -4,16 +4,19 @@ package util
 import (
 	"appengine"
 	"appengine/user"
+	"fmt"
 	"github.com/gorilla/mux"
 	"html/template"
 	"math"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 )
 
 const (
 	TimeFormat = "20060102150405"                                                   //Time format used in update queries and reponses and in filenames.
-	t          = "templates/"                                                       //Directory with templates
+	t          = "templates"                                                        //Directory with templates
 	JqCDN      = "https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" //Address of jQuery
 )
 
@@ -22,7 +25,7 @@ var Tz, _ = time.LoadLocation("UTC")
 
 //In init we inject few utility functions into templates we're using
 func init() {
-	temp := template.New("").Funcs(template.FuncMap{
+	templates = template.New("").Funcs(template.FuncMap{
 		"equal": func(x, y int) bool {
 			return x == y
 		},
@@ -33,7 +36,35 @@ func init() {
 			return x + y
 		}})
 	// List of template files. When creating new template, add it here.
-	templates = template.Must(temp.ParseFiles(t+"upload.html", t+"layout/header.html", t+"layout/footer.html", t+"archive.html", t+"presentation.html", t+"config.html", t+"layout/configMenu.html", t+"timeConfig.html", t+"timeConfigEdit.html", t+"index.html"))
+	templates = template.Must(parseFiles(templates, t))
+	templates = template.Must(parseFiles(templates, t+string(os.PathSeparator)+"layout"))
+}
+
+//ParseFiles goes trough a folder (non-recursively), parsing and
+//adding all HTML files into a template.
+func parseFiles(t *template.Template, dir string) (temp *template.Template, err error) {
+	f, err := os.Open(dir)
+	if err != nil {
+		return
+	}
+
+	fis, err := f.Readdir(0)
+	if err != nil {
+		return
+	}
+
+	filenames := make([]string, 0)
+
+	for _, fi := range fis {
+		if fi.IsDir() || getFileType(fi.Name()) != "html" {
+			continue
+		}
+
+		filenames = append(filenames, dir+string(os.PathSeparator)+fi.Name())
+	}
+
+	temp, err = t.ParseFiles(filenames...)
+	return
 }
 
 //Context is the type used for passing data to handlers
@@ -126,4 +157,13 @@ func NormalizeDate(t time.Time) time.Time {
 //hours, minutes, seconds and nanoseconds.
 func NormalizeTime(t time.Time) time.Time {
 	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), Tz)
+}
+
+func getFileType(filename string) string {
+	parts := strings.Split(filename, ".")
+	if len(parts) < 2 {
+		return ""
+	}
+
+	return parts[len(parts)-1]
 }
