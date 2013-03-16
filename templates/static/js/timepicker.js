@@ -40,19 +40,19 @@
 	function Timepicker() {
 		this.regional = []; // Available regional settings, indexed by language code
 		this.regional[''] = { // Default regional settings
-			currentText: 'Now',
-			closeText: 'Done',
+			currentText: 'Teraz',
+			closeText: 'Hotovo',
 			amNames: ['AM', 'A'],
 			pmNames: ['PM', 'P'],
 			timeFormat: 'HH:mm',
 			timeSuffix: '',
-			timeOnlyTitle: 'Choose Time',
-			timeText: 'Time',
-			hourText: 'Hour',
-			minuteText: 'Minute',
-			secondText: 'Second',
-			millisecText: 'Millisecond',
-			timezoneText: 'Time Zone',
+			timeOnlyTitle: 'Vyberte čas',
+			timeText: 'Čas',
+			hourText: 'Hodina',
+			minuteText: 'Minúta',
+			secondText: 'Sekunda',
+			millisecText: 'Milisekunda',
+			timezoneText: 'Časová zóna',
 			isRTL: false
 		};
 		this._defaults = { // Global defaults for all the datetime picker instances
