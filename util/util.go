@@ -4,7 +4,6 @@ package util
 import (
 	"appengine"
 	"appengine/user"
-	"fmt"
 	"github.com/gorilla/mux"
 	"html/template"
 	"math"
