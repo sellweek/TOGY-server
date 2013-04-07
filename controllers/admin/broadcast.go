@@ -95,9 +95,12 @@ func UploadHandler(c util.Context) {
 		active = true
 	}
 
-	name := "Neznáma prezentácia z " + time.Now().Format("2.1.2006")
+	name := formVal["name"][0]
+	if name == "" {
+		name = "Neznáma prezentácia z " + time.Now().Format("2.1.2006")
+	}
 
-	p, err := presentation.Make(blob.BlobKey, fileType, name, []byte("Dvojitým kliknutím upravte popis!"), active, c.Ac)
+	p, err := presentation.Make(blob.BlobKey, fileType, name, []byte(formVal["description"][0]), active, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 	}
