@@ -32,7 +32,9 @@ func GetByKey(k string, c appengine.Context) (a *Activation, err error) {
 		return
 	}
 
+	a = new(Activation)
 	err = datastore.Get(c, dk, a)
+	a.Key = k
 	return
 
 }

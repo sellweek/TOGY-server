@@ -13,6 +13,7 @@ import (
 	"models/configuration"
 	"models/configuration/config"
 	"models/presentation"
+	"net/http"
 	"time"
 	"util"
 )
@@ -268,6 +269,22 @@ func ActivateScheduled(c util.Context) {
 		c.Ac.Errorf("Error when deleting used Activation: %v", err)
 		return
 	}
+}
+
+func DeleteActivation(c util.Context) {
+	a, err := activation.GetByKey(c.Vars["key"], c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	err = a.Delete(c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	http.Redirect(c.W, c.R, c.R.FormValue("redirect"), 303)
 }
 
 func getPresentation(c util.Context) (p *presentation.Presentation, err error) {
