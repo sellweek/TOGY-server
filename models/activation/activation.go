@@ -9,19 +9,19 @@ import (
 
 type Activation struct {
 	Time         time.Time
-	Presentation presentation.Presentation
+	Presentation *datastore.Key
 
 	Key string `datastore:"-"`
 }
 
-func New(t time.Time, p presentation.Presentation) (a *Activation) {
+func New(t time.Time, p *datastore.Key) (a *Activation) {
 	a = new(Activation)
 	a.Time = t
 	a.Presentation = p
 	return
 }
 
-func Make(t time.Time, p presentation.Presentation, c appengine.Context) (a *Activation, err error) {
+func Make(t time.Time, p *datastore.Key, c appengine.Context) (a *Activation, err error) {
 	a = New(t, p)
 	err = a.Save(c)
 	return
@@ -68,7 +68,7 @@ func (a *Activation) Save(c appengine.Context) (err error) {
 	var k *datastore.Key
 	if a.Key == "" {
 		var pKey *datastore.Key
-		pKey, err = datastore.DecodeKey(a.Presentation.Key)
+		pKey, err = datastore.DecodeKey(a.Presentation.Encode())
 		if err != nil {
 			return
 		}
@@ -90,9 +90,24 @@ func (a *Activation) Save(c appengine.Context) (err error) {
 	return
 }
 
+func (a *Activation) Delete(c appengine.Context) (err error) {
+	k, err := datastore.DecodeKey(a.Key)
+	if err != nil {
+		return
+	}
+
+	err = datastore.Delete(c, k)
+	if err != nil {
+		return
+	}
+	a.Key = ""
+
+	return
+}
+
 func timeQuery(t time.Time, sign string, c appengine.Context) (as []*Activation, err error) {
 	as = make([]*Activation, 0)
-	keys, err := datastore.NewQuery("Activation").Filter("Time "+sign, t).GetAll(c, as)
+	keys, err := datastore.NewQuery("Activation").Filter("Time "+sign, t).Order("Time").GetAll(c, &as)
 	if err != nil {
 		return
 	}
