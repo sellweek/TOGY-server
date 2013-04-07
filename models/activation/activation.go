@@ -38,14 +38,10 @@ func GetByKey(k string, c appengine.Context) (a *Activation, err error) {
 
 }
 
-func GetForPresentation(p presentation.Presentation, c appengine.Context) (as []*Activation, err error) {
+func GetForPresentation(p *datastore.Key, c appengine.Context) (as []*Activation, err error) {
 	as = make([]*Activation, 0)
-	pk, err := datastore.DecodeKey(p.Key)
-	if err != nil {
-		return
-	}
 
-	keys, err := datastore.NewQuery("Activation").Ancestor(pk).GetAll(c, as)
+	keys, err := datastore.NewQuery("Activation").Ancestor(p).GetAll(c, as)
 	if err != nil {
 		return
 	}
