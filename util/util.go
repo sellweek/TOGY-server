@@ -84,13 +84,13 @@ func Handler(hand func(Context)) http.HandlerFunc {
 
 //Log500 sends an Internal Server Error to user with error message from the error.
 func Log500(err error, c Context) {
-	c.Ac.Warningf("Error 500. %v", err)
+	c.Ac.Errorf("Error 500. %v", err)
 	http.Error(c.W, err.Error(), http.StatusInternalServerError)
 }
 
 //Log404 sends a Not Found Error to user with error message from the error.
 func Log404(err error, c Context) {
-	c.Ac.Infof("Error 404. %v", err)
+	c.Ac.Warningf("Error 404. %v", err)
 	http.Error(c.W, err.Error(), http.StatusNotFound)
 }
 
