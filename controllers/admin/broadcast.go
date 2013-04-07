@@ -40,10 +40,35 @@ func Upload(c util.Context) {
 		return
 	}
 
+	acts, err := activation.GetAfterTime(time.Now(), c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	type actWithName struct {
+		A *activation.Activation
+		P *presentation.Presentation
+	}
+
+	ans := make([]actWithName, len(acts))
+
+	for i, a := range acts {
+		pk := a.Presentation.Encode()
+		var p *presentation.Presentation
+		p, err = presentation.GetByKey(pk, c.Ac)
+		if err != nil {
+			c.Ac.Errorf("Could not load presentation: %v", err)
+			continue
+		}
+		ans[i] = actWithName{a, p}
+	}
+
 	util.RenderLayout("upload.html", "Nahrať prezentáciu", struct {
 		ActivePresentation string
 		UploadURL          *url.URL
-	}{activeName, uploadURL}, c)
+		Ans                []actWithName
+	}{activeName, uploadURL, ans}, c)
 }
 
 //UploadHandler handles upload of a new presentation and saving its metadata
