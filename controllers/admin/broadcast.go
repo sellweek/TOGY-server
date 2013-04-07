@@ -3,9 +3,11 @@ package admin
 import (
 	"appengine"
 	"appengine/blobstore"
+	"appengine/datastore"
 	"github.com/russross/blackfriday"
 	"html/template"
 	"models/action"
+	"models/activation"
 	"models/presentation"
 	"net/http"
 	"net/url"
@@ -130,14 +132,25 @@ func Presentation(c util.Context) {
 
 	avgDL := util.Round(util.Average(secs...), 2)
 
+	//We can safely ignore errors here since we already
+	//got the presentation using the same key
+	pk, _ := datastore.DecodeKey(p.Key)
+
+	acts, err := activation.GetForPresentation(pk, c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
 	util.RenderLayout("presentation.html", "Info o prezentácií", struct {
-		P        *presentation.Presentation
-		A        map[string][]time.Time
-		Desc     template.HTML
-		ZeroTime time.Time
-		Avg      float64
-		Domain   string
-	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL, appengine.DefaultVersionHostname(c.Ac)}, c, "/static/js/underscore-min.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/presentation.js")
+		P           *presentation.Presentation
+		A           map[string][]time.Time
+		Desc        template.HTML
+		ZeroTime    time.Time
+		Avg         float64
+		Domain      string
+		Activations []*activation.Activation
+	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL, appengine.DefaultVersionHostname(c.Ac), acts}, c, "/static/js/underscore-min.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/presentation.js")
 }
 
 //Activate handles activation of presentation.

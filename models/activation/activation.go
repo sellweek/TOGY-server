@@ -3,7 +3,6 @@ package activation
 import (
 	"appengine"
 	"appengine/datastore"
-	"models/presentation"
 	"time"
 )
 
@@ -41,7 +40,7 @@ func GetByKey(k string, c appengine.Context) (a *Activation, err error) {
 func GetForPresentation(p *datastore.Key, c appengine.Context) (as []*Activation, err error) {
 	as = make([]*Activation, 0)
 
-	keys, err := datastore.NewQuery("Activation").Ancestor(p).GetAll(c, as)
+	keys, err := datastore.NewQuery("Activation").Ancestor(p).GetAll(c, &as)
 	if err != nil {
 		return
 	}
