@@ -3,6 +3,7 @@ package api
 
 import (
 	"appengine/blobstore"
+	"appengine/datastore"
 	"encoding/json"
 	"fmt"
 	"github.com/russross/blackfriday"
@@ -212,9 +213,59 @@ func ScheduleActivation(c util.Context) {
 		return
 	}
 
-	_, err = activation.Make(t, *p, c.Ac)
+	pk, err := datastore.DecodeKey(p.Key)
 	if err != nil {
 		util.Log500(err, c)
+		return
+	}
+
+	_, err = activation.Make(t, pk, c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+}
+
+func ActivateScheduled(c util.Context) {
+	t := time.Now()
+	as, err := activation.GetBeforeTime(t, c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	l := len(as)
+	if l == 0 {
+		return
+	}
+
+	for i, a := range as {
+		if i == l-1 {
+			break
+		}
+		err = a.Delete(c.Ac)
+		if err != nil {
+			c.Ac.Errorf("Error when deleting expired Activation: %v", err)
+		}
+	}
+
+	pk := as[l-1].Presentation
+	p, err := presentation.GetByKey(pk.Encode(), c.Ac)
+	if err != nil {
+		c.Ac.Errorf("Error when loading Presentation: %v", err)
+		return
+	}
+
+	p.Active = true
+	err = p.Save(c.Ac)
+	if err != nil {
+		c.Ac.Errorf("Error when activating Presentation: %v", err)
+		return
+	}
+
+	err = as[l-1].Delete(c.Ac)
+	if err != nil {
+		c.Ac.Errorf("Error when deleting used Activation: %v", err)
 		return
 	}
 }
