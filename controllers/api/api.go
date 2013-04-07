@@ -8,9 +8,11 @@ import (
 	"github.com/russross/blackfriday"
 	"io/ioutil"
 	"models/action"
+	"models/activation"
 	"models/configuration"
 	"models/configuration/config"
 	"models/presentation"
+	"time"
 	"util"
 )
 
@@ -188,6 +190,33 @@ func GetConfig(c util.Context) {
 //they have downloaded the broadcast.
 func GotConfig(c util.Context) {
 	action.Log(new(config.Config), c.R.FormValue("client"), action.DownloadFinish, c.Ac)
+}
+
+func ScheduleActivation(c util.Context) {
+	p, err := getPresentation(c)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	defer c.R.Body.Close()
+	timeString, err := ioutil.ReadAll(c.R.Body)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	t, err := time.Parse("Mon Jan 2 2006 15:04:05 GMT-0700 (MST)", string(timeString))
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	_, err = activation.Make(t, *p, c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
 }
 
 func getPresentation(c util.Context) (p *presentation.Presentation, err error) {

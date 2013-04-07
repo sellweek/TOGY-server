@@ -137,7 +137,7 @@ func Presentation(c util.Context) {
 		ZeroTime time.Time
 		Avg      float64
 		Domain   string
-	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL, appengine.DefaultVersionHostname(c.Ac)}, c, "/static/js/underscore-min.js", "/static/js/presentation.js")
+	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL, appengine.DefaultVersionHostname(c.Ac)}, c, "/static/js/underscore-min.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/presentation.js")
 }
 
 //Activate handles activation of presentation.

@@ -61,6 +61,18 @@
 		<input class="span2 uneditable-input" value="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" type="text">
 		<a href="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" class="btn">Stiahnuť</a>
 	</div>
+	<div id="schedule-activation-container">
+		<form id="schedule-activation">
+			<fieldset>
+				<legend>Naplánovať aktiváciu</legend>
+				<label>Dátum a čas</label>
+				<div class="input-append">
+					<input class="span2" type="text" name="datetime">
+					<button type="submit" class="btn btn-primary">Naplánovať</button>
+				</div>
+			<fieldset>
+		</form>
+	</div>
 </div>
 
 <p class="help-block">Názov a popis prezentácie môžete editovať po dvojitom kliknutí na ne.</p>
