@@ -1,5 +1,5 @@
 application: sellweek-testing
-version: 6
+version: 7
 runtime: go
 api_version: go1
 
@@ -9,6 +9,10 @@ handlers:
   login: admin
   auth_fail_action: redirect
 - url: /api/presentation/.*/description
+  script: _go_app
+  login: admin
+  auth_fail_action: unauthorized
+- url: /api/presentation/.*/name
   script: _go_app
   login: admin
   auth_fail_action: unauthorized
