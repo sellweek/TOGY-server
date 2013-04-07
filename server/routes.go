@@ -51,8 +51,11 @@ func init() {
 	r.HandleFunc("/api/presentation/{key}/description", util.Handler(api.UpdateDescription)).Methods("POST")
 	r.HandleFunc("/api/presentation/{key}/name", util.Handler(api.GetName)).Methods("GET")
 	r.HandleFunc("/api/presentation/{key}/name", util.Handler(api.UpdateName)).Methods("POST")
-	r.HandleFunc("/api/config/download", util.Handler(api.GetConfig))
-	r.HandleFunc("/api/config/downloadComplete", util.Handler(api.GotConfig))
+	r.HandleFunc("/api/presentation/{key}/schedule", util.Handler(api.ScheduleActivation)).Methods("POST")
+	r.HandleFunc("/api/activation/{key}/delete", util.Handler(api.DeleteActivation)).Methods("POST")
+	r.HandleFunc("/api/presentation/activate", util.Handler(api.ActivateScheduled)).Methods("GET")
+	r.HandleFunc("/api/config/download", util.Handler(api.GetConfig)).Methods("GET")
+	r.HandleFunc("/api/config/downloadComplete", util.Handler(api.GotConfig)).Methods("GET")
 	r.HandleFunc("/api/update", util.Handler(api.Update))
 
 	r.StrictSlash(true)

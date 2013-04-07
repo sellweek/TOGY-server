@@ -39,27 +39,73 @@
 		</div>
 	</blockquote>
 </div>
-
-<h2>Akcie</h2>
-<div id="buttons">
-	{{if .P.Active}}
-	<div class="alert alert-info">
-		Táto prezentácia je práve aktívna
+<div class="row">
+	<div id="buttons" class="span6">
+		<h2>Akcie</h2>
+		{{if .P.Active}}
+		<div class="alert alert-info">
+			Táto prezentácia je práve aktívna
+		</div>
+		{{else}}
+			<form method="POST" action="/admin/presentation/activate" class="button-form">
+				<input type="hidden" name="id" value="{{.P.Key}}">
+				<button type="submit" class="btn btn-success">Aktivovať</button>
+			</form>
+		
+			<form method="POST" action="/admin/presentation/delete" class="button-form">
+				<input type="hidden" name="id" value="{{.P.Key}}">
+				<button type="submit" class="btn btn-danger">Vymazať</button>
+			</form>
+		{{end}}
+		<div class="input-append">
+			<input class="span2 uneditable-input" value="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" type="text">
+			<a href="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" class="btn">Stiahnuť</a>
+		</div>
 	</div>
-	{{else}}
-		<form method="POST" action="/admin/presentation/activate" class="button-form">
-			<input type="hidden" name="id" value="{{.P.Key}}">
-			<button type="submit" class="btn btn-success">Aktivovať</button>
-		</form>
-	
-		<form method="POST" action="/admin/presentation/delete" class="button-form">
-			<input type="hidden" name="id" value="{{.P.Key}}">
-			<button type="submit" class="btn btn-danger">Vymazať</button>
-		</form>
-	{{end}}
-	<div class="input-append" style="padding-top: 10px;">
-		<input class="span2 uneditable-input" value="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" type="text">
-		<a href="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" class="btn">Stiahnuť</a>
+
+	<div id="acts" class="span6">
+		<h2>
+			Naplánované aktivácie
+		</h2>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>
+						Dátum a čas
+					</th>
+					<th>
+						Vymazať
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{$p := .P}}
+				{{range .Activations}}
+					<tr>
+						<td>
+							{{.Time.Format "2.1.2006 15:04:05"}}
+						</td>
+						<td>
+							<form method="POST" action="/api/activation/{{.Key}}/delete" class="button-form">
+								<input type="hidden" name="redirect" value="/admin/presentation/{{$p.Key}}">
+								<button type="submit" class="btn btn-danger btn-small">Vymazať</button>
+							</form>
+						</td>
+					</tr>
+				{{end}}
+			</tbody>
+		</table>
+		<div id="schedule-activation-container">
+			<form id="schedule-activation">
+				<fieldset>
+					<legend>Naplánovať aktiváciu</legend>
+					<div class="input-append">
+						<input class="span2" type="text" name="datetime">
+						<button type="submit" class="btn btn-primary">Naplánovať</button>
+					</div>
+				<fieldset>
+			</form>
+		</div>
 	</div>
 </div>
 
@@ -119,10 +165,12 @@
 </script>
 
 <script type="text/template" id="title-edit-template">
-	<form>
-		<input type="text" value="<%=title%>" class="title" id="title-field">
-		<button type="submit" class="btn btn-primary">Uložiť</button>
-	</form>
+	<div class="input-append">
+		<form>
+			<input type="text" value="<%=title%>" class="title span3" id="title-field">
+			<button type="submit" class="btn btn-primary">Uložiť</button>
+		</form>
+	</div>
 </script>
 
 <script type="text/template" id="description-show-template">

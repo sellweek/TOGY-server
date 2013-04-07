@@ -35,4 +35,22 @@ $(function() {
 		return false;
 	});
 
+	$("input[name=datetime]").datetimepicker({
+		stepMinute: 5
+	});
+	$("input[name=datetime]").datetimepicker($.datepicker.regional[ "sk" ]);
+	$("input[name=datetime]").datetimepicker("option", "dateFormat", "yy-mm-dd");
+
+	$("#schedule-activation").on("submit", function() {
+		$.post("/api/presentation/"+presentationKey+"/schedule", $("input[name=datetime]").datetimepicker("getDate").toString(), function(data) {
+			if (data==="") {
+				$("#schedule-activation-container").html("Aktivácia naplánovaná");
+				$("#schedule-activation-container").addClass("alert alert-success");
+			} else {
+				$("#schedule-activation-container").html("Chyba: "+data);
+				$("#schedule-activation-container").addClass("alert alert-error");
+			}
+		});
+		return false;
+	})
 });

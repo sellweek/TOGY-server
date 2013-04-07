@@ -1,0 +1,4 @@
+cron:
+- description: Scheduled activation job
+  url: /api/presentation/activate
+  schedule: every 5 minutes

@@ -3,9 +3,11 @@ package admin
 import (
 	"appengine"
 	"appengine/blobstore"
+	"appengine/datastore"
 	"github.com/russross/blackfriday"
 	"html/template"
 	"models/action"
+	"models/activation"
 	"models/presentation"
 	"net/http"
 	"net/url"
@@ -38,10 +40,35 @@ func Upload(c util.Context) {
 		return
 	}
 
+	acts, err := activation.GetAfterTime(time.Now(), c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	type actWithName struct {
+		A *activation.Activation
+		P *presentation.Presentation
+	}
+
+	ans := make([]actWithName, len(acts))
+
+	for i, a := range acts {
+		pk := a.Presentation.Encode()
+		var p *presentation.Presentation
+		p, err = presentation.GetByKey(pk, c.Ac)
+		if err != nil {
+			c.Ac.Errorf("Could not load presentation: %v", err)
+			continue
+		}
+		ans[i] = actWithName{a, p}
+	}
+
 	util.RenderLayout("upload.html", "Nahrať prezentáciu", struct {
 		ActivePresentation string
 		UploadURL          *url.URL
-	}{activeName, uploadURL}, c)
+		Ans                []actWithName
+	}{activeName, uploadURL, ans}, c)
 }
 
 //UploadHandler handles upload of a new presentation and saving its metadata
@@ -68,12 +95,9 @@ func UploadHandler(c util.Context) {
 		active = true
 	}
 
-	name := formVal["name"][0]
-	if name == "" {
-		name = "Neznáma prezentácia z " + time.Now().Format("2.1.2006")
-	}
+	name := "Neznáma prezentácia z " + time.Now().Format("2.1.2006")
 
-	p, err := presentation.Make(blob.BlobKey, fileType, name, []byte(formVal["description"][0]), active, c.Ac)
+	p, err := presentation.Make(blob.BlobKey, fileType, name, []byte("Dvojitým kliknutím upravte popis!"), active, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 	}
@@ -130,14 +154,25 @@ func Presentation(c util.Context) {
 
 	avgDL := util.Round(util.Average(secs...), 2)
 
+	//We can safely ignore errors here since we already
+	//got the presentation using the same key
+	pk, _ := datastore.DecodeKey(p.Key)
+
+	acts, err := activation.GetForPresentation(pk, c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
 	util.RenderLayout("presentation.html", "Info o prezentácií", struct {
-		P        *presentation.Presentation
-		A        map[string][]time.Time
-		Desc     template.HTML
-		ZeroTime time.Time
-		Avg      float64
-		Domain   string
-	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL, appengine.DefaultVersionHostname(c.Ac)}, c, "/static/js/underscore-min.js", "/static/js/presentation.js")
+		P           *presentation.Presentation
+		A           map[string][]time.Time
+		Desc        template.HTML
+		ZeroTime    time.Time
+		Avg         float64
+		Domain      string
+		Activations []*activation.Activation
+	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL, appengine.DefaultVersionHostname(c.Ac), acts}, c, "/static/js/underscore-min.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/presentation.js")
 }
 
 //Activate handles activation of presentation.

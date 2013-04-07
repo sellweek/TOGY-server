@@ -1,26 +1,50 @@
 <div class="alert">
-	<strong>Pozor!</strong>
-	Ospravedlňujem sa, ale tento formulár nepodporuje diakritiku. Ak ju chcete použiť,
-	môžete ju pridať na stránke pre úpravu jednotlivej prezentácie.
+<strong>Pozor!</strong>
+Ospravedlňujem sa, ale tento formulár nepodporuje diakritiku v názvoch súborov.<br>
+Ďalšie informácie o prezentácií vyplníte po jej nahratí.
 </div>
+<div class="row">
+	<div class="span6">
+		<form action="{{.UploadURL}}" method="POST" enctype="multipart/form-data">
+			<fieldset>
+				<legend>Nahrať novú prezentáciu</legend>
+				<label>Súbor</label>
+				<input type="file" name="file">
+				<div>
+				<label class="radio" style="padding-left: 0px">
+					<input type="checkbox" name="activate" checked> Aktivovať
+				</label>
+				<button type="submit" class="btn btn-primary">Nahrať</button>
+			</fieldset>
+		</form>
+	</div>
+	<div class="span6">
+		<legend>Naplánovaný program</legend>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>
+						Dátum a čas
+					</th>
+					<th>
+						Názov prezentácie
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{range .Ans}}
+					<tr>
+						<td>
+							{{.A.Time.Format "2.1.2006 15:04:05"}}
+						</td>
+						<td>
+							<a href="/admin/presentation/{{.P.Key}}">{{.P.Name}}</a>
+						</td>
+					</tr>
+				{{end}}
+			</tbody>
+		</table>
+	</div>
 
-<form action="{{.UploadURL}}" method="POST" enctype="multipart/form-data">
-	<fieldset>
-		<legend>Nahrať novú prezentáciu</legend>
-		<label>Názov prezentácie</label>
-		<input class="title" type="text" name="name" required><br>
-		<label>Popis</label>
-		<textarea id="presentation-description" name="description"></textarea><br>
-		<span class="help-block">
-			Ak chcete, aby bol popis prezentácie pekný a prehľadný, používajte <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a>
-		</span>
-		<label>Súbor</label>
-		<input type="file" name="file">
-		<label class="checkbox">
-			<input type="checkbox" name="activate" checked> Aktivovať
-		</label>
-		<button type="submit" class="btn btn-primary">Nahrať</button>
-	</fieldset>
-</form>
-
+</div>
 <p><b>Aktívna prezentácia: </b>{{.ActivePresentation}}</p>

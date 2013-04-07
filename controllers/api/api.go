@@ -3,14 +3,18 @@ package api
 
 import (
 	"appengine/blobstore"
+	"appengine/datastore"
 	"encoding/json"
 	"fmt"
 	"github.com/russross/blackfriday"
 	"io/ioutil"
 	"models/action"
+	"models/activation"
 	"models/configuration"
 	"models/configuration/config"
 	"models/presentation"
+	"net/http"
+	"time"
 	"util"
 )
 
@@ -188,6 +192,99 @@ func GetConfig(c util.Context) {
 //they have downloaded the broadcast.
 func GotConfig(c util.Context) {
 	action.Log(new(config.Config), c.R.FormValue("client"), action.DownloadFinish, c.Ac)
+}
+
+func ScheduleActivation(c util.Context) {
+	p, err := getPresentation(c)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	defer c.R.Body.Close()
+	timeString, err := ioutil.ReadAll(c.R.Body)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	t, err := time.Parse("Mon Jan 2 2006 15:04:05 GMT-0700 (MST)", string(timeString))
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	pk, err := datastore.DecodeKey(p.Key)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	_, err = activation.Make(t, pk, c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+}
+
+func ActivateScheduled(c util.Context) {
+	t := time.Now()
+	as, err := activation.GetBeforeTime(t, c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	l := len(as)
+	if l == 0 {
+		return
+	}
+
+	for i, a := range as {
+		if i == l-1 {
+			break
+		}
+		err = a.Delete(c.Ac)
+		if err != nil {
+			c.Ac.Errorf("Error when deleting expired Activation: %v", err)
+		}
+	}
+
+	pk := as[l-1].Presentation
+	p, err := presentation.GetByKey(pk.Encode(), c.Ac)
+	if err != nil {
+		c.Ac.Errorf("Error when loading Presentation: %v", err)
+		return
+	}
+
+	p.Active = true
+	err = p.Save(c.Ac)
+	if err != nil {
+		c.Ac.Errorf("Error when activating Presentation: %v", err)
+		return
+	}
+
+	err = as[l-1].Delete(c.Ac)
+	if err != nil {
+		c.Ac.Errorf("Error when deleting used Activation: %v", err)
+		return
+	}
+}
+
+func DeleteActivation(c util.Context) {
+	a, err := activation.GetByKey(c.Vars["key"], c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	err = a.Delete(c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	http.Redirect(c.W, c.R, c.R.FormValue("redirect"), 303)
 }
 
 func getPresentation(c util.Context) (p *presentation.Presentation, err error) {
