@@ -7,16 +7,20 @@
 	<input type="text" name="updateInterval" value="{{.Conf.UpdateInterval}}"><br>
 	
 	<label class="radio">
-		<input type="radio" name="overrideState" value="0" {{if equal .Conf.OverrideState 0}} checked{{end}}> Používať štandardné nastavenia
+		<input type="radio" name="overrideState" value="0" {{if equal .Conf.OverrideState 0}} checked{{end}}> 
+		Používať štandardné nastavenia
 	</label>
 	<label class="radio">
-		<input type="radio" name="overrideState" value="-1" {{if equal .Conf.OverrideState -1}} checked{{end}}> Vysielanie vypnuté
+		<input type="radio" name="overrideState" value="-1" {{if equal .Conf.OverrideState -1}} checked{{end}}> 
+		Vysielanie vždy vypnuté
 	</label>
 	<label class="radio">
-		<input type="radio" name="overrideState" value="1" {{if equal .Conf.OverrideState 1}} checked{{end}}> Vysielanie zapnuté
+		<input type="radio" name="overrideState" value="1" {{if equal .Conf.OverrideState 1}} checked{{end}}> 
+		Vysielanie vždy zapnuté
 	</label>
 	<label class="checkbox">
-		<input type="checkbox" name="weekends" value="true" {{if .Conf.Weekends}} checked {{end}}> Cez víkendy používať štandarné nastavenie
+		<input type="checkbox" name="weekends" value="true" {{if .Conf.Weekends}} checked {{end}}> 
+		Cez víkendy používať štandarné nastavenie
 	</label>
 	<input type="submit">
 </form>
