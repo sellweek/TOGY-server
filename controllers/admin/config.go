@@ -38,12 +38,12 @@ func ShowConfig(c util.Context) {
 func SetConfig(c util.Context) {
 	var err error
 	conf := new(config.Config)
-	conf.StandardOn, err = time.Parse(config.ConfTimeFormat, c.R.FormValue("standardOn"))
+	on, err := time.Parse(config.ConfTimeFormat, c.R.FormValue("standardOn"))
 	if err != nil {
 		util.Log500(err, c)
 		return
 	}
-	conf.StandardOff, err = time.Parse(config.ConfTimeFormat, c.R.FormValue("standardOff"))
+	off, err := time.Parse(config.ConfTimeFormat, c.R.FormValue("standardOff"))
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -63,6 +63,9 @@ func SetConfig(c util.Context) {
 	if c.R.FormValue("weekends") == "true" {
 		conf.Weekends = true
 	}
+
+	conf.StandardOn = util.NormalizeTime(on, true)
+	conf.StandardOff = util.NormalizeTime(off, true)
 
 	err = conf.Save(c.Ac)
 	if err != nil {
