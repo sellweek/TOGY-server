@@ -29,8 +29,8 @@ type Config struct {
 }
 
 //GetKey returns key of the Datastore Config record.
-//It will always return the key of the one Datastore record,
-//even if its called like 
+//It will always return the key of the single Datastore record,
+//even if its called like
 //	Config{}.GetKey
 func (c Config) GetKey(ctx appengine.Context) (k *datastore.Key, err error) {
 	k, err = datastore.NewQuery("Config").KeysOnly().Run(ctx).Next(nil)
@@ -48,8 +48,8 @@ func (c *Config) Save(ctx appengine.Context) (err error) {
 		return
 	}
 
-	c.StandardOn = util.NormalizeTime(c.StandardOn)
-	c.StandardOff = util.NormalizeTime(c.StandardOff)
+	c.StandardOn = util.NormalizeTime(c.StandardOn, false)
+	c.StandardOff = util.NormalizeTime(c.StandardOff, false)
 
 	_, err = datastore.Put(ctx, key, c)
 	if err != nil {

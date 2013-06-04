@@ -119,7 +119,7 @@ func TimeOverrideSubmit(c util.Context) {
 		util.Log500(err, c)
 		return
 	}
-	tc := timeConfig.New(date, on, off)
+	tc := timeConfig.New(util.NormalizeDate(date, true), util.NormalizeTime(on, true), util.NormalizeTime(off, true))
 	tc.Key = c.Vars["id"]
 	err = tc.Save(c.Ac)
 	if err != nil {

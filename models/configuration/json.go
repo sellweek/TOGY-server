@@ -7,6 +7,11 @@ import (
 	"models/configuration/timeConfig"
 )
 
+const (
+	jsonTimeFormat = "15:04 -0700"
+	jsonDateFormat = "2006-1-2 -0700"
+)
+
 //JSON returns JSON representation of config and time override settings
 //for use in clients.
 func JSON(c appengine.Context) (js []byte, err error) {
@@ -22,8 +27,8 @@ func JSON(c appengine.Context) (js []byte, err error) {
 	}
 
 	j["StandardTimeSettings"] = map[string]string{
-		"TurnOn":  conf.StandardOn.Format(config.ConfTimeFormat),
-		"TurnOff": conf.StandardOff.Format(config.ConfTimeFormat),
+		"TurnOn":  conf.StandardOn.Format(jsonTimeFormat),
+		"TurnOff": conf.StandardOff.Format(jsonTimeFormat),
 	}
 	j["UpdateInterval"] = conf.UpdateInterval
 	switch conf.OverrideState {
@@ -42,11 +47,11 @@ func JSON(c appengine.Context) (js []byte, err error) {
 
 	for _, tc := range tcs {
 		timeMap := make(map[string]string)
-		timeMap["TurnOn"] = tc.On.Format(config.ConfTimeFormat)
-		timeMap["TurnOff"] = tc.Off.Format(config.ConfTimeFormat)
+		timeMap["TurnOn"] = tc.On.Format(jsonTimeFormat)
+		timeMap["TurnOff"] = tc.Off.Format(jsonTimeFormat)
 
 		j["OverrideDays"] = make(map[string]map[string]string)
-		j["OverrideDays"].(map[string]map[string]string)[tc.Date.Format(config.ConfDateFormat)] = timeMap
+		j["OverrideDays"].(map[string]map[string]string)[tc.Date.Format(jsonDateFormat)] = timeMap
 	}
 
 	js, err = json.Marshal(j)

@@ -6,7 +6,6 @@ import (
 	"models/action"
 	"models/configuration/config"
 	"time"
-	"util"
 )
 
 //TimeConfig is a model used to store
@@ -21,9 +20,9 @@ type TimeConfig struct {
 //New returns a pointer to a TimeConfig with its fields set according to arguments.
 func New(date, on, off time.Time) (tc *TimeConfig) {
 	tc = new(TimeConfig)
-	tc.Date = util.NormalizeDate(date)
-	tc.Off = util.NormalizeTime(off)
-	tc.On = util.NormalizeTime(on)
+	tc.Date = date
+	tc.Off = off
+	tc.On = on
 	return
 }
 
@@ -39,9 +38,6 @@ func Make(date, on, off time.Time, c appengine.Context) (tc *TimeConfig, err err
 //that has that key. If not, it will use datastore.NewIncompleteKey()
 //to create a new key and set the field.
 func (tc *TimeConfig) Save(c appengine.Context) (err error) {
-	tc.On = util.NormalizeTime(tc.On)
-	tc.Off = util.NormalizeTime(tc.Off)
-	tc.Date = util.NormalizeDate(tc.Date)
 
 	var k *datastore.Key
 	if tc.Key == "" {

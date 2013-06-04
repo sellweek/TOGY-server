@@ -19,9 +19,9 @@ const (
 )
 
 var templates *template.Template
-var Tz, _ = time.LoadLocation("UTC")
+var Tz, _ = time.LoadLocation("Europe/Bratislava")
 
-//In init we inject few utility functions into templates we're using
+//init injects few utility functions into templates we're using
 func init() {
 	templates = template.New("").Funcs(template.FuncMap{
 		"equal": func(x, y int) bool {
@@ -147,14 +147,30 @@ func Round(x float64, prec int) float64 {
 
 //NormalizeDate strips the time part from time.Date leaving only
 //year, month and day.
-func NormalizeDate(t time.Time) time.Time {
-	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, Tz)
+//If forceTZ is true, its location will be set to util.Tz,
+//if false, it will be left as is.
+func NormalizeDate(t time.Time, forceTZ bool) time.Time {
+	var tz *time.Location
+	if forceTZ {
+		tz = Tz
+	} else {
+		tz = t.Location()
+	}
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)
 }
 
 //NormalizeTime strips the date part from time.Date leaving only
 //hours, minutes, seconds and nanoseconds.
-func NormalizeTime(t time.Time) time.Time {
-	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), Tz)
+//If forceTZ is true, its location will be set to util.Tz,
+//if false, it will be left as is.
+func NormalizeTime(t time.Time, forceTZ bool) time.Time {
+	var tz *time.Location
+	if forceTZ {
+		tz = Tz
+	} else {
+		tz = t.Location()
+	}
+	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), tz)
 }
 
 func getFileType(filename string) string {
