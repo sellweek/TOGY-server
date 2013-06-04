@@ -73,6 +73,8 @@ func (tc *TimeConfig) Delete(c appengine.Context) (err error) {
 	}
 	tc.Key = ""
 
+	action.DeleteFor(&config.Config{}, c)
+
 	return
 }
 
