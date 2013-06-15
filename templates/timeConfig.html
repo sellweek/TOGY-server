@@ -1,6 +1,5 @@
 {{template "configMenu.html" 2}}
-{{$len := len .}}
-{{if equal $len 0}}
+{{if equal (len .) 0}}
 <div class="alert alert-info">
 	Zatiaľ nie sú pridané žiadne časové výnimky
 </div>

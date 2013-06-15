@@ -28,8 +28,7 @@
 <h2>Informácie klientov</h2>
 {{/*I know this is copy-pasted from presentation.html, but go's templates are shit*/}}
 {{$zt := .ZeroTime}}
-{{$len := len .A}}
-{{$eq := equal $len 0}}
+{{$eq := equal (len .A) 0}}
 {{if not $eq}}
 	<table class="table">
 		<thead>

@@ -114,8 +114,7 @@
 {{$zt := .ZeroTime}}
 
 <h2>Informácie klientov</h2>
-{{$len := len .A}}
-{{if equal $len 0}}
+{{if equal (len .A) 0}}
 	<div class="alert alert-info">
 		Klienti o tejto prezentácií ešte nevedia. To sa však čoskoro zmení...
 	</div>
