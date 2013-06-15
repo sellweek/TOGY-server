@@ -4,9 +4,11 @@ package api
 import (
 	"appengine/blobstore"
 	"appengine/datastore"
+	"archive/zip"
 	"encoding/json"
 	"fmt"
 	"github.com/russross/blackfriday"
+	"io"
 	"io/ioutil"
 	"models/action"
 	"models/activation"
@@ -144,7 +146,7 @@ func UpdateDescription(c util.Context) {
 	fmt.Fprint(c.W, string(blackfriday.MarkdownCommon(body)))
 }
 
-//GetName responds with the name of a broadcast. 
+//GetName responds with the name of a broadcast.
 func GetName(c util.Context) {
 	p, err := getPresentation(c)
 	if err != nil {
@@ -295,4 +297,85 @@ func getPresentation(c util.Context) (p *presentation.Presentation, err error) {
 		p, err = presentation.GetByKey(key, c.Ac)
 	}
 	return
+}
+
+func ZipAll(c util.Context) {
+	c.Ac.Infof("Getting presentations")
+	ps, err := presentation.GetAll(c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	fileNo := 1
+	pNo := 0
+
+	var (
+		blob *blobstore.Writer
+		r    blobstore.Reader
+		z    *zip.Writer
+	)
+
+	for i, p := range ps {
+		pNo++
+		if i%12 == 0 {
+			c.Ac.Infof("Creating blob %d", fileNo)
+			blob, err = blobstore.Create(c.Ac, "application/zip")
+			if err != nil {
+				util.Log500(err, c)
+				return
+			}
+
+			c.Ac.Infof("Creating zip")
+			z = zip.NewWriter(blob)
+
+			c.Ac.Infof("Reading presentation: " + p.Name)
+			r = blobstore.NewReader(c.Ac, p.BlobKey)
+			if err != nil {
+				util.Log500(err, c)
+				return
+			}
+		}
+
+		c.Ac.Infof("Creating a file inside zip")
+		pw, err := z.Create(fmt.Sprint(p.Name, ".", p.FileType))
+		if err != nil {
+			util.Log500(err, c)
+			return
+		}
+
+		c.Ac.Infof("Writing to zip")
+		_, err = io.Copy(pw, r)
+		if err != nil {
+			util.Log500(err, c)
+			return
+
+		}
+
+		if i%11 == 0 && i != 0 {
+			c.Ac.Infof("Closing zip file")
+			err = z.Close()
+			if err != nil {
+				util.Log500(err, c)
+				return
+			}
+
+			c.Ac.Infof("Closing blob")
+			err = blob.Close()
+			if err != nil {
+				util.Log500(err, c)
+				return
+			}
+
+			key, err := blob.Key()
+			if err != nil {
+				util.Log500(err, c)
+				return
+			}
+
+			c.Ac.Infof("%d/%d resentations zipped. The key is: %v", pNo, len(ps), key)
+
+			fileNo++
+		}
+	}
 }

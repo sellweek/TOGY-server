@@ -1,0 +1,3 @@
+backends:
+- name: download
+  class: B1
