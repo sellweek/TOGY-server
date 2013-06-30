@@ -11,6 +11,7 @@ import (
 	"models/presentation"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 	"util"
@@ -110,11 +111,17 @@ func UploadHandler(c util.Context) {
 
 //Archive handles showing listing of presentations.
 func Archive(c util.Context) {
+	page, err := strconv.Atoi(c.Vars["page"])
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
 	type tmplData struct {
 		P *presentation.Presentation
 		C int
 	}
-	ps, err := presentation.GetAll(c.Ac)
+	ps, err := presentation.GetListing(page, 10, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
@@ -129,7 +136,18 @@ func Archive(c util.Context) {
 		}
 		downloads = append(downloads, tmplData{p, count})
 	}
-	util.RenderLayout("archive.html", "Archív prezentácií", downloads, c)
+
+	maxPages, err := presentation.PageCount(10, c.Ac)
+	if err != nil {
+		util.Log500(err, c)
+		return
+	}
+
+	util.RenderLayout("archive.html", "Archív prezentácií", struct {
+		Data     []tmplData
+		Page     int
+		MaxPages int
+	}{downloads, page, maxPages}, c)
 }
 
 //Presentation handles showing page with details about a presentation.

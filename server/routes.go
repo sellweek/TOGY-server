@@ -22,7 +22,7 @@ func init() {
 	r.HandleFunc("/admin", util.Handler(admin.Admin))
 	r.HandleFunc("/admin/presentation/upload", util.Handler(admin.Upload)).Methods("GET")
 	r.HandleFunc("/admin/presentation/upload", util.Handler(admin.UploadHandler)).Methods("POST")
-	r.HandleFunc("/admin/presentation/archive", util.Handler(admin.Archive))
+	r.HandleFunc("/admin/presentation/archive/{page}", util.Handler(admin.Archive))
 	r.HandleFunc("/admin/presentation/activate", util.Handler(admin.Activate)).Methods("POST")
 	r.HandleFunc("/admin/presentation/delete", util.Handler(admin.Delete)).Methods("POST")
 	r.HandleFunc("/admin/presentation/{id}", util.Handler(admin.Presentation))

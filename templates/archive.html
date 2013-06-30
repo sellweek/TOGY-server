@@ -1,3 +1,4 @@
+{{with .Data}}
 <table class="table">
 	<thead>
 		<tr>
@@ -59,3 +60,28 @@
 		{{end}}
 	</tbody>
 </table>
+{{end}}
+
+<ul class="pager">
+  <li class="previous">
+    {{if equal .Page 1}}
+	{{else}}
+		<a href="/admin/presentation/archive/{{subtract .Page  1}}">
+			Novšie vysielania
+		</a>
+	{{end}}
+  </li>
+
+  <li>
+  	<p class="text-center">Strana {{.Page}}</p>
+  </li>
+
+  <li class="next">
+	{{if equal .Page .MaxPages}}
+	 {{else}}
+	 	<a href="/admin/presentation/archive/{{add .Page  1}}">
+				Staršie vysielania
+		</a>
+	{{end}}
+  </li>
+</ul>
