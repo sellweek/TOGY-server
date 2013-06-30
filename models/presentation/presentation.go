@@ -104,7 +104,7 @@ func (p *Presentation) Save(c appengine.Context) (err error) {
 	return
 }
 
-//Delete deletes the presentation record from Datastore and 
+//Delete deletes the presentation record from Datastore and
 //its data file from Blobstore.
 func (p *Presentation) Delete(c appengine.Context) (err error) {
 	if p.Active {
@@ -155,7 +155,7 @@ func GetListing(page int, perPage int, c appengine.Context) (ps []*Presentation,
 	return
 }
 
-func PageCount(c appengine.Context, perPage int) (pgs int, err error) {
+func PageCount(perPage int, c appengine.Context) (pgs int, err error) {
 	ps, err := datastore.NewQuery("Presentation").Count(c)
 	if err != nil {
 		return

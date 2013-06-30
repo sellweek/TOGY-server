@@ -41,7 +41,7 @@ func Presentations(c util.Context) {
 		data = append(data, templateData{P: *p, D: template.HTML(blackfriday.MarkdownCommon(p.Description))})
 	}
 
-	maxPages, err := presentation.PageCount(c.Ac, perPage)
+	maxPages, err := presentation.PageCount(perPage, c.Ac)
 	if err != nil {
 		util.Log500(err, c)
 		return
