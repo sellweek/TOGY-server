@@ -2,6 +2,7 @@
 package api
 
 import (
+	"appengine"
 	"appengine/blobstore"
 	"appengine/datastore"
 	"archive/zip"
@@ -324,7 +325,8 @@ func ZipAll(c util.Context) (err error) {
 		}
 
 		c.Ac.Infof("Creating a file inside zip")
-		pw, err := z.Create(fmt.Sprint(p.Name, ".", p.FileType))
+		var pw io.Writer
+		pw, err = z.Create(fmt.Sprint(p.Name, ".", p.FileType))
 		if err != nil {
 			return
 		}
@@ -348,12 +350,13 @@ func ZipAll(c util.Context) (err error) {
 				return
 			}
 
-			key, err := blob.Key()
+			var key appengine.BlobKey
+			key, err = blob.Key()
 			if err != nil {
 				return
 			}
 
-			c.Ac.Infof("%d/%d resentations zipped. The key is: %v", pNo, len(ps), key)
+			c.Ac.Infof("%d/%d presentations zipped. The key is: %v", pNo, len(ps), key)
 
 			fileNo++
 		}
