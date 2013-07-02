@@ -13,20 +13,19 @@ import (
 const perPage = 5
 
 //Index redirects user to the first page of presentation listing.
-func Index(c util.Context) {
+func Index(c util.Context) (err error) {
 	http.Redirect(c.W, c.R, "/presentation?p=1", 301)
+	return
 }
 
 //Presentations shows listing of presentations in paginated form.
-func Presentations(c util.Context) {
+func Presentations(c util.Context) (err error) {
 	page, err := strconv.Atoi(c.R.FormValue("p"))
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	ps, err := presentation.GetListing(page, perPage, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -43,7 +42,6 @@ func Presentations(c util.Context) {
 
 	maxPages, err := presentation.PageCount(perPage, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -55,4 +53,5 @@ func Presentations(c util.Context) {
 		Data     []templateData
 		Domain   string
 	}{Page: page, MaxPages: maxPages, Data: data, Domain: appengine.DefaultVersionHostname(c.Ac)}, c, "/static/js/index.js")
+	return
 }
