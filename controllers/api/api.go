@@ -33,7 +33,7 @@ import (
 //Where Broadcast and Config fields signal whether client should download
 //new presentation or configuration and FileType contains file type
 //of the broadcast file.
-func Update(c util.Context) {
+func Update(c util.Context) (err error) {
 	type updateInfo struct {
 		Broadcast bool
 		FileType  string
@@ -46,13 +46,11 @@ func Update(c util.Context) {
 
 	p, err := presentation.GetActive(c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
 	bc, err := action.WasPerformedOn(action.DownloadFinish, p, client, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	ui.Broadcast = !bc
@@ -61,14 +59,12 @@ func Update(c util.Context) {
 
 	conf, err := action.WasPerformedOn(action.DownloadFinish, new(config.Config), client, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	ui.Config = !conf
 
 	data, err := json.Marshal(ui)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -81,27 +77,27 @@ func Update(c util.Context) {
 		action.Log(new(config.Config), client, action.UpdateNotification, c.Ac)
 	}
 
+	return
 }
 
 //Download serves the broadcast from blobstore.
-func Download(c util.Context) {
+func Download(c util.Context) (err error) {
 	p, err := getPresentation(c)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	if client := c.R.FormValue("client"); client != "" {
 		action.Log(*p, c.R.FormValue("client"), action.DownloadStart, c.Ac)
 	}
 	blobstore.Send(c.W, p.BlobKey)
+	return
 }
 
 //DownloadFinish is called by clients to announce that
 //they have downloaded the broadcast.
-func DownloadFinish(c util.Context) {
+func DownloadFinish(c util.Context) (err error) {
 	p, err := getPresentation(c)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -109,131 +105,124 @@ func DownloadFinish(c util.Context) {
 	//is to log the action, so we want to see the errors.
 	_, err = action.Make(*p, action.DownloadFinish, c.R.FormValue("client"), c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
+	return
 }
 
 //GetDescription responds with the description of a broadcast.
-func GetDescription(c util.Context) {
+func GetDescription(c util.Context) (err error) {
 	p, err := getPresentation(c)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	fmt.Fprint(c.W, string(p.Description))
+	return
 }
 
 //UpdateDescription changes the description of a broadcast.
-func UpdateDescription(c util.Context) {
+func UpdateDescription(c util.Context) (err error) {
 	p, err := getPresentation(c)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	defer c.R.Body.Close()
 	body, err := ioutil.ReadAll(c.R.Body)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	p.Description = body
 	err = p.Save(c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	fmt.Fprint(c.W, string(blackfriday.MarkdownCommon(body)))
+	return
 }
 
 //GetName responds with the name of a broadcast.
-func GetName(c util.Context) {
+func GetName(c util.Context) (err error) {
 	p, err := getPresentation(c)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	fmt.Fprint(c.W, p.Name)
+
+	return
 }
 
 //UpdateName changes the name of a broadcast.
-func UpdateName(c util.Context) {
+func UpdateName(c util.Context) (err error) {
 	p, err := getPresentation(c)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	defer c.R.Body.Close()
 	body, err := ioutil.ReadAll(c.R.Body)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	p.Name = string(body)
 	err = p.Save(c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
+	return
 }
 
 //GetConfig serves the configuration.
-func GetConfig(c util.Context) {
+func GetConfig(c util.Context) (err error) {
 	json, err := configuration.JSON(c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	fmt.Fprint(c.W, string(json))
 	if client := c.R.FormValue("client"); client != "" {
 		action.Log(&config.Config{}, client, action.DownloadStart, c.Ac)
 	}
+	return
 }
 
 //GotConfig is called by clients to announce that
 //they have downloaded the broadcast.
-func GotConfig(c util.Context) {
+func GotConfig(c util.Context) (err error) {
 	action.Log(new(config.Config), c.R.FormValue("client"), action.DownloadFinish, c.Ac)
+	return
 }
 
-func ScheduleActivation(c util.Context) {
+func ScheduleActivation(c util.Context) (err error) {
 	p, err := getPresentation(c)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
 	defer c.R.Body.Close()
 	timeString, err := ioutil.ReadAll(c.R.Body)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
 	t, err := time.Parse("Mon Jan 2 2006 15:04:05 GMT-0700 (MST)", string(timeString))
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
 	pk, err := datastore.DecodeKey(p.Key)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
 	_, err = activation.Make(t, pk, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
+	return
 }
 
-func ActivateScheduled(c util.Context) {
+func ActivateScheduled(c util.Context) (err error) {
 	t := time.Now()
 	as, err := activation.GetBeforeTime(t, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -271,22 +260,22 @@ func ActivateScheduled(c util.Context) {
 		c.Ac.Errorf("Error when deleting used Activation: %v", err)
 		return
 	}
+	return
 }
 
-func DeleteActivation(c util.Context) {
+func DeleteActivation(c util.Context) (err error) {
 	a, err := activation.GetByKey(c.Vars["key"], c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
 	err = a.Delete(c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
 	http.Redirect(c.W, c.R, c.R.FormValue("redirect"), 303)
+	return
 }
 
 func getPresentation(c util.Context) (p *presentation.Presentation, err error) {
@@ -299,11 +288,10 @@ func getPresentation(c util.Context) (p *presentation.Presentation, err error) {
 	return
 }
 
-func ZipAll(c util.Context) {
+func ZipAll(c util.Context) (err error) {
 	c.Ac.Infof("Getting presentations")
 	ps, err := presentation.GetAll(c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -322,7 +310,6 @@ func ZipAll(c util.Context) {
 			c.Ac.Infof("Creating blob %d", fileNo)
 			blob, err = blobstore.Create(c.Ac, "application/zip")
 			if err != nil {
-				util.Log500(err, c)
 				return
 			}
 
@@ -332,7 +319,6 @@ func ZipAll(c util.Context) {
 			c.Ac.Infof("Reading presentation: " + p.Name)
 			r = blobstore.NewReader(c.Ac, p.BlobKey)
 			if err != nil {
-				util.Log500(err, c)
 				return
 			}
 		}
@@ -340,36 +326,30 @@ func ZipAll(c util.Context) {
 		c.Ac.Infof("Creating a file inside zip")
 		pw, err := z.Create(fmt.Sprint(p.Name, ".", p.FileType))
 		if err != nil {
-			util.Log500(err, c)
 			return
 		}
 
 		c.Ac.Infof("Writing to zip")
 		_, err = io.Copy(pw, r)
 		if err != nil {
-			util.Log500(err, c)
 			return
-
 		}
 
 		if i%11 == 0 && i != 0 {
 			c.Ac.Infof("Closing zip file")
 			err = z.Close()
 			if err != nil {
-				util.Log500(err, c)
 				return
 			}
 
 			c.Ac.Infof("Closing blob")
 			err = blob.Close()
 			if err != nil {
-				util.Log500(err, c)
 				return
 			}
 
 			key, err := blob.Key()
 			if err != nil {
-				util.Log500(err, c)
 				return
 			}
 
@@ -378,4 +358,5 @@ func ZipAll(c util.Context) {
 			fileNo++
 		}
 	}
+	return
 }
