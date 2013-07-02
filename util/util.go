@@ -74,24 +74,16 @@ type Context struct {
 }
 
 //Handler maps standard net/http handlers to handlers accepting Context
-func Handler(hand func(Context)) http.HandlerFunc {
+func Handler(hand func(Context) (err error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ac := appengine.NewContext(r)
 		vars := mux.Vars(r)
-		hand(Context{Ac: ac, W: w, R: r, Vars: vars})
+		err := hand(Context{Ac: ac, W: w, R: r, Vars: vars})
+		if err != nil {
+			ac.Errorf("Error 500. %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
-}
-
-//Log500 sends an Internal Server Error to user with error message from the error.
-func Log500(err error, c Context) {
-	c.Ac.Errorf("Error 500. %v", err)
-	http.Error(c.W, err.Error(), http.StatusInternalServerError)
-}
-
-//Log404 sends a Not Found Error to user with error message from the error.
-func Log404(err error, c Context) {
-	c.Ac.Warningf("Error 404. %v", err)
-	http.Error(c.W, err.Error(), http.StatusNotFound)
 }
 
 //RenderLayout inserts template with given name into the layout and sets the title and pipeline.
@@ -111,7 +103,11 @@ func RenderLayout(tmpl string, title string, data interface{}, c Context, jsIncl
 //renderTemplate renders a single template
 func RenderTemplate(tmpl string, data interface{}, c Context) {
 	if err := templates.ExecuteTemplate(c.W, tmpl, data); err != nil {
-		Log500(err, c)
+		//I could refactor this error handling code and the one
+		//in Handler into a function, but I'm probably going to add
+		//a template for server errors.
+		c.Ac.Errorf("Error 500. %v", err)
+		http.Error(c.W, err.Error(), http.StatusInternalServerError)
 	}
 }
 
