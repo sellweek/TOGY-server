@@ -9,13 +9,13 @@ import (
 )
 
 //Bootstrap inserts fake presentation and config into datastore.
-//Used when the system doesn't have any presentation inserted
-//and is in an inconsistent state because of that.
-func Bootstrap(c util.Context) {
+//Used when the system doesn't have any presentation inserted.
+func Bootstrap(c util.Context) (err error) {
 	p := presentation.New("test", "xxx", "DO NOT USE!", []byte("This is just a bootstrap presentation that can't be downloaded"), true)
-	_, err := datastore.Put(c.Ac, datastore.NewIncompleteKey(c.Ac, "Presentation", nil), p)
+	_, err = datastore.Put(c.Ac, datastore.NewIncompleteKey(c.Ac, "Presentation", nil), p)
 	if err != nil {
 		fmt.Fprintln(c.W, "Error with presentation: ", err)
+		return nil
 	}
 
 	//	zeroTime := time.Date(0001, 01, 01, 00, 00, 00, 00, utc)
@@ -26,11 +26,14 @@ func Bootstrap(c util.Context) {
 
 	if err != nil {
 		fmt.Fprintln(c.W, "Error with config:", err)
+		return nil
 	}
 	fmt.Fprint(c.W, "Do not start any clients until you have replaced this presentation.")
+	return
 }
 
 //Migrate migrates Datastore data from a previous version.
-func Migrate(c util.Context) {
+func Migrate(c util.Context) (err error) {
 	fmt.Fprintf(c.W, "There is nothing to migrate in current version.")
+	return
 }

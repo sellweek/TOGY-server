@@ -21,12 +21,13 @@ import (
 var utc, _ = time.LoadLocation("UTC")
 
 //Admin redirects to presentation upload page
-func Admin(c util.Context) {
+func Admin(c util.Context) (err error) {
 	http.Redirect(c.W, c.R, "/admin/presentation/upload", 301)
+	return
 }
 
 //Upload renders the new presentation upload page.
-func Upload(c util.Context) {
+func Upload(c util.Context) (err error) {
 	var activeName string
 	p, err := presentation.GetActive(c.Ac)
 	if err != nil {
@@ -37,13 +38,11 @@ func Upload(c util.Context) {
 
 	uploadURL, err := blobstore.UploadURL(c.Ac, "/admin/presentation/upload", nil)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
 	acts, err := activation.GetAfterTime(time.Now(), c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -70,6 +69,7 @@ func Upload(c util.Context) {
 		UploadURL          *url.URL
 		Ans                []actWithName
 	}{activeName, uploadURL, ans}, c)
+	return
 }
 
 //UploadHandler handles upload of a new presentation and saving its metadata
@@ -79,10 +79,9 @@ func Upload(c util.Context) {
 //those into base-64 string with encoding prefixed and I don't want
 //to include additional logic to differentiate between ASCII and
 //non-ASCII filenames.
-func UploadHandler(c util.Context) {
+func UploadHandler(c util.Context) (err error) {
 	blobs, formVal, err := blobstore.ParseUpload(c.R)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	blob := blobs["file"][0]
@@ -103,17 +102,17 @@ func UploadHandler(c util.Context) {
 
 	p, err := presentation.Make(blob.BlobKey, fileType, name, []byte(formVal["description"][0]), active, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
+		return
 	}
 
 	http.Redirect(c.W, c.R, "/admin/presentation/"+p.Key, 303)
+	return
 }
 
 //Archive handles showing listing of presentations.
-func Archive(c util.Context) {
+func Archive(c util.Context) (err error) {
 	page, err := strconv.Atoi(c.Vars["page"])
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -123,7 +122,6 @@ func Archive(c util.Context) {
 	}
 	ps, err := presentation.GetListing(page, 10, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -139,7 +137,6 @@ func Archive(c util.Context) {
 
 	maxPages, err := presentation.PageCount(10, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -148,18 +145,17 @@ func Archive(c util.Context) {
 		Page     int
 		MaxPages int
 	}{downloads, page, maxPages}, c)
+	return
 }
 
 //Presentation handles showing page with details about a presentation.
-func Presentation(c util.Context) {
+func Presentation(c util.Context) (err error) {
 	p, err := presentation.GetByKey(c.Vars["id"], c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	as, err := action.GetFor(p, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -181,7 +177,6 @@ func Presentation(c util.Context) {
 
 	acts, err := activation.GetForPresentation(pk, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 
@@ -194,35 +189,35 @@ func Presentation(c util.Context) {
 		Domain      string
 		Activations []*activation.Activation
 	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL, appengine.DefaultVersionHostname(c.Ac), acts}, c, "/static/js/underscore-min.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/presentation.js")
+	return
 }
 
 //Activate handles activation of presentation.
-func Activate(c util.Context) {
+func Activate(c util.Context) (err error) {
 	key := c.R.FormValue("id")
 	p, err := presentation.GetByKey(key, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	p.Active = true
 	p.Save(c.Ac)
 	http.Redirect(c.W, c.R, "/admin/presentation/archive", 303)
+	return
 }
 
 //Delete handles deleting of presentation.
-func Delete(c util.Context) {
+func Delete(c util.Context) (err error) {
 	key := c.R.FormValue("id")
 	p, err := presentation.GetByKey(key, c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	err = p.Delete(c.Ac)
 	if err != nil {
-		util.Log500(err, c)
 		return
 	}
 	http.Redirect(c.W, c.R, "/admin/presentation/archive", 303)
+	return
 }
 
 func prepareActions(as []action.Action) map[string][]time.Time {
