@@ -103,10 +103,7 @@ func RenderLayout(tmpl string, title string, data interface{}, c Context, jsIncl
 //renderTemplate renders a single template
 func RenderTemplate(tmpl string, data interface{}, c Context) {
 	if err := templates.ExecuteTemplate(c.W, tmpl, data); err != nil {
-		//I could refactor this error handling code and the one
-		//in Handler into a function, but I'm probably going to add
-		//a template for server errors.
-		c.Ac.Errorf("Error 500. %v", err)
+		c.Ac.Errorf("Couldn't render template. %v", err)
 		http.Error(c.W, err.Error(), http.StatusInternalServerError)
 	}
 }
