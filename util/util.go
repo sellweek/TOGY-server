@@ -5,6 +5,7 @@ import (
 	"appengine"
 	"appengine/user"
 	"github.com/gorilla/mux"
+	"github.com/mjibson/appstats"
 	"html/template"
 	"math"
 	"net/http"
@@ -74,16 +75,15 @@ type Context struct {
 }
 
 //Handler maps standard net/http handlers to handlers accepting Context
-func Handler(hand func(Context) (err error)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ac := appengine.NewContext(r)
+func Handler(hand func(Context) error) http.Handler {
+	return appstats.NewHandler(func(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		err := hand(Context{Ac: ac, W: w, R: r, Vars: vars})
+		err := hand(Context{Ac: c, W: w, R: r, Vars: vars})
 		if err != nil {
-			ac.Errorf("Error 500. %v", err)
+			c.Errorf("Error 500. %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-	}
+	})
 }
 
 //RenderLayout inserts template with given name into the layout and sets the title and pipeline.
