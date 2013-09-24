@@ -58,8 +58,6 @@ func init() {
 	r.Handle("/api/config/downloadComplete", util.Handler(api.GotConfig)).Methods("GET")
 	r.Handle("/api/update", util.Handler(api.Update))
 
-	r.Handle("/_ah/start", util.Handler(api.ZipAll))
-
 	r.StrictSlash(true)
 	http.Handle("/", r)
 }
