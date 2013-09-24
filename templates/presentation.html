@@ -1,3 +1,4 @@
+{{$tz := .Tz}}
 <script type="text/javascript">
 	presentationKey = {{.P.Key}}
 </script>
@@ -83,7 +84,7 @@
 				{{range .Activations}}
 					<tr>
 						<td>
-							{{.Time.Format "2.1.2006 15:04:05"}}
+							{{(.Time.In $tz).Format "2.1.2006 15:04:05"}}
 						</td>
 						<td>
 							<form method="POST" action="/api/activation/{{.Key}}/delete" class="button-form">
@@ -148,7 +149,7 @@
 								{{if .Equal $zt}}
 									Ešte nevykonané
 								{{else}}
-									{{.Format "15:04:05, 2.1.2006"}}
+									{{(.In $tz).Format "15:04:05, 2.1.2006"}}
 								{{end}}
 							</td>
 						{{end}}

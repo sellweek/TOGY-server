@@ -1,5 +1,5 @@
 {{template "configMenu.html" 2}}
-{{if equal (len .) 0}}
+{{if equal (len .Tcs) 0}}
 <div class="alert alert-info">
 	Zatiaľ nie sú pridané žiadne časové výnimky
 </div>
@@ -22,16 +22,17 @@
 		</tr>
 	</thead>
 	<tbody>
-		{{range .}}
+		{{$tz := .Tz}}
+		{{range .Tcs}}
 		<tr>
 			<td>
 				<a href="/admin/config/timeOverride/edit/{{.Key}}">{{.Date.Format "2006-1-2"}}</a>
 			</td>
 			<td>
-				{{.On.Format "15:04"}}
+				{{(.On.In $tz).Format "15:04"}}
 			</td>
 			<td>
-				{{.Off.Format "15:04"}}
+				{{(.Off.In $tz).Format "15:04"}}
 			</td>
 			<td>
 			<form method="POST" action="/admin/config/timeOverride/delete" class="button-form">

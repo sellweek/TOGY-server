@@ -18,6 +18,7 @@ import (
 )
 
 //UTC time zone
+//Used in ZeroTime comparisions.
 var utc, _ = time.LoadLocation("UTC")
 
 //Admin redirects to presentation upload page
@@ -188,7 +189,8 @@ func Presentation(c util.Context) (err error) {
 		Avg         float64
 		Domain      string
 		Activations []*activation.Activation
-	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL, appengine.DefaultVersionHostname(c.Ac), acts}, c, "/static/js/underscore-min.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/presentation.js")
+		Tz          *time.Location
+	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL, appengine.DefaultVersionHostname(c.Ac), acts, util.Tz}, c, "/static/js/underscore-min.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/presentation.js")
 	return
 }
 

@@ -29,7 +29,8 @@ func ShowConfig(c util.Context) (err error) {
 		Conf     config.Config
 		A        map[string][]time.Time
 		ZeroTime time.Time
-	}{conf, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc)}, c, "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/config.js")
+		Tz       *time.Location
+	}{conf, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc), util.Tz}, c, "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/config.js")
 	return
 }
 
@@ -75,7 +76,10 @@ func TimeOverride(c util.Context) (err error) {
 	if err != nil {
 		return
 	}
-	util.RenderLayout("timeConfig.html", "Zoznam časových výnimiek", tcs, c)
+	util.RenderLayout("timeConfig.html", "Zoznam časových výnimiek", struct {
+		Tcs []*timeConfig.TimeConfig
+		Tz  *time.Location
+	}{tcs, util.Tz}, c)
 	return
 }
 

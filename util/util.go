@@ -15,8 +15,7 @@ import (
 )
 
 const (
-	TimeFormat = "20060102150405" //Time format used in update queries and reponses and in filenames.
-	t          = "templates"      //Directory with templates
+	t = "templates" //Directory with templates
 )
 
 var templates *template.Template
@@ -149,6 +148,7 @@ func NormalizeDate(t time.Time, forceTZ bool) time.Time {
 	} else {
 		tz = t.Location()
 	}
+
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)
 }
 
@@ -163,6 +163,7 @@ func NormalizeTime(t time.Time, forceTZ bool) time.Time {
 	} else {
 		tz = t.Location()
 	}
+
 	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), tz)
 }
 
