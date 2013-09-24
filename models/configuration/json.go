@@ -3,8 +3,8 @@ package configuration
 import (
 	"appengine"
 	"encoding/json"
-	"models/configuration/config"
-	"models/configuration/timeConfig"
+	"github.com/sellweek/TOGY-server/models/configuration/config"
+	"github.com/sellweek/TOGY-server/models/configuration/timeConfig"
 )
 
 const (

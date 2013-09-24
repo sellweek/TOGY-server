@@ -1,13 +1,13 @@
 package admin
 
 import (
-	"models/action"
-	"models/configuration/config"
-	"models/configuration/timeConfig"
+	"github.com/sellweek/TOGY-server/models/action"
+	"github.com/sellweek/TOGY-server/models/configuration/config"
+	"github.com/sellweek/TOGY-server/models/configuration/timeConfig"
+	"github.com/sellweek/TOGY-server/util"
 	"net/http"
 	"strconv"
 	"time"
-	"util"
 )
 
 //ShowConfig handles showing the page in which user can see and edit

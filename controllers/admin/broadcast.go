@@ -5,16 +5,16 @@ import (
 	"appengine/blobstore"
 	"appengine/datastore"
 	"github.com/russross/blackfriday"
+	"github.com/sellweek/TOGY-server/models/action"
+	"github.com/sellweek/TOGY-server/models/activation"
+	"github.com/sellweek/TOGY-server/models/presentation"
+	"github.com/sellweek/TOGY-server/util"
 	"html/template"
-	"models/action"
-	"models/activation"
-	"models/presentation"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
-	"util"
 )
 
 //UTC time zone

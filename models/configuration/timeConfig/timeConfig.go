@@ -3,8 +3,8 @@ package timeConfig
 import (
 	"appengine"
 	"appengine/datastore"
-	"models/action"
-	"models/configuration/config"
+	"github.com/sellweek/TOGY-server/models/action"
+	"github.com/sellweek/TOGY-server/models/configuration/config"
 	"time"
 )
 

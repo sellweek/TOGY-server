@@ -7,15 +7,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/russross/blackfriday"
+	"github.com/sellweek/TOGY-server/models/action"
+	"github.com/sellweek/TOGY-server/models/activation"
+	"github.com/sellweek/TOGY-server/models/configuration"
+	"github.com/sellweek/TOGY-server/models/configuration/config"
+	"github.com/sellweek/TOGY-server/models/presentation"
+	"github.com/sellweek/TOGY-server/util"
 	"io/ioutil"
-	"models/action"
-	"models/activation"
-	"models/configuration"
-	"models/configuration/config"
-	"models/presentation"
 	"net/http"
 	"time"
-	"util"
 )
 
 //Update handles queries of clients about whether they should download a new

@@ -4,9 +4,9 @@ import (
 	"appengine"
 	"appengine/datastore"
 	"fmt"
-	"models/action"
+	"github.com/sellweek/TOGY-server/models/action"
+	"github.com/sellweek/TOGY-server/util"
 	"time"
-	"util"
 )
 
 const (

@@ -3,9 +3,9 @@ package admin
 import (
 	"appengine/datastore"
 	"fmt"
-	"models/configuration/config"
-	"models/presentation"
-	"util"
+	"github.com/sellweek/TOGY-server/models/configuration/config"
+	"github.com/sellweek/TOGY-server/models/presentation"
+	"github.com/sellweek/TOGY-server/util"
 )
 
 //Bootstrap inserts fake presentation and config into datastore.

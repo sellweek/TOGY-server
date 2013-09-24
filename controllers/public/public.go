@@ -3,11 +3,11 @@ package public
 import (
 	"appengine"
 	"github.com/russross/blackfriday"
+	"github.com/sellweek/TOGY-server/models/presentation"
+	"github.com/sellweek/TOGY-server/util"
 	"html/template"
-	"models/presentation"
 	"net/http"
 	"strconv"
-	"util"
 )
 
 const perPage = 5
