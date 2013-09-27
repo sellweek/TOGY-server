@@ -1,4 +1,3 @@
-{{template "configMenu.html" 1}}
 <form method="POST" class="conf-form" action="/admin/config">
 	<div class="form-group">
 		<label for="standardOn">Štandardné zapnutie</label>
@@ -7,10 +6,10 @@
 		<input type="text" name="standardOff" class="form-control timeField" value="{{(.Conf.StandardOff.In .Tz).Format "15:04"}}" id="standardOff"><br>
 		<label for="updateInterval">Interval updatu (v sekundách)</label>
 		<input id="updateInterval" class="form-control" type="number" name="updateInterval" value="{{.Conf.UpdateInterval}}">
-		
+
 	</div>
 	<div class="form-group">
-		
+
 		<label class="radio">
 			<input type="radio" name="overrideState" value="0" {{if equal .Conf.OverrideState 0}} checked{{end}}> 
 			Používať štandardné nastavenia
