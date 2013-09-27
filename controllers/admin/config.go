@@ -1,10 +1,10 @@
 package admin
 
 import (
-	"github.com/sellweek/TOGY-server/models/action"
-	"github.com/sellweek/TOGY-server/models/configuration/config"
-	"github.com/sellweek/TOGY-server/models/configuration/timeConfig"
-	"github.com/sellweek/TOGY-server/util"
+	"models/action"
+	"models/configuration/config"
+	"models/configuration/timeConfig"
+	"util"
 	"net/http"
 	"strconv"
 	"time"

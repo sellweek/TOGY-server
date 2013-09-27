@@ -1,4 +1,4 @@
-application: your-app-id
+application: #Your app ID here
 version: 1-3-3-1
 runtime: go
 api_version: go1

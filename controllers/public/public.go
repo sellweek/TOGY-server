@@ -3,8 +3,8 @@ package public
 import (
 	"appengine"
 	"github.com/russross/blackfriday"
-	"github.com/sellweek/TOGY-server/models/presentation"
-	"github.com/sellweek/TOGY-server/util"
+	"models/presentation"
+	"util"
 	"html/template"
 	"net/http"
 	"strconv"

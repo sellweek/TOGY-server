@@ -3,10 +3,10 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/sellweek/TOGY-server/controllers/admin"
-	"github.com/sellweek/TOGY-server/controllers/api"
-	"github.com/sellweek/TOGY-server/controllers/public"
-	"github.com/sellweek/TOGY-server/util"
+	"controllers/admin"
+	"controllers/api"
+	"controllers/public"
+	"util"
 	"net/http"
 )
 

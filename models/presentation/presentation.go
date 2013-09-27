@@ -6,7 +6,7 @@ import (
 	"appengine/blobstore"
 	"appengine/datastore"
 	"fmt"
-	"github.com/sellweek/TOGY-server/models/action"
+	"models/action"
 	"math"
 	"time"
 )
