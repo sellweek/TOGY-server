@@ -1,11 +1,10 @@
 <form action="/admin/config/timeOverride/edit/{{if .}}{{.Key}}{{end}}" method="POST">
-	<fieldset>
 		<label>Dátum</label>
-		<input type="text" name="date" id="date" value="{{if .}}{{.Date.Format "2006-1-2"}}{{end}}"><br>
+		<input type="text" class="form-control" name="date" id="date" value="{{if .}}{{.Date.Format "2006-1-2"}}{{end}}"><br>
 		<label>Čas zapnutia</label>
-		<input type="text" name="on" class="time" value="{{if .}}{{.On.Format "15:04"}}{{end}}"><br>
+		<input type="text" name="on" class="time form-control" value="{{if .}}{{.On.Format "15:04"}}{{end}}"><br>
 		<label>Čas vypnutia</label>
-		<input type="text" name="off" class="time" value="{{if .}}{{.Off.Format "15:04"}}{{end}}"><br>
+		<input type="text" name="off" class="time form-control" value="{{if .}}{{.Off.Format "15:04"}}{{end}}">
+		<br>
 		<button type="submit" class="btn btn-primary">Uložiť</button>
-	</fieldset>
 </form>

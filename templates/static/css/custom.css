@@ -6,7 +6,7 @@ body {
 	display: none;
 }
 
-.download {
+.download, .conf-form{
 	margin-top: 10px;
 }
 

@@ -25,7 +25,7 @@ func ShowConfig(c util.Context) (err error) {
 
 	a := prepareActions(as)
 
-	util.RenderLayout("config.html", "Konfigurácia obrazoviek", struct {
+	util.RenderLayout("config.html", "Všeobecné nastavenia", struct {
 		Conf     config.Config
 		A        map[string][]time.Time
 		ZeroTime time.Time

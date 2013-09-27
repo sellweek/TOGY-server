@@ -1,29 +1,37 @@
 {{template "configMenu.html" 1}}
-<form method="POST" action="/admin/config">
-	<label>Štandardné zapnutie</label>
-	<input type="text" name="standardOn" class="timeField" value="{{(.Conf.StandardOn.In .Tz).Format "15:04"}}"><br>
-	<label>Štandardné vypnutie</label> 
-	<input type="text" name="standardOff" class="timeField" value="{{(.Conf.StandardOff.In .Tz).Format "15:04"}}"><br>
-	<label>Interval updatu</label>
-	<input type="text" name="updateInterval" value="{{.Conf.UpdateInterval}}"><br>
-	
-	<label class="radio">
-		<input type="radio" name="overrideState" value="0" {{if equal .Conf.OverrideState 0}} checked{{end}}> 
-		Používať štandardné nastavenia
-	</label>
-	<label class="radio">
-		<input type="radio" name="overrideState" value="-1" {{if equal .Conf.OverrideState -1}} checked{{end}}> 
-		Vysielanie vždy vypnuté
-	</label>
-	<label class="radio">
-		<input type="radio" name="overrideState" value="1" {{if equal .Conf.OverrideState 1}} checked{{end}}> 
-		Vysielanie vždy zapnuté
-	</label>
-	<label class="checkbox">
-		<input type="checkbox" name="weekends" value="true" {{if .Conf.Weekends}} checked {{end}}> 
-		Cez víkendy používať štandarné nastavenie
-	</label>
-	<input type="submit">
+<form method="POST" class="conf-form" action="/admin/config">
+	<div class="form-group">
+		<label for="standardOn">Štandardné zapnutie</label>
+		<input type="text" name="standardOn" class="form-control timeField" value="{{(.Conf.StandardOn.In .Tz).Format "15:04"}}" id="standardOn"><br>
+		<label for="standardOff">Štandardné vypnutie</label> 
+		<input type="text" name="standardOff" class="form-control timeField" value="{{(.Conf.StandardOff.In .Tz).Format "15:04"}}" id="standardOff"><br>
+		<label for="updateInterval">Interval updatu (v sekundách)</label>
+		<input id="updateInterval" class="form-control" type="number" name="updateInterval" value="{{.Conf.UpdateInterval}}">
+		
+	</div>
+	<div class="form-group">
+		
+		<label class="radio">
+			<input type="radio" name="overrideState" value="0" {{if equal .Conf.OverrideState 0}} checked{{end}}> 
+			Používať štandardné nastavenia
+		</label>
+		<label class="radio">
+			<input type="radio" name="overrideState" value="-1" {{if equal .Conf.OverrideState -1}} checked{{end}}> 
+			Vysielanie vždy vypnuté
+		</label>
+		<label class="radio">
+			<input type="radio" name="overrideState" value="1" {{if equal .Conf.OverrideState 1}} checked{{end}}> 
+			Vysielanie vždy zapnuté
+		</label>
+	</div>
+	<div class="form-group">
+		<label class="checkbox">
+			<input type="checkbox" name="weekends" value="true" {{if .Conf.Weekends}} checked {{end}}> 
+			Vysielať cez víkendy
+		</label>
+
+	</div>
+	<button type="submit" class="form-control btn btn-primary">Uložiť</button>
 </form>
 
 <h2>Informácie klientov</h2>
@@ -32,46 +40,46 @@
 {{$eq := equal (len .A) 0}}
 {{$tz := .Tz}}
 {{if not $eq}}
-	<table class="table">
-		<thead>
-			<tr>
-				<th>
-					Klient
-				</th>
-				<th>
-					Informácia o aktualizácií
-				</th>
-				<th>
-					Začiatok sťahovania
-				</th>
-				<th>
-					Koniec sťahovania
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-			{{range $k, $v  := .A}}
-				{{if $k}}
-					<tr>
-						<td>
-							{{$k}}
-						</td>
-						{{range $v}}
-							<td>
-								{{if .Equal $zt}}
-									Ešte nevykonané
-								{{else}}
-									{{(.In $tz).Format "15:04:05, 2.1.2006"}}
-								{{end}}
-							</td>
-						{{end}}
-					</tr>
+<table class="table">
+	<thead>
+		<tr>
+			<th>
+				Klient
+			</th>
+			<th>
+				Informácia o aktualizácií
+			</th>
+			<th>
+				Začiatok sťahovania
+			</th>
+			<th>
+				Koniec sťahovania
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{range $k, $v  := .A}}
+		{{if $k}}
+		<tr>
+			<td>
+				{{$k}}
+			</td>
+			{{range $v}}
+			<td>
+				{{if .Equal $zt}}
+				Ešte nevykonané
+				{{else}}
+				{{(.In $tz).Format "15:04:05, 2.1.2006"}}
 				{{end}}
+			</td>
 			{{end}}
-		</tbody>
-	</table>
+		</tr>
+		{{end}}
+		{{end}}
+	</tbody>
+</table>
 {{else}}
-	<div class="alert alert-info">
-		Klienti o tejto konfigurácií ešte nevedia. To sa však čoskoro zmení...
-	</div>
+<div class="alert alert-info">
+	Klienti o tejto konfigurácií ešte nevedia. To sa však čoskoro zmení...
+</div>
 {{end}}
