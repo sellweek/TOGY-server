@@ -21,10 +21,11 @@
 	</thead>
 	<tbody>
 		{{range .}}
-		<tr {{if .P.Active }}class="info"{{end}}>
+		<tr {{if .P.Active }}class="active"{{end}}>
 			<td>
-				<a href="/admin/presentation
-				/{{.P.Key}}">{{.P.Name}}</a>
+				<a href="/admin/presentation/{{.P.Key}}">
+					{{.P.Name}}
+				</a>
 			</td>
 			<td>
 				{{.P.Created.Format "15:04, 2.1.2006"}}
@@ -32,26 +33,28 @@
 			<td>
 				{{.C}}x
 			</td>
-			<td>
-				{{if .P.Active}}
-				--
-				{{else}}
-				<form method="POST" action="/admin/presentation/delete" class="button-form">
-					<input type="hidden" name="id" value="{{.P.Key}}">
-					<button type="submit" class="btn btn-danger btn-small">Vymazať</button>
-				</form>
-				{{end}}
-			</td>
-			<td>
-				{{if .P.Active}}
-				--
-				{{else}}
-				<form method="POST" action="/admin/presentation/activate" class="button-form">
-					<input type="hidden" name="id" value="{{.P.Key}}">
-					<button type="submit" class="btn btn-success btn-small">Aktivovať</button>
-				</form>
-				{{end}}
-			</td>
+			{{if .P.Active}}
+				<td colspan="2">
+					<button type="button" class="btn btn-default btn-block" disabled="disabled">Aktívna</button>
+				</td>
+			{{else}}
+				<td width="69px">
+					<form method="POST" action="/admin/presentation/delete" class="button-form">
+						<input type="hidden" name="id" value="{{.P.Key}}">
+						<button type="submit" class="btn btn-danger btn-sm">
+							Vymazať
+						</button>
+					</form>
+				</td>
+				<td width="69px">
+					<form method="POST" action="/admin/presentation/activate" class="button-form">
+						<input type="hidden" name="id" value="{{.P.Key}}">
+						<button type="submit" class="btn btn-success btn-sm">
+							Aktivovať
+						</button>
+					</form>
+				</td>
+			{{end}}
 		</tr>
 		{{else}}
 		<div class="alert alert-info">
