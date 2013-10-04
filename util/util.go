@@ -1,4 +1,4 @@
-//Package util provides utility functions used in my this web project.
+//Package util provides utility functions.
 package util
 
 import (
@@ -94,9 +94,10 @@ func RenderLayout(tmpl string, title string, data interface{}, c Context, jsIncl
 		Title      string
 		JsIncludes []string
 		Admin      bool
-	}{title, jsIncludes, user.IsAdmin(c.Ac)}, c)
+		AppName    string
+	}{title, jsIncludes, user.IsAdmin(c.Ac), C.Title}, c)
 	RenderTemplate(tmpl, data, c)
-	RenderTemplate("footer.html", nil, c)
+	RenderTemplate("footer.html", template.HTML(C.Footer), c)
 }
 
 //renderTemplate renders a single template
@@ -167,6 +168,11 @@ func NormalizeTime(t time.Time, forceTZ bool) time.Time {
 	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), tz)
 }
 
+//getFileType returns file extension.
+//In case of filenames with multiple extensions, only the last one is returned.
+//For example:
+//	getFileType("data.tar.gz")
+//returns "gz"
 func getFileType(filename string) string {
 	parts := strings.Split(filename, ".")
 	if len(parts) < 2 {
