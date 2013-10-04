@@ -87,7 +87,7 @@ func Handler(hand func(Context) error) http.Handler {
 
 //RenderLayout inserts template with given name into the layout and sets the title and pipeline.
 //The template should be loaded inside templates variable
-//If any arguments are provided after the context, they will be treated like links
+//If any arguments are provided after the context, they will be treated as links
 //to JavaScript scripts to load in the header of the template.
 func RenderLayout(tmpl string, title string, data interface{}, c Context, jsIncludes ...string) {
 	RenderTemplate("header.html", struct {
@@ -117,7 +117,7 @@ func Average(nums ...float64) float64 {
 	return total / float64(len(nums))
 }
 
-// Round return rounded version of x with prec precision.
+// Round returns a rounded version of x with prec precision.
 //
 // Special cases are:
 //	Round(±0) = ±0

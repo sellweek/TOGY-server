@@ -5,16 +5,16 @@ import (
 	"appengine/blobstore"
 	"appengine/datastore"
 	"github.com/russross/blackfriday"
+	"html/template"
 	"models/action"
 	"models/activation"
 	"models/presentation"
-	"util"
-	"html/template"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+	"util"
 )
 
 //UTC time zone

@@ -3,11 +3,11 @@ package public
 import (
 	"appengine"
 	"github.com/russross/blackfriday"
-	"models/presentation"
-	"util"
 	"html/template"
+	"models/presentation"
 	"net/http"
 	"strconv"
+	"util"
 )
 
 const perPage = 5
