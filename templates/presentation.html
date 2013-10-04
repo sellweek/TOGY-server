@@ -1,6 +1,6 @@
 {{$tz := .Tz}}
 <script type="text/javascript">
-	presentationKey = {{.P.Key}}
+presentationKey = {{.P.Key}}
 </script>
 <div id="title-container">
 	<h1 id="title">{{.P.Name}}</h1>
@@ -14,14 +14,14 @@
 	</dd>
 
 	<dt>
-		<b>Dátum pridania</b>
+		<b>Dátum a čas pridania</b>
 	</dt>
 	<dd>
-		{{.P.Created}}
+		{{(.P.Created.In .Tz).Format "15:04:05, 2.1.2006"}}
 	</dd>
 
 	<dt>
-		<b>Stiahnutá za</b>
+		<b>Priemerne stiahnutá za</b>
 	</dt>
 	<dd>
 		{{.Avg}} sekúnd
@@ -30,16 +30,17 @@
 
 <h2>Popis</h2>
 <div id="description-container">
-	<blockquote id="description">
+	<div id="description">
 		<div>
 			{{if .Desc}}
-				{{.Desc}}
+			{{.Desc}}
 			{{else}}
-				Pre toto vysielanie nie je zadaný žiadny popis
+			Pre toto vysielanie nie je zadaný žiadny popis
 			{{end}}
 		</div>
-	</blockquote>
+	</div>
 </div>
+<p class="help-block">Názov a popis prezentácie môžete editovať po dvojitom kliknutí na ne.</p>
 <div class="row">
 	<div id="buttons" class="col-md-6">
 		<h2>Akcie</h2>
@@ -48,21 +49,21 @@
 			Táto prezentácia je práve aktívna
 		</div>
 		{{else}}
-			<form method="POST" action="/admin/presentation/activate" class="button-form">
-				<input type="hidden" name="id" value="{{.P.Key}}">
-				<button type="submit" class="btn btn-success">Aktivovať</button>
-			</form>
+		<form method="POST" action="/admin/presentation/activate" class="button-form">
+			<input type="hidden" name="id" value="{{.P.Key}}">
+			<button type="submit" class="btn btn-success">Aktivovať</button>
+		</form>
 		
-			<form method="POST" action="/admin/presentation/delete" class="button-form">
-				<input type="hidden" name="id" value="{{.P.Key}}">
-				<button type="submit" class="btn btn-danger">Vymazať</button>
-			</form>
+		<form method="POST" action="/admin/presentation/delete" class="button-form">
+			<input type="hidden" name="id" value="{{.P.Key}}">
+			<button type="submit" class="btn btn-danger">Vymazať</button>
+		</form>
 		{{end}}
 		<div class="download input-group">
 			<input class="form-control col-md-2 uneditable-input" 
-				value="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" 
-				type="text">
-			<a href="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" class="btn input-group-addon">Stiahnuť</a>
+			value="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" 
+			type="text">
+			<a href="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" class="btn input-group-addon"><span class="glyphicon glyphicon-download-alt"></span></a>
 		</div>
 	</div>
 
@@ -84,17 +85,17 @@
 			<tbody>
 				{{$p := .P}}
 				{{range .Activations}}
-					<tr>
-						<td>
-							{{(.Time.In $tz).Format "2.1.2006 15:04:05"}}
-						</td>
-						<td>
-							<form method="POST" action="/api/activation/{{.Key}}/delete" class="button-form">
-								<input type="hidden" name="redirect" value="/admin/presentation/{{$p.Key}}">
-								<button type="submit" class="btn btn-danger btn-small">Vymazať</button>
-							</form>
-						</td>
-					</tr>
+				<tr>
+					<td>
+						{{(.Time.In $tz).Format "2.1.2006 15:04:05"}}
+					</td>
+					<td>
+						<form method="POST" action="/api/activation/{{.Key}}/delete" class="button-form">
+							<input type="hidden" name="redirect" value="/admin/presentation/{{$p.Key}}">
+							<button type="submit" class="btn btn-danger btn-small">Vymazať</button>
+						</form>
+					</td>
+				</tr>
 				{{end}}
 			</tbody>
 		</table>
@@ -106,91 +107,89 @@
 						<input class="span2" type="text" name="datetime">
 						<button type="submit" class="btn btn-primary">Naplánovať</button>
 					</div>
-				<fieldset>
-			</form>
+					<fieldset>
+					</form>
+				</div>
+			</div>
 		</div>
-	</div>
-</div>
 
-<p class="help-block">Názov a popis prezentácie môžete editovať po dvojitom kliknutí na ne.</p>
+		{{$zt := .ZeroTime}}
 
-{{$zt := .ZeroTime}}
-
-<h2>Informácie klientov</h2>
-{{if equal (len .A) 0}}
-	<div class="alert alert-info">
-		Klienti o tejto prezentácií ešte nevedia. To sa však čoskoro zmení...
-	</div>
-{{else}}
-	<table class="table">
-		<thead>
-			<tr>
-				<th>
-					Klient
-				</th>
-				<th>
-					Informácia o aktualizácií
-				</th>
-				<th>
-					Začiatok sťahovania
-				</th>
-				<th>
-					Koniec sťahovania
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-			{{range $k, $v  := .A}}
+		<h2>Informácie klientov</h2>
+		{{if equal (len .A) 0}}
+		<div class="alert alert-info">
+			Klienti o tejto prezentácií ešte nevedia. To sa však čoskoro zmení...
+		</div>
+		{{else}}
+		<table class="table">
+			<thead>
+				<tr>
+					<th>
+						Klient
+					</th>
+					<th>
+						Informácia o aktualizácií
+					</th>
+					<th>
+						Začiatok sťahovania
+					</th>
+					<th>
+						Koniec sťahovania
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{range $k, $v  := .A}}
 				{{if $k}}
-					<tr>
-						<td>
-							{{$k}}
-						</td>
-						{{range $v}}
-							<td>
-								{{if .Equal $zt}}
-									Ešte nevykonané
-								{{else}}
-									{{(.In $tz).Format "15:04:05, 2.1.2006"}}
-								{{end}}
-							</td>
+				<tr>
+					<td>
+						{{$k}}
+					</td>
+					{{range $v}}
+					<td>
+						{{if .Equal $zt}}
+						Ešte nevykonané
+						{{else}}
+						{{(.In $tz).Format "15:04:05, 2.1.2006"}}
 						{{end}}
-					</tr>
+					</td>
+					{{end}}
+				</tr>
 				{{end}}
-			{{end}}
-		</tbody>
-	</table>
-{{end}}
+				{{end}}
+			</tbody>
+		</table>
+		{{end}}
 
-<script type="text/template" id="title-show-template">
-	<h1 id="title"> <%= title %> </h1>
-</script>
+		<script type="text/template" id="title-show-template">
+		<h1 id="title"> <%= title %> </h1>
+		</script>
 
-<script type="text/template" id="title-edit-template">
-	<div class="input-append">
+		<script type="text/template" id="title-edit-template">
+		<div class="input-append">
 		<form>
-			<input class="form-control" type="text" value="<%=title%>" class="title span3" id="title-field">
-			<button type="submit" class="btn btn-primary">Uložiť</button>
+		<input class="form-control" type="text" value="<%=title%>" class="title span3" id="title-field">
+		<button type="submit" class="btn btn-primary">Uložiť</button>
 		</form>
-	</div>
-</script>
+		</div>
+		</script>
 
-<script type="text/template" id="description-show-template">
-<div id="description">
-<%= text %>
-</div>
-</script>
+		<script type="text/template" id="description-show-template">
+		<div id="description">
+		<%= text %>
+		</div>
+		</script>
 
-<script type="text/template" id="description-edit-template">
-<form>
-<textarea class="form-control" id="description-field">
-<%=markdown %>
-</textarea><br>
-<div class="help-block">Markdown je povolený</div>
-<button type="submit" class="btn btn-primary">Uložiť</button>
-</form>
-</script>
+		<script type="text/template" id="description-edit-template">
+		<form>
+		<textarea class="form-control" id="description-field">
+		<%=markdown %>
+		</textarea><br>
+		<div class="help-block">Markdown je povolený</div>
+		<button type="submit" class="btn btn-primary">Uložiť</button>
+		</form>
+		</script>
 
-<script type="text/template" id="loading-template">
-<img src="/static/images/spinner.gif" alt="loading" width="30" height="30">
-</script>
+		<script type="text/template" id="loading-template">
+		<img src="/static/images/spinner.gif" alt="loading" width="30" height="30">
+		</script>

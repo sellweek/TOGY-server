@@ -23,29 +23,22 @@
 	</div>
 {{end}}
 {{end}}
-<div id="pagination">
-	 
-</div>
 
 <ul class="pager">
   <li class="previous">
     {{if equal .Page 1}}
 	{{else}}
 		<a href="/presentation?p={{subtract .Page  1}}">
-			Novšie vysielania
+			<span class="glyphicon glyphicon-arrow-left"></span> Novšie vysielania
 		</a>
 	{{end}}
   </li>
 
-  <li>
-  	<p class="text-center">Strana {{.Page}}</p>
-  </li>
-
   <li class="next">
 	{{if equal .Page .MaxPages}}
-	 {{else}}
+	{{else}}
 	 	<a href="/presentation?p={{add .Page  1}}">
-				Staršie vysielania
+			Staršie vysielania <span class="glyphicon glyphicon-arrow-right"></span>
 		</a>
 	{{end}}
   </li>
