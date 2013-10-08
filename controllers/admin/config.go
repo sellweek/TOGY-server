@@ -4,10 +4,10 @@ import (
 	"models/action"
 	"models/configuration/config"
 	"models/configuration/timeConfig"
-	"util"
 	"net/http"
 	"strconv"
 	"time"
+	"util"
 )
 
 //ShowConfig handles showing the page in which user can see and edit

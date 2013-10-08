@@ -2,12 +2,12 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"controllers/admin"
 	"controllers/api"
 	"controllers/public"
-	"util"
+	"github.com/gorilla/mux"
 	"net/http"
+	"util"
 )
 
 //init sets up routes for Google App Engine

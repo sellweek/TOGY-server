@@ -7,15 +7,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/russross/blackfriday"
+	"io/ioutil"
 	"models/action"
 	"models/activation"
 	"models/configuration"
 	"models/configuration/config"
 	"models/presentation"
-	"util"
-	"io/ioutil"
 	"net/http"
 	"time"
+	"util"
 )
 
 //Update handles queries of clients about whether they should download a new
