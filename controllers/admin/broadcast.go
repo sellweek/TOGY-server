@@ -203,7 +203,7 @@ func Activate(c util.Context) (err error) {
 	}
 	p.Active = true
 	p.Save(c.Ac)
-	http.Redirect(c.W, c.R, "/admin/presentation/archive", 303)
+	http.Redirect(c.W, c.R, "/admin/presentation/archive/1", 303)
 	return
 }
 

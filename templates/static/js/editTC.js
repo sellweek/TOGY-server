@@ -1,6 +1,9 @@
 "use strict"
 $(function() {
+	$.datepicker.setDefaults($.datepicker.regional["sk"])
 	$(".time").timepicker();
-	$("#date").datepicker($.datepicker.regional[ "sk" ]);
-	$("#date").datepicker("option", "dateFormat", "yy-mm-dd");
+	$("#date").datepicker({
+		"dateFormat": "yy-mm-dd"
+	});
+	$("#date").datepicker("setDate", $("#date").val())
 });

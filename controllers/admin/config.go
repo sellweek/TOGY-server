@@ -10,7 +10,7 @@ import (
 	"util"
 )
 
-//ShowConfig handles showing the page in which user can see and edit
+//ShowConfig handles showing the page where user can see and edit
 //the central configuration for clients.
 func ShowConfig(c util.Context) (err error) {
 	conf, err := config.Get(c.Ac)
@@ -95,6 +95,7 @@ func TimeOverrideEdit(c util.Context) (err error) {
 			return
 		}
 	}
+	c.Ac.Infof("%+v", tc)
 	util.RenderLayout("timeConfigEdit.html", "Úprava výnimky", tc, c, "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/editTC.js")
 	return
 }
@@ -115,7 +116,7 @@ func TimeOverrideSubmit(c util.Context) (err error) {
 	if err != nil {
 		return
 	}
-	tc := timeConfig.New(util.NormalizeDate(date, true), util.NormalizeTime(on, true), util.NormalizeTime(off, true))
+	tc := timeConfig.New(util.NormalizeDate(date, false), util.NormalizeTime(on, true), util.NormalizeTime(off, true))
 	tc.Key = c.Vars["id"]
 	err = tc.Save(c.Ac)
 	if err != nil {
