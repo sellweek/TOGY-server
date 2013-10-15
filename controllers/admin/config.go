@@ -59,8 +59,8 @@ func SetConfig(c util.Context) (err error) {
 		conf.Weekends = true
 	}
 
-	conf.StandardOn = util.NormalizeTime(on, true)
-	conf.StandardOff = util.NormalizeTime(off, true)
+	conf.StandardOn = util.NormalizeTime(on)
+	conf.StandardOff = util.NormalizeTime(off)
 
 	err = conf.Save(c.Ac)
 	if err != nil {
@@ -76,10 +76,7 @@ func TimeOverride(c util.Context) (err error) {
 	if err != nil {
 		return
 	}
-	util.RenderLayout("timeConfig.html", "Zoznam časových výnimiek", struct {
-		Tcs []*timeConfig.TimeConfig
-		Tz  *time.Location
-	}{tcs, util.Tz}, c)
+	util.RenderLayout("timeConfig.html", "Zoznam časových výnimiek", tcs, c)
 	return
 }
 
@@ -116,7 +113,7 @@ func TimeOverrideSubmit(c util.Context) (err error) {
 	if err != nil {
 		return
 	}
-	tc := timeConfig.New(util.NormalizeDate(date, false), util.NormalizeTime(on, true), util.NormalizeTime(off, true))
+	tc := timeConfig.New(util.NormalizeDate(date), util.NormalizeTime(on), util.NormalizeTime(off))
 	tc.Key = c.Vars["id"]
 	err = tc.Save(c.Ac)
 	if err != nil {

@@ -48,8 +48,8 @@ func (c *Config) Save(ctx appengine.Context) (err error) {
 		return
 	}
 
-	c.StandardOn = util.NormalizeTime(c.StandardOn, false)
-	c.StandardOff = util.NormalizeTime(c.StandardOff, false)
+	c.StandardOn = util.NormalizeTime(c.StandardOn)
+	c.StandardOff = util.NormalizeTime(c.StandardOff)
 
 	_, err = datastore.Put(ctx, key, c)
 	if err != nil {

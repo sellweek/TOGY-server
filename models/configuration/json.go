@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	jsonTimeFormat = "15:04 -0700"
-	jsonDateFormat = "2006-1-2 -0700"
+	jsonTimeFormat = "15:04"
+	jsonDateFormat = "2006-1-2"
 )
 
 //JSON returns JSON representation of config and time override settings

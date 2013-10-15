@@ -218,7 +218,7 @@ func Delete(c util.Context) (err error) {
 	if err != nil {
 		return
 	}
-	http.Redirect(c.W, c.R, "/admin/presentation/archive", 303)
+	http.Redirect(c.W, c.R, "/admin/presentation/archive/1", 303)
 	return
 }
 
