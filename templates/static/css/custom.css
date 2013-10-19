@@ -18,3 +18,9 @@ body {
 .footer {
 	margin-top: 10px;
 }
+
+.active-alert {
+	height: 34px;
+	padding: 6px;
+	text-align: center;
+}

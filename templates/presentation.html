@@ -10,29 +10,38 @@
 		{{.P.Name}}
 	</h1>
 </div>
+<div class="actions">
+	<div class="input-group col-md-3">
+		<input class="form-control uneditable-input" 
+		value="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" 
+		type="text">
+		<a href="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}"
+		class="btn input-group-addon">
+		<span class="glyphicon glyphicon-download-alt"></span></a>
+	</div>
+	{{if .P.Active}}
+		<div class="active-alert alert alert-info col-md-3">
+			Táto prezentácia je práve aktívna
+		</div>
+	{{else}}
+		<form method="POST" action="/admin/presentation/activate" class="button-form">
+			<input type="hidden" name="id" value="{{.P.Key}}">
+			<button type="submit" class="btn btn-success">Aktivovať</button>
+		</form>
 
-<dl class="dl-horizontal">
-	<dt>
-		<b>Typ súboru</b>
-	</dt>
-	<dd>
-		{{.P.FileType}}
-	</dd>
+		<form method="POST" action="/admin/presentation/delete" class="button-form">
+			<input type="hidden" name="id" value="{{.P.Key}}">
+			<button type="submit" class="btn btn-danger">Vymazať</button>
+		</form>
+	{{end}}
+</div>
 
-	<dt>
-		<b>Dátum a čas pridania</b>
-	</dt>
-	<dd>
-		{{(.P.Created.In .Tz).Format "15:04:05, 2.1.2006"}}
-	</dd>
-
-	<dt>
-		<b>Priemerne stiahnutá za</b>
-	</dt>
-	<dd>
-		{{.Avg}} sekúnd
-	</dd>
-</dl>
+{{/*If we didn't put this in, the description title would get stuck to the alert */}}
+{{if .P.Active}}
+	<br>
+	<br>
+	<br>
+{{end}}
 
 <h2>
 	Popis
@@ -56,64 +65,82 @@
 <div class="row">
 	<div id="buttons" class="col-md-6">
 		<h2>
-			Akcie
+			Podrobnosti
 		</h2>
-		{{if .P.Active}}
-			<div class="alert alert-info">
-				Táto prezentácia je práve aktívna
-			</div>
-		{{else}}
-			<form method="POST" action="/admin/presentation/activate" class="button-form">
-				<input type="hidden" name="id" value="{{.P.Key}}">
-				<button type="submit" class="btn btn-success">Aktivovať</button>
-			</form>
+		<table class="table">
+			<tr>
+				<td>
+					<b>Typ súboru</b>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					{{.P.FileType}}
+				</td>
+			</tr>
 
-			<form method="POST" action="/admin/presentation/delete" class="button-form">
-				<input type="hidden" name="id" value="{{.P.Key}}">
-				<button type="submit" class="btn btn-danger">Vymazať</button>
-			</form>
-		{{end}}
-		<div class="download input-group">
-			<input class="form-control col-md-2 uneditable-input" 
-				value="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" 
-				type="text">
-			<a href="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}"
-				class="btn input-group-addon">
-				<span class="glyphicon glyphicon-download-alt"></span></a>
-		</div>
+			<tr>
+				<td>
+					<b>Dátum a čas pridania</b>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					{{(.P.Created.In .Tz).Format "15:04:05, 2.1.2006"}}
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<b>Priemerne stiahnutá za</b>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					{{.Avg}} sekúnd
+				</td>
+			</tr>
+		</table>
+	
 	</div>
 
 	<div id="acts" class="col-md-6">
 		<h2>
 			Naplánované aktivácie
 		</h2>
-		<table class="table">
-			<thead>
-				<tr>
-					<th>
-						Dátum a čas
-					</th>
-					<th>
-						Vymazať
-					</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{$p := .P}}
-				{{range .Activations}}
+		{{if .Activations}}
+			<table class="table">
+				<thead>
 					<tr>
-						<td>
-							{{(.Time.In $tz).Format "2.1.2006 15:04:05"}}
-						</td>
-						<td>
-							<form method="POST" action="/api/activation/{{.Key}}/delete" class="button-form">
-								<input type="hidden" name="redirect" value="/admin/presentation/{{$p.Key}}">
-								<button type="submit" class="btn btn-danger btn-small">
-									Vymazať
-								</button>
-							</form>
-						</td>
+						<th>
+							Dátum a čas
+						</th>
+						<th>
+							Vymazať
+						</th>
 					</tr>
+				</thead>
+				<tbody>
+					{{$p := .P}}
+					{{range .Activations}}
+						<tr>
+							<td>
+								{{(.Time.In $tz).Format "2.1.2006 15:04:05"}}
+							</td>
+							<td>
+								<form method="POST" action="/api/activation/{{.Key}}/delete" class="button-form">
+									<input type="hidden" name="redirect" value="/admin/presentation/{{$p.Key}}">
+									<button type="submit" class="btn btn-danger btn-small">
+										Vymazať
+									</button>
+								</form>
+							</td>
+						</tr>
+					{{end}}
+				{{else}}
+					<div class="alert alert-info">
+						Táto prezentácia nemá naplánované aktivácie
+					</div>
 				{{end}}
 			</tbody>
 		</table>
@@ -121,9 +148,11 @@
 		<form id="schedule-activation">
 			<fieldset>
 				<legend>Naplánovať aktiváciu</legend>
-				<div class="input-append">
-					<input class="span2" type="text" name="datetime">
-					<button type="submit" class="btn btn-primary">Naplánovať</button>
+				<div class="input-group">
+					<input class="form-control col-md-2" type="text" name="datetime">
+					<span class="input-group-btn">
+						<button type="submit" class="btn btn-primary">Naplánovať</button>
+					</span>
 				</div>
 			<fieldset>
 		</form>
