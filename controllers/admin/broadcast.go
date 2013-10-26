@@ -145,7 +145,8 @@ func Archive(c util.Context) (err error) {
 		Data     []tmplData
 		Page     int
 		MaxPages int
-	}{downloads, page, maxPages}, c)
+		Tz       *time.Location
+	}{downloads, page, maxPages, util.Tz}, c)
 	return
 }
 

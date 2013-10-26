@@ -1,3 +1,4 @@
+{{$tz := .Tz}}
 {{with .Data}}
 <table class="table">
 	<thead>
@@ -28,7 +29,7 @@
 				</a>
 			</td>
 			<td>
-				{{.P.Created.Format "15:04, 2.1.2006"}}
+				{{(.P.Created.In $tz).Format "15:04, 2.1.2006"}}
 			</td>
 			<td>
 				{{.C}}x
