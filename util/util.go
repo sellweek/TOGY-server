@@ -77,10 +77,12 @@ type Context struct {
 func Handler(hand func(Context) error) http.Handler {
 	return appstats.NewHandler(func(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		err := hand(Context{Ac: c, W: w, R: r, Vars: vars})
+		context := Context{Ac: c, W: w, R: r, Vars: vars}
+		err := hand(context)
 		if err != nil {
 			c.Errorf("Error 500. %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			RenderLayout("error.html", "Chyba", err, context)
 		}
 	})
 }
