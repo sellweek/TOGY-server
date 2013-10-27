@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"models/configuration/config"
 	"models/configuration/timeConfig"
+	"util"
 )
 
 const (
@@ -27,8 +28,8 @@ func JSON(c appengine.Context) (js []byte, err error) {
 	}
 
 	j["StandardTimeSettings"] = map[string]string{
-		"TurnOn":  conf.StandardOn.Format(jsonTimeFormat),
-		"TurnOff": conf.StandardOff.Format(jsonTimeFormat),
+		"TurnOn":  conf.StandardOn.In(util.Tz).Format(jsonTimeFormat),
+		"TurnOff": conf.StandardOff.In(util.Tz).Format(jsonTimeFormat),
 	}
 	j["UpdateInterval"] = conf.UpdateInterval
 	switch conf.OverrideState {
@@ -47,8 +48,8 @@ func JSON(c appengine.Context) (js []byte, err error) {
 
 	for _, tc := range tcs {
 		timeMap := make(map[string]string)
-		timeMap["TurnOn"] = tc.On.Format(jsonTimeFormat)
-		timeMap["TurnOff"] = tc.Off.Format(jsonTimeFormat)
+		timeMap["TurnOn"] = tc.On.In(util.Tz).Format(jsonTimeFormat)
+		timeMap["TurnOff"] = tc.Off.In(util.Tz).Format(jsonTimeFormat)
 
 		j["OverrideDays"] = make(map[string]map[string]string)
 		j["OverrideDays"].(map[string]map[string]string)[tc.Date.Format(jsonDateFormat)] = timeMap
