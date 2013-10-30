@@ -70,12 +70,6 @@ func (p *Presentation) Save(c appengine.Context) (err error) {
 	var k *datastore.Key
 	if p.Key == "" {
 
-		if p.Active {
-			err = deactivateCurrent(c)
-			if err != nil {
-				return
-			}
-		}
 		k, err = datastore.Put(c, datastore.NewIncompleteKey(c, "Presentation", nil), p)
 		if err != nil {
 			return
@@ -89,10 +83,6 @@ func (p *Presentation) Save(c appengine.Context) (err error) {
 		}
 
 		if p.Active {
-			err = deactivateCurrent(c)
-			if err != nil {
-				return
-			}
 			action.DeleteFor(p, c)
 		}
 		_, err = datastore.Put(c, k, p)
@@ -176,22 +166,5 @@ func GetByKey(key string, c appengine.Context) (p *Presentation, err error) {
 		return
 	}
 	p.Key = key
-	return
-}
-
-//deactivateCurrent is a helper function that deactivates current active presentation.
-//It should only be used just before saving another active presentation.
-func deactivateCurrent(c appengine.Context) (err error) {
-	curr, err := GetActive(c)
-	if err != nil {
-		err = fmt.Errorf("Couldn't get active presentation: %v", err)
-		return
-	}
-	curr.Active = false
-	err = curr.Save(c)
-	if err != nil {
-		err = fmt.Errorf("Couldn't deactivate active presentation: %v", err)
-		return
-	}
 	return
 }
