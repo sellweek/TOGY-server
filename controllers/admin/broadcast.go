@@ -219,7 +219,24 @@ func Delete(c util.Context) (err error) {
 	if err != nil {
 		return
 	}
-	http.Redirect(c.W, c.R, "/admin/presentation/archive/1", 303)
+	http.Redirect(c.W, c.R, c.Referer(), 303)
+	return
+}
+
+func Deactivate(c util.Context) (err error) {
+	key := c.R.FormValue("id")
+	p, err := presentation.GetByKey(key, c.Ac)
+	if err != nil {
+		return
+	}
+
+	p.Active = false
+	err = p.Save(c.Ac)
+	if err != nil {
+		return
+	}
+
+	http.Redirect(c.W, c.R, c.R.Referer(), 303)
 	return
 }
 

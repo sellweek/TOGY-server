@@ -36,7 +36,12 @@
 			</td>
 			{{if .P.Active}}
 				<td colspan="2">
-					<button type="button" class="btn btn-default btn-block" disabled="disabled">Aktívna</button>
+					<form method="POST" action="/admin/presentation/deactivate" class="button-form">
+						<input type="hidden" name="id" value="{{.P.Key}}">
+						<button type="submit" class="btn btn-primary btn-block">
+							Deaktivovať
+						</button>
+					</form>
 				</td>
 			{{else}}
 				<td width="69px">

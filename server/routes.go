@@ -24,6 +24,7 @@ func init() {
 	r.Handle("/admin/presentation/upload", util.Handler(admin.UploadHandler)).Methods("POST")
 	r.Handle("/admin/presentation/archive/{page}", util.Handler(admin.Archive))
 	r.Handle("/admin/presentation/activate", util.Handler(admin.Activate)).Methods("POST")
+	r.Handle("/admin/presentation/deactivate", util.Handler(admin.Deactivate)).Methods("POST")
 	r.Handle("/admin/presentation/delete", util.Handler(admin.Delete)).Methods("POST")
 	r.Handle("/admin/presentation/{id}", util.Handler(admin.Presentation))
 	r.Handle("/admin/config", util.Handler(admin.ShowConfig)).Methods("GET")
