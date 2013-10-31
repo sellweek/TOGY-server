@@ -26,6 +26,7 @@ type Config struct {
 	OverrideState  int
 	UpdateInterval int
 	Weekends       bool
+	Timestamp      int64
 }
 
 //GetKey returns key of the Datastore Config record.
@@ -51,6 +52,7 @@ func (c *Config) Save(ctx appengine.Context) (err error) {
 	c.StandardOn = util.NormalizeTime(c.StandardOn)
 	c.StandardOff = util.NormalizeTime(c.StandardOff)
 
+	c.Timestamp = time.Now().Unix()
 	_, err = datastore.Put(ctx, key, c)
 	if err != nil {
 		return fmt.Errorf("Error when putting: %v", err)

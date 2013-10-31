@@ -56,7 +56,15 @@ func (tc *TimeConfig) Save(c appengine.Context) (err error) {
 		}
 	}
 	_, err = datastore.Put(c, k, tc)
-	action.DeleteFor(&config.Config{}, c)
+
+	conf, err := config.Get(c)
+	if err != nil {
+		return
+	}
+
+	conf.Timestamp = time.Now().Unix()
+	//This also removes Actions for us
+	err = conf.Save(c)
 	return
 }
 
