@@ -33,15 +33,17 @@ func (p Presentation) GetKey(ctx appengine.Context) (k *datastore.Key, err error
 //GetActive gets the active presentation from the Datastore.
 //If more than one presentation has the Active field set to true,
 //its results are unpredictable.
-func GetActive(c appengine.Context) (*Presentation, error) {
-	var p Presentation
-	i := datastore.NewQuery("Presentation").Filter("Active =", true).Limit(1).Run(c)
-	key, err := i.Next(&p)
+func GetActive(c appengine.Context) (ps []*Presentation, err error) {
+	ps = make([]*Presentation, 0)
+	keys, err := datastore.NewQuery("Presentation").Filter("Active =", true).GetAll(c, &ps)
 	if err != nil {
-		return &p, err
+		return
 	}
-	p.Key = key.Encode()
-	return &p, err
+
+	for i, p := range ps {
+		p.Key = keys[i].Encode()
+	}
+	return
 }
 
 //New returns pointer to a presentation with fields set to given values.

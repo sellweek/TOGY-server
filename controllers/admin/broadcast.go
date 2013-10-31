@@ -29,14 +29,6 @@ func Admin(c util.Context) (err error) {
 
 //Upload renders the new presentation upload page.
 func Upload(c util.Context) (err error) {
-	var activeName string
-	p, err := presentation.GetActive(c.Ac)
-	if err != nil {
-		activeName = "Aktívna prezentácia sa nedala získať."
-	}
-
-	activeName = p.Name
-
 	uploadURL, err := blobstore.UploadURL(c.Ac, "/admin/presentation/upload", nil)
 	if err != nil {
 		return
