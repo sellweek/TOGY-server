@@ -7,9 +7,8 @@ import (
 )
 
 const (
-	UpdateNotification ActionType = iota //Client was notified it should update.
-	DownloadStart      ActionType = iota //Client started download.
-	DownloadFinish     ActionType = iota //Client finished download.
+	Activated   ActionType = iota
+	Deactivated ActionType = iota
 )
 
 //ActionType defines the type of the Action performed
@@ -18,12 +17,10 @@ type ActionType int
 //String returns the type of action in human-readable form
 func (at ActionType) String() string {
 	switch at {
-	case UpdateNotification:
-		return "Update notification"
-	case DownloadStart:
-		return "Download started"
-	case DownloadFinish:
-		return "Download is finished"
+	case Activated:
+		return "Activated"
+	case Deactivated:
+		return "Deactivated"
 	}
 	return "Unknown action"
 }
@@ -92,7 +89,7 @@ func (a *Action) Save(c appengine.Context) (err error) {
 }
 
 //Log works like Make but logs errors instead of returning them.
-func Log(m Model, client string, at ActionType, c appengine.Context) {
+func Log(m Model, at ActionType, client string, c appengine.Context) {
 	if client == "" {
 		c.Infof("%v called without client name.", at)
 		return

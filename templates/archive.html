@@ -13,10 +13,8 @@
 				Stiahnuté
 			</th>
 			<th>
-				Vymazať
 			</th>
 			<th>
-				Aktivovať
 			</th>
 		</tr>
 	</thead>
@@ -35,32 +33,32 @@
 				{{.C}}x
 			</td>
 			{{if .P.Active}}
-				<td colspan="2">
+				<td width="90px">
 					<form method="POST" action="/admin/presentation/deactivate" class="button-form">
 						<input type="hidden" name="id" value="{{.P.Key}}">
-						<button type="submit" class="btn btn-primary btn-block">
+						<button type="submit" class="archive-btn btn btn-warning btn-sm">
 							Deaktivovať
 						</button>
 					</form>
 				</td>
 			{{else}}
-				<td width="69px">
-					<form method="POST" action="/admin/presentation/delete" class="button-form">
-						<input type="hidden" name="id" value="{{.P.Key}}">
-						<button type="submit" class="btn btn-danger btn-sm">
-							Vymazať
-						</button>
-					</form>
-				</td>
-				<td width="69px">
+				<td width="90px">
 					<form method="POST" action="/admin/presentation/activate" class="button-form">
 						<input type="hidden" name="id" value="{{.P.Key}}">
-						<button type="submit" class="btn btn-success btn-sm">
+						<button type="submit" class="archive-btn btn btn-success btn-sm">
 							Aktivovať
 						</button>
 					</form>
 				</td>
 			{{end}}
+			<td width="90px">
+				<form method="POST" action="/admin/presentation/delete" class="button-form">
+					<input type="hidden" name="id" value="{{.P.Key}}">
+					<button type="submit" class="archive-btn btn btn-danger btn-sm">
+						Vymazať
+					</button>
+				</form>
+			</td>
 		</tr>
 		{{else}}
 		<div class="alert alert-info">

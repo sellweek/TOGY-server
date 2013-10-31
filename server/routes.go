@@ -48,6 +48,7 @@ func init() {
 	//file downloaded by users will not be called "download"
 	r.Handle("/api/presentation/{key}/download/{filename}", util.Handler(api.Download))
 	r.Handle("/api/presentation/{key}/downloadComplete", util.Handler(api.DownloadFinish))
+	r.Handle("/api/presentation/{key}/deactivated", util.Handler(api.Deactivated))
 	r.Handle("/api/presentation/{key}/description", util.Handler(api.GetDescription)).Methods("GET")
 	r.Handle("/api/presentation/{key}/description", util.Handler(api.UpdateDescription)).Methods("POST")
 	r.Handle("/api/presentation/{key}/name", util.Handler(api.GetName)).Methods("GET")
@@ -57,7 +58,7 @@ func init() {
 	r.Handle("/api/presentation/activate", util.Handler(api.ActivateScheduled)).Methods("GET")
 	r.Handle("/api/config/download", util.Handler(api.GetConfig)).Methods("GET")
 	r.Handle("/api/config/downloadComplete", util.Handler(api.GotConfig)).Methods("GET")
-	r.Handle("/api/update", util.Handler(api.Update))
+	r.Handle("/api/status", util.Handler(api.Status))
 
 	r.StrictSlash(true)
 	http.Handle("/", r)

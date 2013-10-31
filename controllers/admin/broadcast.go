@@ -58,10 +58,9 @@ func Upload(c util.Context) (err error) {
 	}
 
 	util.RenderLayout("upload.html", "Nahrať prezentáciu", struct {
-		ActivePresentation string
-		UploadURL          *url.URL
-		Ans                []actWithName
-	}{activeName, uploadURL, ans}, c)
+		UploadURL *url.URL
+		Ans       []actWithName
+	}{uploadURL, ans}, c)
 	return
 }
 
@@ -120,7 +119,7 @@ func Archive(c util.Context) (err error) {
 
 	downloads := make([]tmplData, 0)
 	for _, p := range ps {
-		count, err := action.GetCountFor(action.DownloadFinish, p, c.Ac)
+		count, err := action.GetCountFor(action.Activated, p, c.Ac)
 		if err != nil {
 			c.Ac.Infof("Error when getting download count: %v", err)
 			count = -1
@@ -157,14 +156,6 @@ func Presentation(c util.Context) (err error) {
 
 	desc := blackfriday.MarkdownCommon(p.Description)
 
-	secs := make([]float64, 0)
-	for _, t := range a {
-		dur := t[2].Sub(t[1])
-		secs = append(secs, dur.Seconds())
-	}
-
-	avgDL := util.Round(util.Average(secs...), 2)
-
 	//We can safely ignore errors here since we already
 	//got the presentation using the same key
 	pk, _ := datastore.DecodeKey(p.Key)
@@ -179,11 +170,10 @@ func Presentation(c util.Context) (err error) {
 		A           map[string][]time.Time
 		Desc        template.HTML
 		ZeroTime    time.Time
-		Avg         float64
 		Domain      string
 		Activations []*activation.Activation
 		Tz          *time.Location
-	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), avgDL, appengine.DefaultVersionHostname(c.Ac), acts, util.Tz}, c, "/static/js/underscore-min.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/presentation.js")
+	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), appengine.DefaultVersionHostname(c.Ac), acts, util.Tz}, c, "/static/js/underscore-min.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/presentation.js")
 	return
 }
 
@@ -211,7 +201,7 @@ func Delete(c util.Context) (err error) {
 	if err != nil {
 		return
 	}
-	http.Redirect(c.W, c.R, c.Referer(), 303)
+	http.Redirect(c.W, c.R, c.R.Referer(), 303)
 	return
 }
 
@@ -237,7 +227,7 @@ func prepareActions(as []action.Action) map[string][]time.Time {
 
 	for _, v := range as {
 		if a[v.Client] == nil {
-			a[v.Client] = make([]time.Time, 3, 3)
+			a[v.Client] = make([]time.Time, 2, 2)
 		}
 		a[v.Client][int(v.Type)] = v.Time
 	}

@@ -18,48 +18,50 @@ import (
 	"util"
 )
 
-//Update handles queries of clients about whether they should download a new
-//presentation.
-//Clients call address with their ID like
-//	togpm5.appspot.com/?client=A1
-//and the server responds with JSON:
+//Status returns information about active broadcasts and
+//config. It returns a JSON like:
 //	{
-//		"Broadcast": true,
-//		"FileType": "ppt",
-//		"Config": false
+//		"Broadcasts": [
+//			{
+//				"Key": "aghkZXZ-Tm9uZXIZCxIMUHJlc2VudGF0aW9uGICAgICAgIAKDA",
+//				"FileType": "pptx"
+//			},
+//			{
+//				"Key": "aghkZXZ-Tm9uZXIZCxIMUHJlc2VudGF0aW9uGICAgICAwO8KDA",
+//				"FileType": "ppt"
+//			}
+//		]
+//		"Config": 1383212550
 //	}
-//Where Broadcast and Config fields signal whether client should download
-//new presentation or configuration and FileType contains file type
-//of the broadcast file.
-func Update(c util.Context) (err error) {
+func Status(c util.Context) (err error) {
+	type broadcastInfo struct {
+		Key      string
+		FileType string
+	}
 	type updateInfo struct {
-		Broadcast bool
-		FileType  string
-		Config    bool
+		Broadcasts []broadcastInfo
+		Config     int64
 	}
 
-	ui := new(updateInfo)
+	ui := updateInfo{}
 
-	client := c.R.FormValue("client")
-
-	p, err := presentation.GetActive(c.Ac)
+	ps, err := presentation.GetActive(c.Ac)
 	if err != nil {
 		return
 	}
 
-	bc, err := action.WasPerformedOn(action.DownloadFinish, p, client, c.Ac)
+	ui.Broadcasts = make([]broadcastInfo, len(ps))
+
+	for i, p := range ps {
+		ui.Broadcasts[i] = broadcastInfo{Key: p.Key, FileType: p.FileType}
+	}
+
+	conf, err := config.Get(c.Ac)
 	if err != nil {
 		return
 	}
-	ui.Broadcast = !bc
 
-	ui.FileType = p.FileType
-
-	conf, err := action.WasPerformedOn(action.DownloadFinish, new(config.Config), client, c.Ac)
-	if err != nil {
-		return
-	}
-	ui.Config = !conf
+	ui.Config = conf.Timestamp
 
 	data, err := json.Marshal(ui)
 	if err != nil {
@@ -67,13 +69,6 @@ func Update(c util.Context) (err error) {
 	}
 
 	fmt.Fprint(c.W, string(data))
-
-	if ui.Broadcast {
-		action.Log(*p, client, action.UpdateNotification, c.Ac)
-	}
-	if ui.Config {
-		action.Log(new(config.Config), client, action.UpdateNotification, c.Ac)
-	}
 
 	return
 }
@@ -84,9 +79,7 @@ func Download(c util.Context) (err error) {
 	if err != nil {
 		return
 	}
-	if client := c.R.FormValue("client"); client != "" {
-		action.Log(*p, c.R.FormValue("client"), action.DownloadStart, c.Ac)
-	}
+
 	blobstore.Send(c.W, p.BlobKey)
 	return
 }
@@ -99,12 +92,19 @@ func DownloadFinish(c util.Context) (err error) {
 		return
 	}
 
-	//Here, we're using Make instead of Log because the sole purpose of this controller
-	//is to log the action, so we want to see the errors.
-	_, err = action.Make(*p, action.DownloadFinish, c.R.FormValue("client"), c.Ac)
+	action.Log(*p, action.Activated, c.R.FormValue("client"), c.Ac)
+	return
+}
+
+//Deactivated is called by clients to announce that
+//they have deactivated and deleted a broadcast
+func Deactivated(c util.Context) (err error) {
+	p, err := getPresentation(c)
 	if err != nil {
 		return
 	}
+
+	action.Log(*p, action.Deactivated, c.R.FormValue("client"), c.Ac)
 	return
 }
 
@@ -175,16 +175,13 @@ func GetConfig(c util.Context) (err error) {
 		return
 	}
 	fmt.Fprint(c.W, string(json))
-	if client := c.R.FormValue("client"); client != "" {
-		action.Log(&config.Config{}, client, action.DownloadStart, c.Ac)
-	}
 	return
 }
 
 //GotConfig is called by clients to announce that
 //they have downloaded the broadcast.
 func GotConfig(c util.Context) (err error) {
-	action.Log(new(config.Config), c.R.FormValue("client"), action.DownloadFinish, c.Ac)
+	action.Log(new(config.Config), action.Activated, c.R.FormValue("client"), c.Ac)
 	return
 }
 
@@ -278,10 +275,6 @@ func DeleteActivation(c util.Context) (err error) {
 
 func getPresentation(c util.Context) (p *presentation.Presentation, err error) {
 	key := c.Vars["key"]
-	if key == "active" {
-		p, err = presentation.GetActive(c.Ac)
-	} else {
-		p, err = presentation.GetByKey(key, c.Ac)
-	}
+	p, err = presentation.GetByKey(key, c.Ac)
 	return
 }

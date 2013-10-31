@@ -34,11 +34,9 @@
 </form>
 
 <h2>Informácie klientov</h2>
-{{/*I know this is copy-pasted from presentation.html, but go's templates are shit*/}}
 {{$zt := .ZeroTime}}
-{{$eq := equal (len .A) 0}}
 {{$tz := .Tz}}
-{{if not $eq}}
+{{if not (equal (len .A) 0)}}
 <table class="table">
 	<thead>
 		<tr>
@@ -46,13 +44,7 @@
 				Klient
 			</th>
 			<th>
-				Informácia o aktualizácií
-			</th>
-			<th>
-				Začiatok sťahovania
-			</th>
-			<th>
-				Koniec sťahovania
+				Stiahnuté
 			</th>
 		</tr>
 	</thead>
@@ -64,13 +56,11 @@
 				{{$k}}
 			</td>
 			{{range $v}}
-			<td>
-				{{if .Equal $zt}}
-				Ešte nevykonané
-				{{else}}
-				{{(.In $tz).Format "15:04:05, 2.1.2006"}}
+				{{if not (.Equal $zt)}}
+				<td>
+					{{(.In $tz).Format "15:04:05, 2.1.2006"}}
+				</td>
 				{{end}}
-			</td>
 			{{end}}
 		</tr>
 		{{end}}
