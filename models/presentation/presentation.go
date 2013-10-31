@@ -30,9 +30,7 @@ func (p Presentation) GetKey(ctx appengine.Context) (k *datastore.Key, err error
 	return
 }
 
-//GetActive gets the active presentation from the Datastore.
-//If more than one presentation has the Active field set to true,
-//its results are unpredictable.
+//GetActive gets the active presentations from the Datastore.
 func GetActive(c appengine.Context) (ps []*Presentation, err error) {
 	ps = make([]*Presentation, 0)
 	keys, err := datastore.NewQuery("Presentation").Filter("Active =", true).GetAll(c, &ps)
@@ -65,9 +63,7 @@ func Make(k appengine.BlobKey, fileType, name string, desc []byte, active bool, 
 	return
 }
 
-//Sve saves presentation to Datastore. If its Active field is true,
-//the currently active presentation is deactivated.
-//TODO: Use transactions to deactivate and activate presentations.
+//Save saves presentation to Datastore.
 func (p *Presentation) Save(c appengine.Context) (err error) {
 	var k *datastore.Key
 	if p.Key == "" {
@@ -129,6 +125,7 @@ func GetAll(c appengine.Context) (ps []*Presentation, err error) {
 	return
 }
 
+//GetListing gets paginated Presentations from Datastore.
 func GetListing(page int, perPage int, c appengine.Context) (ps []*Presentation, err error) {
 	var q *datastore.Query
 	if page == 1 {
@@ -147,6 +144,8 @@ func GetListing(page int, perPage int, c appengine.Context) (ps []*Presentation,
 	return
 }
 
+//PageCount returns how many pages the Presentations in Datastore would need
+//if there wer perPage presentations listed on a single page
 func PageCount(perPage int, c appengine.Context) (pgs int, err error) {
 	ps, err := datastore.NewQuery("Presentation").Count(c)
 	if err != nil {
