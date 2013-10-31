@@ -36,21 +36,30 @@ $(function() {
 	});
 
 	$("input[name=datetime]").datetimepicker({
-		stepMinute: 5
+		language: "sk"
 	});
-	$("input[name=datetime]").datetimepicker($.datepicker.regional[ "sk" ]);
-	$("input[name=datetime]").datetimepicker("option", "dateFormat", "yy-mm-dd");
 
-	$("#schedule-activation").on("submit", function() {
-		$.post("/api/presentation/"+presentationKey+"/schedule", $("input[name=datetime]").datetimepicker("getDate").toString(), function(data) {
-			if (data==="") {
-				$("#schedule-activation-container").html("Aktivácia naplánovaná");
-				$("#schedule-activation-container").addClass("alert alert-success");
-			} else {
-				$("#schedule-activation-container").html("Chyba: "+data);
-				$("#schedule-activation-container").addClass("alert alert-error");
-			}
-		});
-		return false;
+	$("#schedule-activation").on("click", function() {
+		postSchedule("activate");
+	});
+
+	$("#schedule-deactivation").on("click", function() {
+		postSchedule("deactivate");
 	})
 });
+
+function postSchedule(action) {
+	var data = {
+			time: $("input[name=datetime]").data("DateTimePicker").getDate().format("YYYY-MM-DD HH:mm"),
+			operation: action
+	};
+	var promise = $.post("/api/presentation/"+presentationKey+"/schedule", JSON.stringify(data));
+	promise.done(function() {
+		$("#schedule-activation-container").html("Úspešne naplánované");
+		$("#schedule-activation-container").addClass("alert alert-success");
+	}); 
+	promise.fail(function(data) {
+		$("#schedule-activation-container").html("Chyba: "+ JSON.stringify(data));
+		$("#schedule-activation-container").addClass("alert alert-error");
+	});
+}

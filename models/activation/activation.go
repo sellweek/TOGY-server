@@ -6,22 +6,31 @@ import (
 	"time"
 )
 
+const (
+	Deactivate Operation = iota
+	Activate   Operation = iota
+)
+
+type Operation int
+
 type Activation struct {
+	Op           Operation
 	Time         time.Time
 	Presentation *datastore.Key
 
 	Key string `datastore:"-"`
 }
 
-func New(t time.Time, p *datastore.Key) (a *Activation) {
+func New(op Operation, t time.Time, p *datastore.Key) (a *Activation) {
 	a = new(Activation)
+	a.Op = op
 	a.Time = t
 	a.Presentation = p
 	return
 }
 
-func Make(t time.Time, p *datastore.Key, c appengine.Context) (a *Activation, err error) {
-	a = New(t, p)
+func Make(op Operation, t time.Time, p *datastore.Key, c appengine.Context) (a *Activation, err error) {
+	a = New(op, t, p)
 	err = a.Save(c)
 	return
 }

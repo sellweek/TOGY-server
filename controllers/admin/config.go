@@ -10,6 +10,11 @@ import (
 	"util"
 )
 
+const (
+	timeFormat = "15:04"
+	dateFormat = "2.1.2006"
+)
+
 //ShowConfig handles showing the page where user can see and edit
 //the central configuration for clients.
 func ShowConfig(c util.Context) (err error) {
@@ -30,18 +35,18 @@ func ShowConfig(c util.Context) (err error) {
 		A        map[string][]time.Time
 		ZeroTime time.Time
 		Tz       *time.Location
-	}{conf, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc), util.Tz}, c, "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/config.js")
+	}{conf, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc), util.Tz}, c, "/static/js/config.js")
 	return
 }
 
 //SetConfig handles saving the new configuration to Datastore.
 func SetConfig(c util.Context) (err error) {
 	conf := new(config.Config)
-	on, err := time.Parse(config.ConfTimeFormat, c.R.FormValue("standardOn"))
+	on, err := time.Parse(timeFormat, c.R.FormValue("standardOn"))
 	if err != nil {
 		return
 	}
-	off, err := time.Parse(config.ConfTimeFormat, c.R.FormValue("standardOff"))
+	off, err := time.Parse(timeFormat, c.R.FormValue("standardOff"))
 	if err != nil {
 		return
 	}
@@ -93,23 +98,23 @@ func TimeOverrideEdit(c util.Context) (err error) {
 		}
 	}
 	c.Ac.Infof("%+v", tc)
-	util.RenderLayout("timeConfigEdit.html", "Úprava výnimky", tc, c, "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/editTC.js")
+	util.RenderLayout("timeConfigEdit.html", "Úprava výnimky", tc, c, "/static/js/editTC.js")
 	return
 }
 
 //TimeOverrideSubmit handles saving of time overrides into Datastore.
 func TimeOverrideSubmit(c util.Context) (err error) {
-	date, err := time.Parse(config.ConfDateFormat, c.R.FormValue("date"))
+	date, err := time.Parse(dateFormat, c.R.FormValue("date"))
 	if err != nil {
 		return
 	}
 
-	on, err := time.Parse(config.ConfTimeFormat, c.R.FormValue("on"))
+	on, err := time.Parse(timeFormat, c.R.FormValue("on"))
 	if err != nil {
 		return
 	}
 
-	off, err := time.Parse(config.ConfTimeFormat, c.R.FormValue("off"))
+	off, err := time.Parse(timeFormat, c.R.FormValue("off"))
 	if err != nil {
 		return
 	}

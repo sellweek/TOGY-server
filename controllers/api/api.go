@@ -192,14 +192,27 @@ func ScheduleActivation(c util.Context) (err error) {
 	}
 
 	defer c.R.Body.Close()
-	timeString, err := ioutil.ReadAll(c.R.Body)
+	data, err := ioutil.ReadAll(c.R.Body)
 	if err != nil {
 		return
 	}
 
-	t, err := time.Parse("Mon Jan 2 2006 15:04:05 GMT-0700 (MST)", string(timeString))
+	params := make(map[string]string)
+	err = json.Unmarshal(data, &params)
 	if err != nil {
 		return
+	}
+
+	t, err := time.ParseInLocation("2006-01-02 15:04", params["time"], util.C.Tz)
+	if err != nil {
+		return
+	}
+
+	var op activation.Operation
+	if params["operation"] == "activate" {
+		op = activation.Activate
+	} else {
+		op = activation.Deactivate
 	}
 
 	pk, err := datastore.DecodeKey(p.Key)
@@ -207,7 +220,7 @@ func ScheduleActivation(c util.Context) (err error) {
 		return
 	}
 
-	_, err = activation.Make(t, pk, c.Ac)
+	_, err = activation.Make(op, t, pk, c.Ac)
 	if err != nil {
 		return
 	}
@@ -221,39 +234,31 @@ func ActivateScheduled(c util.Context) (err error) {
 		return
 	}
 
-	l := len(as)
-	if l == 0 {
-		return
-	}
-
-	for i, a := range as {
-		if i == l-1 {
-			break
+	for _, a := range as {
+		var p *presentation.Presentation
+		p, err = presentation.GetByKey(a.Presentation.Encode(), c.Ac)
+		if err != nil {
+			c.Ac.Errorf("Couldn't load presentation %s", a.Presentation.Encode())
+			continue
 		}
+
+		if a.Op == activation.Activate {
+			p.Active = true
+		} else {
+			p.Active = false
+		}
+
+		err = p.Save(c.Ac)
+		if err != nil {
+			c.Ac.Errorf("Couldn't save presentation: %v", p.Name)
+			continue
+		}
+
 		err = a.Delete(c.Ac)
 		if err != nil {
-			c.Ac.Errorf("Error when deleting expired Activation: %v", err)
+			c.Ac.Errorf("Couldn't remove activation: %s", a.Key)
+			continue
 		}
-	}
-
-	pk := as[l-1].Presentation
-	p, err := presentation.GetByKey(pk.Encode(), c.Ac)
-	if err != nil {
-		c.Ac.Errorf("Error when loading Presentation: %v", err)
-		return
-	}
-
-	p.Active = true
-	err = p.Save(c.Ac)
-	if err != nil {
-		c.Ac.Errorf("Error when activating Presentation: %v", err)
-		return
-	}
-
-	err = as[l-1].Delete(c.Ac)
-	if err != nil {
-		c.Ac.Errorf("Error when deleting used Activation: %v", err)
-		return
 	}
 	return
 }

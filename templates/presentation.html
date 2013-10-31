@@ -19,29 +19,24 @@
 		class="btn input-group-addon">
 		<span class="glyphicon glyphicon-download-alt"></span></a>
 	</div>
+
 	{{if .P.Active}}
-		<div class="active-alert alert alert-info col-md-3">
-			Táto prezentácia je práve aktívna
-		</div>
+		<form method="POST" action="/admin/presentation/deactivate" class="button-form">
+			<input type="hidden" name="id" value="{{.P.Key}}">
+			<button type="submit" class="btn btn-warning">Deaktivovať</button>
+		</form>
 	{{else}}
 		<form method="POST" action="/admin/presentation/activate" class="button-form">
 			<input type="hidden" name="id" value="{{.P.Key}}">
 			<button type="submit" class="btn btn-success">Aktivovať</button>
 		</form>
-
-		<form method="POST" action="/admin/presentation/delete" class="button-form">
-			<input type="hidden" name="id" value="{{.P.Key}}">
-			<button type="submit" class="btn btn-danger">Vymazať</button>
-		</form>
 	{{end}}
-</div>
 
-{{/*If we didn't put this in, the description title would get stuck to the alert */}}
-{{if .P.Active}}
-	<br>
-	<br>
-	<br>
-{{end}}
+	<form method="POST" action="/admin/presentation/delete" class="button-form">
+		<input type="hidden" name="id" value="{{.P.Key}}">
+		<button type="submit" class="btn btn-danger">Vymazať</button>
+	</form>
+</div>
 
 <h2>
 	Popis
@@ -105,7 +100,9 @@
 							Dátum a čas
 						</th>
 						<th>
-							Vymazať
+							Činnosť
+						</th>
+						<th>
 						</th>
 					</tr>
 				</thead>
@@ -115,6 +112,13 @@
 						<tr>
 							<td>
 								{{(.Time.In $tz).Format "2.1.2006 15:04:05"}}
+							</td>
+							<td>
+								{{if .Op}}
+									Aktivovať
+								{{else}}
+									Deaktivovať
+								{{end}}
 							</td>
 							<td>
 								<form method="POST" action="/api/activation/{{.Key}}/delete" class="button-form">
@@ -134,13 +138,14 @@
 			</tbody>
 		</table>
 	<div id="schedule-activation-container">
-		<form id="schedule-activation">
+		<form id="schedule-form">
 			<fieldset>
-				<legend>Naplánovať aktiváciu</legend>
+				<legend>Plánovanie</legend>
 				<div class="input-group">
-					<input class="form-control col-md-2" type="text" name="datetime">
+					<input required class="form-control col-md-2" type="text" name="datetime">
 					<span class="input-group-btn">
-						<button type="submit" class="btn btn-primary">Naplánovať</button>
+						<button id="schedule-activation" type="button" class="btn btn-primary">Aktivovať</button>
+						<button id="schedule-deactivation" type="button" class="btn btn-warning">Deaktivovať</button>
 					</span>
 				</div>
 			<fieldset>

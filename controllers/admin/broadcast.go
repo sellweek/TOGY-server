@@ -173,7 +173,7 @@ func Presentation(c util.Context) (err error) {
 		Domain      string
 		Activations []*activation.Activation
 		Tz          *time.Location
-	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), appengine.DefaultVersionHostname(c.Ac), acts, util.Tz}, c, "/static/js/underscore-min.js", "/static/js/jquery-ui-1.9.2.custom.min.js", "/static/js/timepicker-min.js", "/static/js/presentation.js")
+	}{p, a, template.HTML(desc), time.Date(0001, 01, 01, 00, 00, 00, 00, utc), appengine.DefaultVersionHostname(c.Ac), acts, util.Tz}, c, "/static/js/underscore-min.js", "/static/js/presentation.js")
 	return
 }
 
@@ -186,7 +186,7 @@ func Activate(c util.Context) (err error) {
 	}
 	p.Active = true
 	p.Save(c.Ac)
-	http.Redirect(c.W, c.R, "/admin/presentation/archive/1", 303)
+	http.Redirect(c.W, c.R, c.R.Referer(), 303)
 	return
 }
 

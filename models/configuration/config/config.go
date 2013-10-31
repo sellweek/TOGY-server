@@ -10,11 +10,9 @@ import (
 )
 
 const (
-	ConfTimeFormat = "15:04"
-	ConfDateFormat = "2006-1-2"
-	OverrideOn     = 1
-	OverrideOff    = -1
-	NoOverride     = 0
+	OverrideOn  = 1
+	OverrideOff = -1
+	NoOverride  = 0
 )
 
 //Config stores central configuration in Datastore.
