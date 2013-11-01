@@ -55,6 +55,8 @@ func JSON(c appengine.Context) (js []byte, err error) {
 		j["OverrideDays"].(map[string]map[string]string)[tc.Date.Format(jsonDateFormat)] = timeMap
 	}
 
+	j["Timestamp"] = conf.Timestamp
+
 	js, err = json.Marshal(j)
 	return
 }
