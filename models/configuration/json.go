@@ -46,12 +46,12 @@ func JSON(c appengine.Context) (js []byte, err error) {
 
 	j["Weekends"] = conf.Weekends
 
+	j["OverrideDays"] = make(map[string]map[string]string)
 	for _, tc := range tcs {
 		timeMap := make(map[string]string)
 		timeMap["TurnOn"] = tc.On.In(util.Tz).Format(jsonTimeFormat)
 		timeMap["TurnOff"] = tc.Off.In(util.Tz).Format(jsonTimeFormat)
 
-		j["OverrideDays"] = make(map[string]map[string]string)
 		j["OverrideDays"].(map[string]map[string]string)[tc.Date.Format(jsonDateFormat)] = timeMap
 	}
 

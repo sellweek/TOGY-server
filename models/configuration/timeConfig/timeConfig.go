@@ -6,6 +6,7 @@ import (
 	"models/action"
 	"models/configuration/config"
 	"time"
+	"util"
 )
 
 //TimeConfig is a model used to store
@@ -55,12 +56,17 @@ func (tc *TimeConfig) Save(c appengine.Context) (err error) {
 			return
 		}
 	}
+
+	tc.forceUTC()
+
 	_, err = datastore.Put(c, k, tc)
 
 	conf, err := config.Get(c)
 	if err != nil {
 		return
 	}
+
+	tc.forceLocal()
 
 	conf.Timestamp = time.Now().Unix()
 	//This also removes Actions for us
@@ -94,6 +100,7 @@ func GetAll(c appengine.Context) (tcs []*TimeConfig, err error) {
 	}
 	for i, k := range keys {
 		tcs[i].Key = k.Encode()
+		tcs[i].forceLocal()
 	}
 	return
 }
@@ -110,5 +117,24 @@ func GetByKey(key string, c appengine.Context) (tc *TimeConfig, err error) {
 		return
 	}
 	tc.Key = key
+	tc.forceLocal()
 	return
+}
+
+func (tc *TimeConfig) forceUTC() {
+	tc.force(time.UTC)
+}
+
+func (tc *TimeConfig) forceLocal() {
+	tc.force(util.C.Tz)
+}
+
+func (tc *TimeConfig) force(loc *time.Location) {
+	tzDate := time.Date(tc.Date.Year(), tc.Date.Month(), tc.Date.Day(), 0, 0, 0, 0, loc)
+	tzOff := time.Date(1, 1, 1, tc.Off.Hour(), tc.Off.Minute(), tc.Off.Second(), tc.Off.Nanosecond(), loc)
+	tzOn := time.Date(1, 1, 1, tc.On.Hour(), tc.On.Minute(), tc.On.Second(), tc.On.Nanosecond(), loc)
+
+	tc.Date = tzDate
+	tc.On = tzOn
+	tc.Off = tzOff
 }
