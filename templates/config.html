@@ -1,4 +1,5 @@
 <form method="POST" class="conf-form" action="/admin/config">
+	<fieldset>
 	<div class="form-group">
 		<label for="standardOn">Štandardné zapnutie</label>
 		<input type="text" name="standardOn" class="form-control timeField" value="{{(.Conf.StandardOn.In .Tz).Format "15:04"}}" id="standardOn"><br>
@@ -6,7 +7,6 @@
 		<input type="text" name="standardOff" class="form-control timeField" value="{{(.Conf.StandardOff.In .Tz).Format "15:04"}}" id="standardOff"><br>
 		<label for="updateInterval">Interval updatu (v sekundách)</label>
 		<input id="updateInterval" class="form-control" type="number" name="updateInterval" value="{{.Conf.UpdateInterval}}">
-
 	</div>
 	<div class="form-group">
 
@@ -28,7 +28,6 @@
 			<input type="checkbox" name="weekends" value="true" {{if .Conf.Weekends}} checked {{end}}> 
 			Vysielať cez víkendy
 		</label>
-
 	</div>
 	<button type="submit" class="form-control btn btn-primary">Uložiť</button>
 </form>
