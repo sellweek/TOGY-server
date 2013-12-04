@@ -7,6 +7,10 @@
 		<input type="text" name="standardOff" class="form-control timeField" value="{{(.Conf.StandardOff.In .Tz).Format "15:04"}}" id="standardOff"><br>
 		<label for="updateInterval">Interval updatu (v sekundách)</label>
 		<input id="updateInterval" class="form-control" type="number" name="updateInterval" value="{{.Conf.UpdateInterval}}">
+		<label class="checkbox">
+			<input type="checkbox" name="weekends" value="true" {{if .Conf.Weekends}} checked {{end}}> 
+			Vysielať cez víkendy
+		</label>
 	</div>
 	<div class="form-group">
 
@@ -21,12 +25,6 @@
 		<label class="radio">
 			<input type="radio" name="overrideState" value="1" {{if equal .Conf.OverrideState 1}} checked{{end}}> 
 			Vysielanie vždy zapnuté
-		</label>
-	</div>
-	<div class="form-group">
-		<label class="checkbox">
-			<input type="checkbox" name="weekends" value="true" {{if .Conf.Weekends}} checked {{end}}> 
-			Vysielať cez víkendy
 		</label>
 	</div>
 	<button type="submit" class="form-control btn btn-primary">Uložiť</button>
