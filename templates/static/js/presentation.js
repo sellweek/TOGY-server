@@ -60,6 +60,6 @@ function postSchedule(action) {
 	}); 
 	promise.fail(function(data) {
 		$("#schedule-activation-container").html("Chyba: "+ JSON.stringify(data));
-		$("#schedule-activation-container").addClass("alert alert-error");
+		$("#schedule-activation-container").addClass("alert alert-danger");
 	});
 }
