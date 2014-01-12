@@ -5,6 +5,9 @@
 		<h2>
 			{{.P.Name}}
 		</h2>
+		{{if .P.Active}}
+			<span class="label label-success">Vo vysielaní</span>
+		{{end}}
 		<p>
 			{{.D}}
 		</p>
