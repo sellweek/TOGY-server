@@ -41,10 +41,8 @@ func init() {
 	r.Handle("/admin/migrate", util.Handler(admin.Migrate))
 
 	//Client API routes
-	//For download and downloadComplete actions of presentations
-	//"active" can be used instead of key to select the currently active presentation
 	r.Handle("/api/presentation/{key}/download", util.Handler(api.Download))
-	//This rute is the same as the one above, but is used in UI so that
+	//This rute is the same as the one above, but is used in the UI so that
 	//file downloaded by users will not be called "download"
 	r.Handle("/api/presentation/{key}/download/{filename}", util.Handler(api.Download))
 	r.Handle("/api/presentation/{key}/downloadComplete", util.Handler(api.DownloadFinish))
