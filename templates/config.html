@@ -1,34 +1,95 @@
-<form method="POST" class="conf-form" action="/admin/config">
-	<fieldset>
-	<div class="form-group">
-		<label for="standardOn">Štandardné zapnutie</label>
-		<input type="text" name="standardOn" class="form-control timeField" value="{{(.Conf.StandardOn.In .Tz).Format "15:04"}}" id="standardOn"><br>
-		<label for="standardOff">Štandardné vypnutie</label> 
-		<input type="text" name="standardOff" class="form-control timeField" value="{{(.Conf.StandardOff.In .Tz).Format "15:04"}}" id="standardOff"><br>
-		<label for="updateInterval">Interval updatu (v sekundách)</label>
-		<input id="updateInterval" class="form-control" type="number" name="updateInterval" value="{{.Conf.UpdateInterval}}">
-		<label class="checkbox">
-			<input type="checkbox" name="weekends" value="true" {{if .Conf.Weekends}} checked {{end}}> 
-			Vysielať cez víkendy
-		</label>
-	</div>
-	<div class="form-group">
+<div class="row">
+	<div class="col-md-6">
+		<legend>
+			Všeobecné nastavenia
+		</legend>
+		<form method="POST" class="conf-form" action="/admin/config">
+			<fieldset>
+			<div class="form-group">
+				<label for="standardOn">Štandardné zapnutie</label>
+				<input type="text" name="standardOn" class="form-control timeField" value="{{(.Conf.StandardOn.In .Tz).Format "15:04"}}" id="standardOn"><br>
+				<label for="standardOff">Štandardné vypnutie</label> 
+				<input type="text" name="standardOff" class="form-control timeField" value="{{(.Conf.StandardOff.In .Tz).Format "15:04"}}" id="standardOff"><br>
+				<label for="updateInterval">Interval updatu (v sekundách)</label>
+				<input id="updateInterval" class="form-control" type="number" name="updateInterval" value="{{.Conf.UpdateInterval}}">
+				<label class="checkbox">
+					<input type="checkbox" name="weekends" value="true" {{if .Conf.Weekends}} checked {{end}}> 
+					Vysielať cez víkendy
+				</label>
+			</div>
+			<div class="form-group">
 
-		<label class="radio">
-			<input type="radio" name="overrideState" value="0" {{if equal .Conf.OverrideState 0}} checked{{end}}> 
-			Používať štandardné nastavenia
-		</label>
-		<label class="radio">
-			<input type="radio" name="overrideState" value="-1" {{if equal .Conf.OverrideState -1}} checked{{end}}> 
-			Vysielanie vždy vypnuté
-		</label>
-		<label class="radio">
-			<input type="radio" name="overrideState" value="1" {{if equal .Conf.OverrideState 1}} checked{{end}}> 
-			Vysielanie vždy zapnuté
-		</label>
+				<label class="radio">
+					<input type="radio" name="overrideState" value="0" {{if equal .Conf.OverrideState 0}} checked{{end}}> 
+					Používať štandardné nastavenia
+				</label>
+				<label class="radio">
+					<input type="radio" name="overrideState" value="-1" {{if equal .Conf.OverrideState -1}} checked{{end}}> 
+					Vysielanie vždy vypnuté
+				</label>
+				<label class="radio">
+					<input type="radio" name="overrideState" value="1" {{if equal .Conf.OverrideState 1}} checked{{end}}> 
+					Vysielanie vždy zapnuté
+				</label>
+			</div>
+			<button type="submit" class="form-control btn btn-primary">Uložiť</button>
+		</form>
 	</div>
-	<button type="submit" class="form-control btn btn-primary">Uložiť</button>
-</form>
+	<div class="col-md-6">
+		<legend>
+			Časové výnimky
+		</legend>
+		{{if equal (len .Tcs) 0}}
+		<div class="alert alert-info">
+			Zatiaľ nie sú pridané žiadne časové výnimky
+		</div>
+		{{else}}
+		<table class="table">
+			<thead>
+				<tr>
+					<th>
+						Dátum
+					</th>
+					<th>
+						Čas zapnutia
+					</th>
+					<th>
+						Čas vypnutia
+					</th>
+					<th>
+						Vymazať
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{range .Tcs}}
+				<tr>
+					<td>
+						<a href="/admin/config/timeOverride/edit/{{.Key}}">{{.Date.Format "2.1.2006"}}</a>
+					</td>
+					<td>
+						{{.On.Format "15:04"}}
+					</td>
+					<td>
+						{{.Off.Format "15:04"}}
+					</td>
+					<td>
+					<form method="POST" action="/admin/config/timeOverride/delete" class="button-form">
+						<input type="hidden" name="key" value="{{.Key}}">
+						<button type="submit" class="btn btn-danger">Vymazať</button>
+					</form>
+				</td>
+			</tr>
+			{{end}}
+		</tbody>
+		</table>
+		{{end}}
+
+		<a href="/admin/config/timeOverride/edit" class="btn btn-default">
+			Pridať novú
+		</a>
+	</div>
+</div>
 
 <h2>Informácie klientov</h2>
 {{$zt := .ZeroTime}}

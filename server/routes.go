@@ -29,7 +29,6 @@ func init() {
 	r.Handle("/admin/presentation/{id}", util.Handler(admin.Presentation))
 	r.Handle("/admin/config", util.Handler(admin.ShowConfig)).Methods("GET")
 	r.Handle("/admin/config", util.Handler(admin.SetConfig)).Methods("POST")
-	r.Handle("/admin/config/timeOverride", util.Handler(admin.TimeOverride))
 	r.Handle("/admin/config/timeOverride/edit/{id}", util.Handler(admin.TimeOverrideEdit)).Methods("GET")
 	r.Handle("/admin/config/timeOverride/edit", util.Handler(admin.TimeOverrideEdit)).Methods("GET")
 	r.Handle("/admin/config/timeOverride/edit/{id}", util.Handler(admin.TimeOverrideSubmit)).Methods("POST")

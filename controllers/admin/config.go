@@ -28,6 +28,11 @@ func ShowConfig(c util.Context) (err error) {
 		return
 	}
 
+	tcs, err := timeConfig.GetAll(c.Ac)
+	if err != nil {
+		return
+	}
+
 	a := prepareActions(as)
 
 	util.RenderLayout("config.html", "Všeobecné nastavenia", struct {
@@ -35,7 +40,8 @@ func ShowConfig(c util.Context) (err error) {
 		A        map[string][]time.Time
 		ZeroTime time.Time
 		Tz       *time.Location
-	}{conf, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc), util.Tz}, c, "/static/js/config.js")
+		Tcs      []*timeConfig.TimeConfig
+	}{conf, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc), util.Tz, tcs}, c, "/static/js/config.js")
 	return
 }
 
@@ -72,16 +78,6 @@ func SetConfig(c util.Context) (err error) {
 		return
 	}
 	http.Redirect(c.W, c.R, "/admin/config", 303)
-	return
-}
-
-//TimeOverride renders the list of time overrides in Datastore.
-func TimeOverride(c util.Context) (err error) {
-	tcs, err := timeConfig.GetAll(c.Ac)
-	if err != nil {
-		return
-	}
-	util.RenderLayout("timeConfig.html", "Zoznam časových výnimiek", tcs, c)
 	return
 }
 
@@ -124,7 +120,7 @@ func TimeOverrideSubmit(c util.Context) (err error) {
 	if err != nil {
 		return
 	}
-	http.Redirect(c.W, c.R, "/admin/config/timeOverride", 303)
+	http.Redirect(c.W, c.R, "/admin/config", 303)
 	return
 }
 
@@ -139,6 +135,6 @@ func TimeOverrideDelete(c util.Context) (err error) {
 	if err != nil {
 		return
 	}
-	http.Redirect(c.W, c.R, "/admin/config/timeOverride", 303)
+	http.Redirect(c.W, c.R, "/admin/config", 303)
 	return
 }
