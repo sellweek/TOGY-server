@@ -129,9 +129,9 @@ func GetAll(c appengine.Context) (ps []*Presentation, err error) {
 func GetListing(page int, perPage int, c appengine.Context) (ps []*Presentation, err error) {
 	var q *datastore.Query
 	if page == 1 {
-		q = datastore.NewQuery("Presentation").Limit(perPage).Order("-Created")
+		q = datastore.NewQuery("Presentation").Limit(perPage).Order("-Active").Order("-Created")
 	} else {
-		q = datastore.NewQuery("Presentation").Limit(perPage).Offset(perPage * (page - 1)).Order("-Created")
+		q = datastore.NewQuery("Presentation").Limit(perPage).Offset(perPage * (page - 1)).Order("-Active").Order("-Created")
 	}
 
 	keys, err := q.GetAll(c, &ps)
