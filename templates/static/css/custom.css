@@ -2,6 +2,10 @@ body {
 	padding-top: 60px;
 }
 
+.presentation {
+	margin-bottom: 10px;
+}
+
 .viewer-url {
 	display: none;
 }
