@@ -8,6 +8,10 @@ handlers:
   script: _go_app
   login: admin
   auth_fail_action: redirect
+- url: /auth
+  script: _go_app
+  login: admin
+  auth_fail_action: redirect
 - url: /api/presentation/.*/description
   script: _go_app
   login: admin

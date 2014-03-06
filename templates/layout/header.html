@@ -40,6 +40,11 @@
           <li><a href="/admin/config">Nastavenia</a></li>
           {{end}}
         </ul>
+        <ul class="nav navbar-nav navbar-right">
+          {{if (not .Admin)}}
+            <li><a href="/admin/presentation/upload">Prihlásiť sa</a></li>
+          {{end}}
+        </ul>
       </div>
     </div>
   </div>

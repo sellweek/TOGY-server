@@ -18,6 +18,10 @@ func init() {
 	r.Handle("/", util.Handler(public.Index))
 	r.Handle("/presentation", util.Handler(public.Presentations))
 
+	//Route used to log in. It just redirects to home, but app.yaml
+	//defines it as secured.
+	r.Handle("/auth", util.Handler(public.Index))
+
 	//Administrative routes
 	r.Handle("/admin", util.Handler(admin.Admin))
 	r.Handle("/admin/presentation/upload", util.Handler(admin.Upload)).Methods("GET")
