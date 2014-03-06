@@ -2,11 +2,23 @@ package admin
 
 import (
 	"appengine/datastore"
+	"appengine/user"
 	"fmt"
 	"models/configuration/config"
 	"models/presentation"
+	"net/http"
 	"util"
 )
+
+func Logout(c util.Context) (err error) {
+	url, err := user.LogoutURL(c.Ac, "/")
+	if err != nil {
+		return
+	}
+
+	http.Redirect(c.W, c.R, url, 303)
+	return
+}
 
 //Bootstrap inserts fake presentation and config into datastore.
 //Used when the system doesn't have any presentation inserted.
