@@ -17,7 +17,6 @@ const (
 
 //Config stores central configuration in Datastore.
 //There is always only one Config record in Datastore.
-//Because of that, Key field is not needed.
 type Config struct {
 	StandardOn     time.Time
 	StandardOff    time.Time
@@ -25,24 +24,33 @@ type Config struct {
 	UpdateInterval int
 	Weekends       bool
 	Timestamp      int64
+	key            *datastore.Key `datastore:"-"`
 }
 
-//GetKey returns key of the Datastore Config record.
-//It will always return the key of the single Datastore record,
-//even if its called like
-//	Config{}.GetKey
-func (c Config) GetKey(ctx appengine.Context) (k *datastore.Key, err error) {
-	k, err = datastore.NewQuery("Config").KeysOnly().Run(ctx).Next(nil)
-	return
+var typ = reflect.TypeOf(Config{})
+
+func (c *Config) Key() *datastore.Key {
+	return c.key
+}
+
+func (c *Config) SetKey(k *datastore.Key) {
+	c.key = k
+}
+
+func (c *Config) Kind() string {
+	return "Config"
+}
+
+func (_ *Config) Ancestor() *datastore.Key {
+	return nil
 }
 
 //SaveConfig saves data provided into the Config record.
 func (c *Config) Save(ctx appengine.Context) (err error) {
-	var key *datastore.Key
-	key, err = c.GetKey(ctx)
-	if err == datastore.Done {
+	if c.Key() == nil {
 		ctx.Infof("Creating new config key")
 		key = datastore.NewIncompleteKey(ctx, "Config", nil)
+		c.SetKey(key)
 	} else if err != nil {
 		return
 	}
@@ -59,7 +67,7 @@ func (c *Config) Save(ctx appengine.Context) (err error) {
 		return fmt.Errorf("Error when putting: %v", err)
 	}
 
-	action.DeleteFor(&Config{}, ctx)
+	action.DeleteFor(c, ctx)
 	return
 }
 
@@ -72,6 +80,17 @@ func Get(ctx appengine.Context) (c Config, err error) {
 	}
 	c.forceLocal()
 	return
+}
+
+func UpdateTimestamp(ctx appengine.Context) (err error) {
+	c, err := Get(c)
+	if err != nil {
+		return
+	}
+
+	c.Timestamp = time.Now().Unix()
+	//This also removes Actions for us
+	err = c.Save(c)
 }
 
 func (c *Config) forceUTC() {
