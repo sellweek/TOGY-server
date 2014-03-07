@@ -3,6 +3,8 @@ package action
 import (
 	"appengine"
 	"appengine/datastore"
+	"github.com/sellweek/gaemodel"
+	"reflect"
 	"time"
 )
 
@@ -32,18 +34,25 @@ type Action struct {
 	Client string         //Name of the client
 	Time   time.Time      //Time of the action
 	Model  *datastore.Key //What object is the action related to.
-	Key    string         `datastore:"-"`
+	key    *datastore.Key `datastore:"-"`
 }
 
-//Model is an interface specifying models - structs stored in Datastore.
-type Model interface {
-	GetKey(appengine.Context) (*datastore.Key, error)
+var typ = reflect.TypeOf(Action{})
+
+func (a *Action) Key() *datastore.Key {
+	return a.key
 }
 
-//GetKey is used to obtain Model's key.
-func (a Action) GetKey() (k *datastore.Key, err error) {
-	k, err = datastore.DecodeKey(a.Key)
-	return
+func (a *Action) SetKey(k *datastore.Key) {
+	a.key = k
+}
+
+func (a *Action) Kind() string {
+	return "Action"
+}
+
+func (a *Action) Ancestor() *datastore.Key {
+	return a.Model
 }
 
 //New returns a pointer to an Action with its fields set according to arguments.
@@ -71,25 +80,12 @@ func Make(m Model, at ActionType, client string, c appengine.Context) (a *Action
 //If its Key field is set, it will replace existing record
 //that has that key. If not, it will use datastore.NewIncompleteKey()
 //to create a new key and set the field.
-func (a *Action) Save(c appengine.Context) (err error) {
-	if a.Key == "" {
-		var key *datastore.Key
-		key, err = datastore.Put(c, datastore.NewIncompleteKey(c, "Action", a.Model), a)
-		a.Key = key.Encode()
-		return
-	} else {
-		var key *datastore.Key
-		key, err = datastore.DecodeKey(a.Key)
-		if err != nil {
-			return
-		}
-		_, err = datastore.Put(c, key, a)
-	}
-	return
+func (a *Action) Save(c appengine.Context) error {
+	return gaemodel.Save(c, a)
 }
 
 //Log works like Make but logs errors instead of returning them.
-func Log(m Model, at ActionType, client string, c appengine.Context) {
+func Log(m gaemodel.Model, at ActionType, client string, c appengine.Context) {
 	if client == "" {
 		c.Infof("%v called without client name.", at)
 		return
@@ -102,25 +98,18 @@ func Log(m Model, at ActionType, client string, c appengine.Context) {
 }
 
 //GetFor returns a slice containing all the Actions for a given Model.
-func GetFor(m Model, c appengine.Context) (as []Action, err error) {
-	key, err := m.GetKey(c)
+func GetFor(m gaemodel.Model, c appengine.Context) (as []Action, err error) {
+	is, err := gaemodel.GetByAncestor(c, typ, "Action", m.Key())
 	if err != nil {
 		return
 	}
-	as = make([]Action, 12)
-	keys, err := datastore.NewQuery("Action").Ancestor(key).GetAll(c, &as)
-	if err != nil {
-		return
-	}
-	for i := range keys {
-		as[i].Key = keys[i].Encode()
-	}
+	as = is.([]*Action)
 	return
 }
 
 //GetCountFor returns how many times given ActionType was performed on a Model.
-func GetCountFor(at ActionType, m Model, c appengine.Context) (count int, err error) {
-	key, err := m.GetKey(c)
+func GetCountFor(at ActionType, m gaemodel.Model, c appengine.Context) (count int, err error) {
+	key, err := m.Key(c)
 	if err != nil {
 		return
 	}
@@ -129,8 +118,8 @@ func GetCountFor(at ActionType, m Model, c appengine.Context) (count int, err er
 }
 
 //WasPerformedOn returns whether given client performed given ActionType on gived Model.
-func WasPerformedOn(at ActionType, m Model, client string, c appengine.Context) (bool, error) {
-	key, err := m.GetKey(c)
+func WasPerformedOn(at ActionType, m gaemodel.Model, client string, c appengine.Context) (bool, error) {
+	key, err := m.Key(c)
 	if err != nil {
 		return false, err
 	}
@@ -143,9 +132,9 @@ func WasPerformedOn(at ActionType, m Model, client string, c appengine.Context) 
 }
 
 //DeleteFor deletes all Actions for a specified Model.
-func DeleteFor(m Model, c appengine.Context) (err error) {
+func DeleteFor(m gaemodel.Model, c appengine.Context) (err error) {
 	var keys []*datastore.Key
-	key, err := m.GetKey(c)
+	key, err := m.Key(c)
 	if err != nil {
 		return
 	}
