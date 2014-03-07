@@ -4,10 +4,9 @@ import (
 	"appengine"
 	"appengine/blobstore"
 	"appengine/datastore"
-	"fmt"
 	"github.com/sellweek/gaemodel"
-	"math"
 	"models/action"
+	"reflect"
 	"time"
 )
 
@@ -20,7 +19,7 @@ type Presentation struct {
 	FileType    string            //Name that clients should store the presentation under
 	Active      bool              //If true, presentation is distributed to clients. Only one presentation can be active.
 
-	Key *datastore.Key `datastore:"-"`
+	key *datastore.Key `datastore:"-"`
 }
 
 var typ = reflect.TypeOf(Presentation{})
@@ -85,7 +84,10 @@ func (p *Presentation) Delete(c appengine.Context) (err error) {
 	}
 
 	err = blobstore.Delete(c, p.BlobKey)
-
+	if err != nil {
+		return
+	}
+	err = action.DeleteFor(p, c)
 	return
 }
 

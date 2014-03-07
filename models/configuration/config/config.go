@@ -5,6 +5,7 @@ import (
 	"appengine/datastore"
 	"fmt"
 	"models/action"
+	"reflect"
 	"time"
 	"util"
 )
@@ -49,7 +50,7 @@ func (_ *Config) Ancestor() *datastore.Key {
 func (c *Config) Save(ctx appengine.Context) (err error) {
 	if c.Key() == nil {
 		ctx.Infof("Creating new config key")
-		key = datastore.NewIncompleteKey(ctx, "Config", nil)
+		key := datastore.NewIncompleteKey(ctx, "Config", nil)
 		c.SetKey(key)
 	} else if err != nil {
 		return
@@ -61,7 +62,7 @@ func (c *Config) Save(ctx appengine.Context) (err error) {
 	c.Timestamp = time.Now().Unix()
 
 	c.forceUTC()
-	_, err = datastore.Put(ctx, key, c)
+	_, err = datastore.Put(ctx, c.Key(), c)
 	c.forceLocal()
 	if err != nil {
 		return fmt.Errorf("Error when putting: %v", err)
@@ -83,14 +84,15 @@ func Get(ctx appengine.Context) (c Config, err error) {
 }
 
 func UpdateTimestamp(ctx appengine.Context) (err error) {
-	c, err := Get(c)
+	c, err := Get(ctx)
 	if err != nil {
 		return
 	}
 
 	c.Timestamp = time.Now().Unix()
 	//This also removes Actions for us
-	err = c.Save(c)
+	err = c.Save(ctx)
+	return
 }
 
 func (c *Config) forceUTC() {

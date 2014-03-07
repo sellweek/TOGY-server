@@ -4,6 +4,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 	"github.com/sellweek/gaemodel"
+	"reflect"
 	"time"
 )
 
@@ -56,8 +57,8 @@ func Make(op Operation, t time.Time, p *datastore.Key, c appengine.Context) (a *
 
 func GetByKey(k *datastore.Key, c appengine.Context) (a *Activation, err error) {
 	a = new(Activation)
-	err = datastore.Get(c, dk, a)
-	a.Key = k
+	err = datastore.Get(c, k, a)
+	a.SetKey(k)
 	return
 }
 
@@ -88,7 +89,7 @@ func (a *Activation) Delete(c appengine.Context) (err error) {
 		return
 	}
 
-	a.Key = ""
+	a.SetKey(nil)
 
 	return
 }

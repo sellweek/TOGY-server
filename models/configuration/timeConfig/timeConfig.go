@@ -4,8 +4,8 @@ import (
 	"appengine"
 	"appengine/datastore"
 	"github.com/sellweek/gaemodel"
-	"models/action"
 	"models/configuration/config"
+	"reflect"
 	"time"
 	"util"
 )
@@ -84,7 +84,7 @@ func (tc *TimeConfig) Delete(c appengine.Context) (err error) {
 
 //GetAll gets all TimeConfigs saved in Datastore and returns them in a slice.
 func GetAll(c appengine.Context) (tcs []*TimeConfig, err error) {
-	is, err = gaemodel.GetAll(c, typ, "TimeConfig", 0, 0)
+	is, err := gaemodel.GetAll(c, typ, "TimeConfig", 0, 0)
 	if err != nil {
 		return
 	}
@@ -98,11 +98,11 @@ func GetAll(c appengine.Context) (tcs []*TimeConfig, err error) {
 //GetByKey gets the TimeConfig with given key from Datastore and returns a pointer to it.
 func GetByKey(key *datastore.Key, c appengine.Context) (tc *TimeConfig, err error) {
 	tc = new(TimeConfig)
-	err = datastore.Get(c, k, tc)
+	err = datastore.Get(c, key, tc)
 	if err != nil {
 		return
 	}
-	tc.Key = key
+	tc.SetKey(key)
 	tc.forceLocal()
 	return
 }

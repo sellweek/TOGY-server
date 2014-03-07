@@ -56,9 +56,9 @@ func (a *Action) Ancestor() *datastore.Key {
 }
 
 //New returns a pointer to an Action with its fields set according to arguments.
-func New(k *datastore.Key, at ActionType, client string) (a *Action) {
+func New(m *datastore.Key, at ActionType, client string) (a *Action) {
 	a = new(Action)
-	a.Model = k
+	a.Model = m
 	a.Type = at
 	a.Client = client
 	a.Time = time.Now()
@@ -66,12 +66,8 @@ func New(k *datastore.Key, at ActionType, client string) (a *Action) {
 }
 
 //Make creates a new Action using New and then saves it to Datastore.
-func Make(m Model, at ActionType, client string, c appengine.Context) (a *Action, err error) {
-	k, err := m.GetKey(c)
-	if err != nil {
-		return
-	}
-	a = New(k, at, client)
+func Make(m gaemodel.Model, at ActionType, client string, c appengine.Context) (a *Action, err error) {
+	a = New(m.Key(), at, client)
 	err = a.Save(c)
 	return
 }
@@ -98,7 +94,7 @@ func Log(m gaemodel.Model, at ActionType, client string, c appengine.Context) {
 }
 
 //GetFor returns a slice containing all the Actions for a given Model.
-func GetFor(m gaemodel.Model, c appengine.Context) (as []Action, err error) {
+func GetFor(m gaemodel.Model, c appengine.Context) (as []*Action, err error) {
 	is, err := gaemodel.GetByAncestor(c, typ, "Action", m.Key())
 	if err != nil {
 		return
@@ -109,22 +105,14 @@ func GetFor(m gaemodel.Model, c appengine.Context) (as []Action, err error) {
 
 //GetCountFor returns how many times given ActionType was performed on a Model.
 func GetCountFor(at ActionType, m gaemodel.Model, c appengine.Context) (count int, err error) {
-	key, err := m.Key(c)
-	if err != nil {
-		return
-	}
-	count, err = datastore.NewQuery("Action").Ancestor(key).Filter("Type =", at).Count(c)
+	count, err = datastore.NewQuery("Action").Ancestor(m.Key()).Filter("Type =", at).Count(c)
 	return
 }
 
 //WasPerformedOn returns whether given client performed given ActionType on gived Model.
 func WasPerformedOn(at ActionType, m gaemodel.Model, client string, c appengine.Context) (bool, error) {
-	key, err := m.Key(c)
-	if err != nil {
-		return false, err
-	}
-	i := datastore.NewQuery("Action").Ancestor(key).Filter("Client =", client).Filter("Type =", at).KeysOnly().Run(c)
-	_, err = i.Next(nil)
+	i := datastore.NewQuery("Action").Ancestor(m.Key()).Filter("Client =", client).Filter("Type =", at).KeysOnly().Run(c)
+	_, err := i.Next(nil)
 	if err == datastore.Done {
 		return false, nil
 	}
@@ -134,11 +122,7 @@ func WasPerformedOn(at ActionType, m gaemodel.Model, client string, c appengine.
 //DeleteFor deletes all Actions for a specified Model.
 func DeleteFor(m gaemodel.Model, c appengine.Context) (err error) {
 	var keys []*datastore.Key
-	key, err := m.Key(c)
-	if err != nil {
-		return
-	}
-	keys, err = datastore.NewQuery("Action").Ancestor(key).KeysOnly().GetAll(c, nil)
+	keys, err = datastore.NewQuery("Action").Ancestor(m.Key()).KeysOnly().GetAll(c, nil)
 	if err != nil {
 		return
 	}
