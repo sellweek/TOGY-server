@@ -47,7 +47,7 @@ func Upload(c util.Context) (err error) {
 	ans := make([]actWithName, len(acts))
 
 	for i, a := range acts {
-		pk := a.Presentation.Encode()
+		pk := a.Presentation
 		var p *presentation.Presentation
 		p, err = presentation.GetByKey(pk, c.Ac)
 		if err != nil {
@@ -97,7 +97,7 @@ func UploadHandler(c util.Context) (err error) {
 		return
 	}
 
-	http.Redirect(c.W, c.R, "/admin/presentation/"+p.Key, 303)
+	http.Redirect(c.W, c.R, "/admin/presentation/"+p.Key().Encode(), 303)
 	return
 }
 
@@ -143,7 +143,12 @@ func Archive(c util.Context) (err error) {
 
 //Presentation handles showing page with details about a presentation.
 func Presentation(c util.Context) (err error) {
-	p, err := presentation.GetByKey(c.Vars["id"], c.Ac)
+	pk, err := datastore.DecodeKey(c.Vars["id"])
+	if err != nil {
+		return
+	}
+
+	p, err := presentation.GetByKey(pk, c.Ac)
 	if err != nil {
 		return
 	}
@@ -155,10 +160,6 @@ func Presentation(c util.Context) (err error) {
 	a := prepareActions(as)
 
 	desc := blackfriday.MarkdownCommon(p.Description)
-
-	//We can safely ignore errors here since we already
-	//got the presentation using the same key
-	pk, _ := datastore.DecodeKey(p.Key)
 
 	acts, err := activation.GetForPresentation(pk, c.Ac)
 	if err != nil {
@@ -179,7 +180,11 @@ func Presentation(c util.Context) (err error) {
 
 //Activate handles activation of presentation.
 func Activate(c util.Context) (err error) {
-	key := c.R.FormValue("id")
+	key, err := datastore.DecodeKey(c.R.FormValue("id"))
+	if err != nil {
+		return
+	}
+
 	p, err := presentation.GetByKey(key, c.Ac)
 	if err != nil {
 		return
@@ -192,7 +197,11 @@ func Activate(c util.Context) (err error) {
 
 //Delete handles deleting of presentation.
 func Delete(c util.Context) (err error) {
-	key := c.R.FormValue("id")
+	key, err := datastore.DecodeKey(c.R.FormValue("id"))
+	if err != nil {
+		return
+	}
+
 	p, err := presentation.GetByKey(key, c.Ac)
 	if err != nil {
 		return
@@ -206,7 +215,11 @@ func Delete(c util.Context) (err error) {
 }
 
 func Deactivate(c util.Context) (err error) {
-	key := c.R.FormValue("id")
+	key, err := datastore.DecodeKey(c.R.FormValue("id"))
+	if err != nil {
+		return
+	}
+
 	p, err := presentation.GetByKey(key, c.Ac)
 	if err != nil {
 		return
@@ -222,7 +235,7 @@ func Deactivate(c util.Context) (err error) {
 	return
 }
 
-func prepareActions(as []action.Action) map[string][]time.Time {
+func prepareActions(as []*action.Action) map[string][]time.Time {
 	a := make(map[string][]time.Time)
 
 	for _, v := range as {

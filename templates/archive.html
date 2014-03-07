@@ -22,7 +22,7 @@
 		{{range .}}
 		<tr {{if .P.Active }}class="active"{{end}}>
 			<td>
-				<a href="/admin/presentation/{{.P.Key}}">
+				<a href="/admin/presentation/{{.P.Key.Encode}}">
 					{{.P.Name}}
 				</a>
 			</td>
@@ -35,7 +35,7 @@
 			{{if .P.Active}}
 				<td width="90px">
 					<form method="POST" action="/admin/presentation/deactivate" class="button-form">
-						<input type="hidden" name="id" value="{{.P.Key}}">
+						<input type="hidden" name="id" value="{{.P.Key.Encode}}">
 						<button type="submit" class="archive-btn btn btn-warning btn-sm">
 							Deaktivovať
 						</button>
@@ -44,7 +44,7 @@
 			{{else}}
 				<td width="90px">
 					<form method="POST" action="/admin/presentation/activate" class="button-form">
-						<input type="hidden" name="id" value="{{.P.Key}}">
+						<input type="hidden" name="id" value="{{.P.Key.Encode}}">
 						<button type="submit" class="archive-btn btn btn-success btn-sm">
 							Aktivovať
 						</button>
@@ -53,7 +53,7 @@
 			{{end}}
 			<td width="90px">
 				<form method="POST" action="/admin/presentation/delete" class="button-form">
-					<input type="hidden" name="id" value="{{.P.Key}}">
+					<input type="hidden" name="id" value="{{.P.Key.Encode}}">
 					<button type="submit" class="archive-btn btn btn-danger btn-sm">
 						Vymazať
 					</button>

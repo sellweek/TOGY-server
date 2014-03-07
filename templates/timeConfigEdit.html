@@ -1,4 +1,4 @@
-<form action="/admin/config/timeOverride/edit/{{if .}}{{.Key}}{{end}}" method="POST">
+<form action="/admin/config/timeOverride/edit/{{if .}}{{.Key.Encode}}{{end}}" method="POST">
 		<label>Dátum</label>
 		<input required type="text" class="form-control" name="date" id="date" value="{{if .}}{{.Date.Format "2.1.2006"}}{{end}}"><br>
 		<label>Čas zapnutia</label>

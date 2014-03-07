@@ -58,7 +58,7 @@
 								{{.A.Time.Format "2.1.2006 15:04:05"}}
 							</td>
 							<td>
-								<a href="/admin/presentation/{{.P.Key}}">{{.P.Name}}</a>
+								<a href="/admin/presentation/{{.P.Key.Encode}}">{{.P.Name}}</a>
 							</td>
 							<td>
 								{{if .A.Op}}

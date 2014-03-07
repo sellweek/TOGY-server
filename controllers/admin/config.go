@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"appengine/datastore"
 	"models/action"
 	"models/configuration/config"
 	"models/configuration/timeConfig"
@@ -23,7 +24,7 @@ func ShowConfig(c util.Context) (err error) {
 		return
 	}
 
-	as, err := action.GetFor(&config.Config{}, c.Ac)
+	as, err := action.GetFor(conf, c.Ac)
 	if err != nil {
 		return
 	}
@@ -36,7 +37,7 @@ func ShowConfig(c util.Context) (err error) {
 	a := prepareActions(as)
 
 	util.RenderLayout("config.html", "Všeobecné nastavenia", struct {
-		Conf     config.Config
+		Conf     *config.Config
 		A        map[string][]time.Time
 		ZeroTime time.Time
 		Tz       *time.Location
@@ -47,7 +48,11 @@ func ShowConfig(c util.Context) (err error) {
 
 //SetConfig handles saving the new configuration to Datastore.
 func SetConfig(c util.Context) (err error) {
-	conf := new(config.Config)
+	conf, err := config.Get(c.Ac)
+	if err != nil {
+		return
+	}
+
 	on, err := time.Parse(timeFormat, c.R.FormValue("standardOn"))
 	if err != nil {
 		return
@@ -88,7 +93,13 @@ func TimeOverrideEdit(c util.Context) (err error) {
 	if key := c.Vars["id"]; key == "" {
 		tc = nil
 	} else {
-		tc, err = timeConfig.GetByKey(key, c.Ac)
+		var k *datastore.Key
+		k, err = datastore.DecodeKey(key)
+		if err != nil {
+			return
+		}
+
+		tc, err = timeConfig.GetByKey(k, c.Ac)
 		if err != nil {
 			return
 		}
@@ -115,7 +126,16 @@ func TimeOverrideSubmit(c util.Context) (err error) {
 		return
 	}
 	tc := timeConfig.New(util.NormalizeDate(date), util.NormalizeTime(on), util.NormalizeTime(off))
-	tc.Key = c.Vars["id"]
+	var k *datastore.Key
+	if _, ok := c.Vars["id"]; ok {
+		k, err = datastore.DecodeKey(c.Vars["id"])
+		if err != nil {
+			return
+		}
+	} else {
+		k = nil
+	}
+	tc.SetKey(k)
 	err = tc.Save(c.Ac)
 	if err != nil {
 		return
@@ -126,7 +146,11 @@ func TimeOverrideSubmit(c util.Context) (err error) {
 
 //TimeOverrideDelete handles deleting of a time override.
 func TimeOverrideDelete(c util.Context) (err error) {
-	key := c.R.FormValue("key")
+	key, err := datastore.DecodeKey(c.R.FormValue("key"))
+	if err != nil {
+		return
+	}
+
 	tc, err := timeConfig.GetByKey(key, c.Ac)
 	if err != nil {
 		return

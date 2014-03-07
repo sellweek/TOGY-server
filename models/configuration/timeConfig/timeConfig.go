@@ -30,7 +30,7 @@ func (tc *TimeConfig) SetKey(k *datastore.Key) {
 }
 
 func (tc *TimeConfig) Kind() string {
-	return "Config"
+	return "TimeConfig"
 }
 
 func (_ *TimeConfig) Ancestor() *datastore.Key {

@@ -74,12 +74,15 @@ func (c *Config) Save(ctx appengine.Context) (err error) {
 
 //Get fetches the Config record from Datastore and
 //returns its data.
-func Get(ctx appengine.Context) (c Config, err error) {
-	_, err = datastore.NewQuery("Config").Run(ctx).Next(&c)
+func Get(ctx appengine.Context) (c *Config, err error) {
+	var value_c Config
+	key, err := datastore.NewQuery("Config").Run(ctx).Next(&value_c)
 	if err != nil {
 		return
 	}
+	c = &value_c
 	c.forceLocal()
+	c.SetKey(key)
 	return
 }
 

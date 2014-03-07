@@ -53,7 +53,7 @@ func Status(c util.Context) (err error) {
 	ui.Broadcasts = make([]broadcastInfo, len(ps))
 
 	for i, p := range ps {
-		ui.Broadcasts[i] = broadcastInfo{Key: p.Key, FileType: p.FileType}
+		ui.Broadcasts[i] = broadcastInfo{Key: p.Key().Encode(), FileType: p.FileType}
 	}
 
 	conf, err := config.Get(c.Ac)
@@ -92,7 +92,7 @@ func DownloadFinish(c util.Context) (err error) {
 		return
 	}
 
-	action.Log(*p, action.Activated, c.R.FormValue("client"), c.Ac)
+	action.Log(p, action.Activated, c.R.FormValue("client"), c.Ac)
 	return
 }
 
@@ -104,7 +104,7 @@ func Deactivated(c util.Context) (err error) {
 		return
 	}
 
-	action.Log(*p, action.Deactivated, c.R.FormValue("client"), c.Ac)
+	action.Log(p, action.Deactivated, c.R.FormValue("client"), c.Ac)
 	return
 }
 
@@ -181,7 +181,12 @@ func GetConfig(c util.Context) (err error) {
 //GotConfig is called by clients to announce that
 //they have downloaded the broadcast.
 func GotConfig(c util.Context) (err error) {
-	action.Log(new(config.Config), action.Activated, c.R.FormValue("client"), c.Ac)
+	conf, err := config.Get(c.Ac)
+	if err != nil {
+		return
+	}
+
+	action.Log(conf, action.Activated, c.R.FormValue("client"), c.Ac)
 	return
 }
 
@@ -215,12 +220,7 @@ func ScheduleActivation(c util.Context) (err error) {
 		op = activation.Deactivate
 	}
 
-	pk, err := datastore.DecodeKey(p.Key)
-	if err != nil {
-		return
-	}
-
-	_, err = activation.Make(op, t, pk, c.Ac)
+	_, err = activation.Make(op, t, p.Key(), c.Ac)
 	if err != nil {
 		return
 	}
@@ -236,7 +236,7 @@ func ActivateScheduled(c util.Context) (err error) {
 
 	for _, a := range as {
 		var p *presentation.Presentation
-		p, err = presentation.GetByKey(a.Presentation.Encode(), c.Ac)
+		p, err = presentation.GetByKey(a.Presentation, c.Ac)
 		if err != nil {
 			c.Ac.Errorf("Couldn't load presentation %s", a.Presentation.Encode())
 			continue
@@ -264,7 +264,12 @@ func ActivateScheduled(c util.Context) (err error) {
 }
 
 func DeleteActivation(c util.Context) (err error) {
-	a, err := activation.GetByKey(c.Vars["key"], c.Ac)
+	k, err := datastore.DecodeKey(c.Vars["key"])
+	if err != nil {
+		return
+	}
+
+	a, err := activation.GetByKey(k, c.Ac)
 	if err != nil {
 		return
 	}
@@ -279,7 +284,11 @@ func DeleteActivation(c util.Context) (err error) {
 }
 
 func getPresentation(c util.Context) (p *presentation.Presentation, err error) {
-	key := c.Vars["key"]
+	key, err := datastore.DecodeKey(c.Vars["key"])
+	if err != nil {
+		return
+	}
+
 	p, err = presentation.GetByKey(key, c.Ac)
 	return
 }

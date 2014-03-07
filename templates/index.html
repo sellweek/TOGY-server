@@ -13,7 +13,7 @@
 				{{.D}}
 			</p>
 			<p class="download">
-				<a href="/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" class="btn btn-default">Stiahnuť</a>
+				<a href="/api/presentation/{{.P.Key.Encode}}/download/vysielanie.{{.P.FileType}}" class="btn btn-default">Stiahnuť</a>
 			</p>
 			<small>
 				Pridané {{.P.Created.Format "2.1.2006"}}
@@ -22,7 +22,7 @@
 		<div class="preview col-md-6">
 			<img width="390px" height="234px" src="/static/images/TOGY-nahlad.png" class="preview-placeholder">
 			<div class="viewer-url">
-				http://docs.google.com/viewer?url={{$domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}&embedded=true
+				http://docs.google.com/viewer?url={{$domain}}/api/presentation/{{.P.Key.Encode}}/download/vysielanie.{{.P.FileType}}&embedded=true
 			</div>
 		</div>
 	</div>

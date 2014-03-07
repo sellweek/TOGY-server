@@ -78,22 +78,30 @@ func (p *Presentation) Save(c appengine.Context) (err error) {
 //Delete deletes the presentation record from Datastore and
 //its data file from Blobstore.
 func (p *Presentation) Delete(c appengine.Context) (err error) {
+	err = action.DeleteFor(p, c)
+	if err != nil {
+		return
+	}
+
 	err = gaemodel.Delete(c, p)
 	if err != nil {
 		return
 	}
 
 	err = blobstore.Delete(c, p.BlobKey)
-	if err != nil {
-		return
-	}
-	err = action.DeleteFor(p, c)
 	return
 }
 
 //GetListing gets paginated Presentations from Datastore.
 func GetListing(page int, perPage int, c appengine.Context) (ps []*Presentation, err error) {
-	is, err := gaemodel.GetAll(c, typ, "Presentation", page, perPage)
+	var q *datastore.Query
+	if page == 1 {
+		q = datastore.NewQuery("Presentation").Limit(perPage).Order("-Active").Order("-Created")
+	} else {
+		q = datastore.NewQuery("Presentation").Limit(perPage).Offset(perPage * (page - 1)).Order("-Active").Order("-Created")
+	}
+
+	is, err := gaemodel.MultiQuery(c, typ, "Presentation", q)
 	if err != nil {
 		return
 	}

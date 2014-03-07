@@ -2,7 +2,7 @@
 	indent Go templates -->
 {{$tz := .Tz}}
 <script type="text/javascript">
-	presentationKey = {{.P.Key}}
+	presentationKey = {{.P.Key.Encode}}
 </script>
 
 <div id="title-container">
@@ -13,27 +13,27 @@
 <div class="actions">
 	<div class="input-group col-md-3">
 		<input class="form-control uneditable-input" 
-		value="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}" 
+		value="http://{{.Domain}}/api/presentation/{{.P.Key.Encode}}/download/vysielanie.{{.P.FileType}}" 
 		type="text">
-		<a href="http://{{.Domain}}/api/presentation/{{.P.Key}}/download/vysielanie.{{.P.FileType}}"
+		<a href="http://{{.Domain}}/api/presentation/{{.P.Key.Encode}}/download/vysielanie.{{.P.FileType}}"
 		class="btn input-group-addon">
 		<span class="glyphicon glyphicon-download-alt"></span></a>
 	</div>
 
 	{{if .P.Active}}
 		<form method="POST" action="/admin/presentation/deactivate" class="button-form">
-			<input type="hidden" name="id" value="{{.P.Key}}">
+			<input type="hidden" name="id" value="{{.P.Key.Encode}}">
 			<button type="submit" class="btn btn-warning">Deaktivovať</button>
 		</form>
 	{{else}}
 		<form method="POST" action="/admin/presentation/activate" class="button-form">
-			<input type="hidden" name="id" value="{{.P.Key}}">
+			<input type="hidden" name="id" value="{{.P.Key.Encode}}">
 			<button type="submit" class="btn btn-success">Aktivovať</button>
 		</form>
 	{{end}}
 
 	<form method="POST" action="/admin/presentation/delete" class="button-form">
-		<input type="hidden" name="id" value="{{.P.Key}}">
+		<input type="hidden" name="id" value="{{.P.Key.Encode}}">
 		<button type="submit" class="btn btn-danger">Vymazať</button>
 	</form>
 </div>
@@ -121,8 +121,8 @@
 								{{end}}
 							</td>
 							<td>
-								<form method="POST" action="/api/activation/{{.Key}}/delete" class="button-form">
-									<input type="hidden" name="redirect" value="/admin/presentation/{{$p.Key}}">
+								<form method="POST" action="/api/activation/{{.Key.Encode}}/delete" class="button-form">
+									<input type="hidden" name="redirect" value="/admin/presentation/{{$p.Key.Encode}}">
 									<button type="submit" class="btn btn-danger btn-small">
 										Vymazať
 									</button>

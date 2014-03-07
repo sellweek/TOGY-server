@@ -40,7 +40,7 @@ func Bootstrap(c util.Context) (err error) {
 		fmt.Fprintln(c.W, "Error with config:", err)
 		return nil
 	}
-	fmt.Fprint(c.W, "Do not start any clients until you have replaced this presentation.")
+	fmt.Fprint(c.W, "OK")
 	return
 }
 

@@ -65,7 +65,7 @@
 				{{range .Tcs}}
 				<tr>
 					<td>
-						<a href="/admin/config/timeOverride/edit/{{.Key}}">{{.Date.Format "2.1.2006"}}</a>
+						<a href="/admin/config/timeOverride/edit/{{.Key.Encode}}">{{.Date.Format "2.1.2006"}}</a>
 					</td>
 					<td>
 						{{.On.Format "15:04"}}
@@ -75,7 +75,7 @@
 					</td>
 					<td>
 					<form method="POST" action="/admin/config/timeOverride/delete" class="button-form">
-						<input type="hidden" name="key" value="{{.Key}}">
+						<input type="hidden" name="key" value="{{.Key.Encode}}">
 						<button type="submit" class="btn btn-danger">Vymazať</button>
 					</form>
 				</td>
