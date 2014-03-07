@@ -3,6 +3,7 @@ package activation
 import (
 	"appengine"
 	"appengine/datastore"
+	"github.com/sellweek/gaemodel"
 	"time"
 )
 
@@ -18,7 +19,25 @@ type Activation struct {
 	Time         time.Time
 	Presentation *datastore.Key
 
-	Key string `datastore:"-"`
+	key *datastore.Key `datastore:"-"`
+}
+
+var typ = reflect.TypeOf(Activation{})
+
+func (a *Activation) Key() *datastore.Key {
+	return a.key
+}
+
+func (a *Activation) SetKey(k *datastore.Key) {
+	a.key = k
+}
+
+func (a *Activation) Kind() string {
+	return "Activation"
+}
+
+func (a *Activation) Ancestor() *datastore.Key {
+	return a.Presentation
 }
 
 func New(op Operation, t time.Time, p *datastore.Key) (a *Activation) {
@@ -35,30 +54,19 @@ func Make(op Operation, t time.Time, p *datastore.Key, c appengine.Context) (a *
 	return
 }
 
-func GetByKey(k string, c appengine.Context) (a *Activation, err error) {
-	dk, err := datastore.DecodeKey(k)
-	if err != nil {
-		return
-	}
-
+func GetByKey(k *datastore.Key, c appengine.Context) (a *Activation, err error) {
 	a = new(Activation)
 	err = datastore.Get(c, dk, a)
 	a.Key = k
 	return
-
 }
 
 func GetForPresentation(p *datastore.Key, c appengine.Context) (as []*Activation, err error) {
-	as = make([]*Activation, 0)
-
-	keys, err := datastore.NewQuery("Activation").Ancestor(p).GetAll(c, &as)
+	is, err := gaemodel.GetByAncestor(c, typ, "Activation", p)
 	if err != nil {
 		return
 	}
-
-	for i, k := range keys {
-		as[i].Key = k.Encode()
-	}
+	as = is.([]*Activation)
 	return
 }
 
@@ -70,56 +78,27 @@ func GetAfterTime(t time.Time, c appengine.Context) ([]*Activation, error) {
 	return timeQuery(t, ">", c)
 }
 
-func (a *Activation) Save(c appengine.Context) (err error) {
-	var k *datastore.Key
-	if a.Key == "" {
-		var pKey *datastore.Key
-		pKey, err = datastore.DecodeKey(a.Presentation.Encode())
-		if err != nil {
-			return
-		}
-
-		k, err = datastore.Put(c, datastore.NewIncompleteKey(c, "Activation", pKey), a)
-		if err != nil {
-			return
-		}
-		a.Key = k.Encode()
-	} else {
-		k, err = datastore.DecodeKey(a.Key)
-		if err != nil {
-			return
-		}
-
-		_, err = datastore.Put(c, k, a)
-		return
-	}
-	return
+func (a *Activation) Save(c appengine.Context) error {
+	return gaemodel.Save(c, a)
 }
 
 func (a *Activation) Delete(c appengine.Context) (err error) {
-	k, err := datastore.DecodeKey(a.Key)
+	gaemodel.Delete(c, a)
 	if err != nil {
 		return
 	}
 
-	err = datastore.Delete(c, k)
-	if err != nil {
-		return
-	}
 	a.Key = ""
 
 	return
 }
 
 func timeQuery(t time.Time, sign string, c appengine.Context) (as []*Activation, err error) {
-	as = make([]*Activation, 0)
-	keys, err := datastore.NewQuery("Activation").Filter("Time "+sign, t).Order("Time").GetAll(c, &as)
+	q := datastore.NewQuery("Activation").Filter("Time "+sign, t).Order("Time")
+	is, err := gaemodel.MultiQuery(c, typ, "Activation", q)
 	if err != nil {
 		return
 	}
-
-	for i, k := range keys {
-		as[i].Key = k.Encode()
-	}
+	as = is.([]*Activation)
 	return
 }
