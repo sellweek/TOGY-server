@@ -84,9 +84,9 @@ func Download(c util.Context) (err error) {
 	return
 }
 
-//DownloadFinish is called by clients to announce that
-//they have downloaded the broadcast.
-func DownloadFinish(c util.Context) (err error) {
+//Activated is called by clients to announce that
+//they have activated the broadcast.
+func Activated(c util.Context) (err error) {
 	p, err := getPresentation(c)
 	if err != nil {
 		return

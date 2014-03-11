@@ -49,7 +49,7 @@ func init() {
 	//This rute is the same as the one above, but is used in the UI so that
 	//file downloaded by users will not be called "download"
 	r.Handle("/api/presentation/{key}/download/{filename}", util.Handler(api.Download))
-	r.Handle("/api/presentation/{key}/downloadComplete", util.Handler(api.DownloadFinish))
+	r.Handle("/api/presentation/{key}/activated", util.Handler(api.Activated))
 	r.Handle("/api/presentation/{key}/deactivated", util.Handler(api.Deactivated))
 	r.Handle("/api/presentation/{key}/description", util.Handler(api.GetDescription)).Methods("GET")
 	r.Handle("/api/presentation/{key}/description", util.Handler(api.UpdateDescription)).Methods("POST")
