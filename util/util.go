@@ -144,13 +144,13 @@ func Round(x float64, prec int) float64 {
 //NormalizeDate strips the time part from time.Date leaving only
 //year, month and day.
 func NormalizeDate(t time.Time) time.Time {
-	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, C.Tz)
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 }
 
 //NormalizeTime strips the date part from time.Date leaving only
 //hours, minutes, seconds and nanoseconds.
 func NormalizeTime(t time.Time) time.Time {
-	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), C.Tz)
+	return time.Date(1, 1, 1, t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), time.UTC)
 }
 
 //getFileType returns file extension.

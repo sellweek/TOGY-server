@@ -61,9 +61,7 @@ func (c *Config) Save(ctx appengine.Context) (err error) {
 
 	c.Timestamp = time.Now().Unix()
 
-	c.forceUTC()
 	_, err = datastore.Put(ctx, c.Key(), c)
-	c.forceLocal()
 	if err != nil {
 		return fmt.Errorf("Error when putting: %v", err)
 	}
@@ -81,8 +79,10 @@ func Get(ctx appengine.Context) (c *Config, err error) {
 		return
 	}
 	c = &value_c
-	c.forceLocal()
 	c.SetKey(key)
+	//Needed for proper function in local environment
+	c.StandardOn = c.StandardOn.In(time.UTC)
+	c.StandardOff = c.StandardOff.In(time.UTC)
 	return
 }
 
@@ -96,17 +96,4 @@ func UpdateTimestamp(ctx appengine.Context) (err error) {
 	//This also removes Actions for us
 	err = c.Save(ctx)
 	return
-}
-
-func (c *Config) forceUTC() {
-	c.force(time.UTC)
-}
-
-func (c *Config) forceLocal() {
-	c.force(util.C.Tz)
-}
-
-func (c *Config) force(loc *time.Location) {
-	c.StandardOff = time.Date(1, 1, 1, c.StandardOff.Hour(), c.StandardOff.Minute(), c.StandardOff.Second(), c.StandardOff.Nanosecond(), loc)
-	c.StandardOn = time.Date(1, 1, 1, c.StandardOn.Hour(), c.StandardOn.Minute(), c.StandardOn.Second(), c.StandardOn.Nanosecond(), loc)
 }

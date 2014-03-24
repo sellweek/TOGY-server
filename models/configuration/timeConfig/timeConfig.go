@@ -40,9 +40,9 @@ func (_ *TimeConfig) Ancestor() *datastore.Key {
 //New returns a pointer to a TimeConfig with its fields set according to arguments.
 func New(date, on, off time.Time) (tc *TimeConfig) {
 	tc = new(TimeConfig)
-	tc.Date = date
-	tc.Off = off
-	tc.On = on
+	tc.Date = util.NormalizeDate(date)
+	tc.Off = util.NormalizeTime(off)
+	tc.On = util.NormalizeTime(on)
 	return
 }
 
@@ -58,9 +58,9 @@ func Make(date, on, off time.Time, c appengine.Context) (tc *TimeConfig, err err
 //that has that key. If not, it will use datastore.NewIncompleteKey()
 //to create a new key and set the field.
 func (tc *TimeConfig) Save(c appengine.Context) (err error) {
-	tc.forceUTC()
-	defer tc.forceLocal()
-
+	tc.Date = util.NormalizeDate(tc.Date)
+	tc.Off = util.NormalizeTime(tc.Off)
+	tc.On = util.NormalizeTime(tc.On)
 	err = gaemodel.Save(c, tc)
 	if err != nil {
 		return
@@ -78,7 +78,6 @@ func (tc *TimeConfig) Delete(c appengine.Context) (err error) {
 	}
 
 	err = config.UpdateTimestamp(c)
-
 	return
 }
 
@@ -90,7 +89,8 @@ func GetAll(c appengine.Context) (tcs []*TimeConfig, err error) {
 	}
 	tcs = is.([]*TimeConfig)
 	for _, tc := range tcs {
-		tc.forceLocal()
+		tc.On = tc.On.In(time.UTC)
+		tc.Off = tc.Off.In(time.UTC)
 	}
 	return
 }
@@ -103,24 +103,7 @@ func GetByKey(key *datastore.Key, c appengine.Context) (tc *TimeConfig, err erro
 		return
 	}
 	tc.SetKey(key)
-	tc.forceLocal()
+	tc.On = tc.On.In(time.UTC)
+	tc.Off = tc.Off.In(time.UTC)
 	return
-}
-
-func (tc *TimeConfig) forceUTC() {
-	tc.force(time.UTC)
-}
-
-func (tc *TimeConfig) forceLocal() {
-	tc.force(util.C.Tz)
-}
-
-func (tc *TimeConfig) force(loc *time.Location) {
-	tzDate := time.Date(tc.Date.Year(), tc.Date.Month(), tc.Date.Day(), 0, 0, 0, 0, loc)
-	tzOff := time.Date(1, 1, 1, tc.Off.Hour(), tc.Off.Minute(), tc.Off.Second(), tc.Off.Nanosecond(), loc)
-	tzOn := time.Date(1, 1, 1, tc.On.Hour(), tc.On.Minute(), tc.On.Second(), tc.On.Nanosecond(), loc)
-
-	tc.Date = tzDate
-	tc.On = tzOn
-	tc.Off = tzOff
 }
