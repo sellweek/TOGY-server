@@ -11,7 +11,7 @@ import (
 )
 
 func Logout(c util.Context) (err error) {
-	url, err := user.LogoutURL(c.Ac, "/")
+	url, err := user.LogoutURL(c, "/")
 	if err != nil {
 		return
 	}
@@ -24,7 +24,7 @@ func Logout(c util.Context) (err error) {
 //Used when the system doesn't have any presentation inserted.
 func Bootstrap(c util.Context) (err error) {
 	p := presentation.New("test", "xxx", "DO NOT USE!", []byte("This is just a bootstrap presentation that can't be downloaded"), true)
-	_, err = datastore.Put(c.Ac, datastore.NewIncompleteKey(c.Ac, "Presentation", nil), p)
+	_, err = datastore.Put(c, datastore.NewIncompleteKey(c, "Presentation", nil), p)
 	if err != nil {
 		fmt.Fprintln(c.W, "Error with presentation: ", err)
 		return nil
@@ -34,7 +34,7 @@ func Bootstrap(c util.Context) (err error) {
 
 	conf := new(config.Config)
 
-	err = conf.Save(c.Ac)
+	err = conf.Save(c)
 
 	if err != nil {
 		fmt.Fprintln(c.W, "Error with config:", err)
@@ -46,11 +46,11 @@ func Bootstrap(c util.Context) (err error) {
 
 //Migrate migrates Datastore data from a previous version.
 func Migrate(c util.Context) (err error) {
-	keys, err := datastore.NewQuery("Action").KeysOnly().GetAll(c.Ac, nil)
+	keys, err := datastore.NewQuery("Action").KeysOnly().GetAll(c, nil)
 	if err != nil {
 		return err
 	}
-	err = datastore.DeleteMulti(c.Ac, keys)
+	err = datastore.DeleteMulti(c, keys)
 	if err != nil {
 		return
 	}

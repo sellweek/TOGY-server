@@ -45,7 +45,7 @@ func Status(c util.Context) (err error) {
 
 	ui := updateInfo{}
 
-	ps, err := presentation.GetActive(c.Ac)
+	ps, err := presentation.GetActive(c)
 	if err != nil {
 		return
 	}
@@ -56,7 +56,7 @@ func Status(c util.Context) (err error) {
 		ui.Broadcasts[i] = broadcastInfo{Key: p.Key().Encode(), FileType: p.FileType}
 	}
 
-	conf, err := config.Get(c.Ac)
+	conf, err := config.Get(c)
 	if err != nil {
 		return
 	}
@@ -92,7 +92,7 @@ func Activated(c util.Context) (err error) {
 		return
 	}
 
-	action.Log(p, action.Activated, c.R.FormValue("client"), c.Ac)
+	action.Log(p, action.Activated, c.R.FormValue("client"), c)
 	return
 }
 
@@ -104,7 +104,7 @@ func Deactivated(c util.Context) (err error) {
 		return
 	}
 
-	action.Log(p, action.Deactivated, c.R.FormValue("client"), c.Ac)
+	action.Log(p, action.Deactivated, c.R.FormValue("client"), c)
 	return
 }
 
@@ -130,7 +130,7 @@ func UpdateDescription(c util.Context) (err error) {
 		return
 	}
 	p.Description = body
-	err = p.Save(c.Ac)
+	err = p.Save(c)
 	if err != nil {
 		return
 	}
@@ -161,7 +161,7 @@ func UpdateName(c util.Context) (err error) {
 		return
 	}
 	p.Name = string(body)
-	err = p.Save(c.Ac)
+	err = p.Save(c)
 	if err != nil {
 		return
 	}
@@ -170,7 +170,7 @@ func UpdateName(c util.Context) (err error) {
 
 //GetConfig serves the configuration.
 func GetConfig(c util.Context) (err error) {
-	json, err := configuration.JSON(c.Ac)
+	json, err := configuration.JSON(c)
 	if err != nil {
 		return
 	}
@@ -181,12 +181,12 @@ func GetConfig(c util.Context) (err error) {
 //GotConfig is called by clients to announce that
 //they have downloaded the broadcast.
 func GotConfig(c util.Context) (err error) {
-	conf, err := config.Get(c.Ac)
+	conf, err := config.Get(c)
 	if err != nil {
 		return
 	}
 
-	action.Log(conf, action.Activated, c.R.FormValue("client"), c.Ac)
+	action.Log(conf, action.Activated, c.R.FormValue("client"), c)
 	return
 }
 
@@ -220,7 +220,7 @@ func ScheduleActivation(c util.Context) (err error) {
 		op = activation.Deactivate
 	}
 
-	_, err = activation.Make(op, t, p.Key(), c.Ac)
+	_, err = activation.Make(op, t, p.Key(), c)
 	if err != nil {
 		return
 	}
@@ -229,16 +229,16 @@ func ScheduleActivation(c util.Context) (err error) {
 
 func ActivateScheduled(c util.Context) (err error) {
 	t := time.Now()
-	as, err := activation.GetBeforeTime(t, c.Ac)
+	as, err := activation.GetBeforeTime(t, c)
 	if err != nil {
 		return
 	}
 
 	for _, a := range as {
 		var p *presentation.Presentation
-		p, err = presentation.GetByKey(a.Presentation, c.Ac)
+		p, err = presentation.GetByKey(a.Presentation, c)
 		if err != nil {
-			c.Ac.Errorf("Couldn't load presentation %s", a.Presentation.Encode())
+			c.Errorf("Couldn't load presentation %s", a.Presentation.Encode())
 			continue
 		}
 
@@ -248,15 +248,15 @@ func ActivateScheduled(c util.Context) (err error) {
 			p.Active = false
 		}
 
-		err = p.Save(c.Ac)
+		err = p.Save(c)
 		if err != nil {
-			c.Ac.Errorf("Couldn't save presentation: %v", p.Name)
+			c.Errorf("Couldn't save presentation: %v", p.Name)
 			continue
 		}
 
-		err = a.Delete(c.Ac)
+		err = a.Delete(c)
 		if err != nil {
-			c.Ac.Errorf("Couldn't remove activation: %s", a.Key)
+			c.Errorf("Couldn't remove activation: %s", a.Key)
 			continue
 		}
 	}
@@ -269,12 +269,12 @@ func DeleteActivation(c util.Context) (err error) {
 		return
 	}
 
-	a, err := activation.GetByKey(k, c.Ac)
+	a, err := activation.GetByKey(k, c)
 	if err != nil {
 		return
 	}
 
-	err = a.Delete(c.Ac)
+	err = a.Delete(c)
 	if err != nil {
 		return
 	}
@@ -289,6 +289,6 @@ func getPresentation(c util.Context) (p *presentation.Presentation, err error) {
 		return
 	}
 
-	p, err = presentation.GetByKey(key, c.Ac)
+	p, err = presentation.GetByKey(key, c)
 	return
 }

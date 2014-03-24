@@ -24,7 +24,7 @@ func Presentations(c util.Context) (err error) {
 	if err != nil {
 		return
 	}
-	ps, err := presentation.GetListing(page, perPage, c.Ac)
+	ps, err := presentation.GetListing(page, perPage, c)
 	if err != nil {
 		return
 	}
@@ -40,18 +40,18 @@ func Presentations(c util.Context) (err error) {
 		data = append(data, templateData{P: *p, D: template.HTML(blackfriday.MarkdownCommon(p.Description))})
 	}
 
-	maxPages, err := presentation.PageCount(perPage, c.Ac)
+	maxPages, err := presentation.PageCount(perPage, c)
 	if err != nil {
 		return
 	}
 
-	c.Ac.Infof("Hostname: %v", appengine.DefaultVersionHostname(c.Ac))
+	c.Infof("Hostname: %v", appengine.DefaultVersionHostname(c))
 
 	util.RenderLayout("index.html", "Zoznam vysielaní", struct {
 		Page     int
 		MaxPages int
 		Data     []templateData
 		Domain   string
-	}{Page: page, MaxPages: maxPages, Data: data, Domain: appengine.DefaultVersionHostname(c.Ac)}, c, "/static/js/index.js")
+	}{Page: page, MaxPages: maxPages, Data: data, Domain: appengine.DefaultVersionHostname(c)}, c, "/static/js/index.js")
 	return
 }

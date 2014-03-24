@@ -19,17 +19,17 @@ const (
 //ShowConfig handles showing the page where user can see and edit
 //the central configuration for clients.
 func ShowConfig(c util.Context) (err error) {
-	conf, err := config.Get(c.Ac)
+	conf, err := config.Get(c)
 	if err != nil {
 		return
 	}
 
-	as, err := action.GetFor(conf, c.Ac)
+	as, err := action.GetFor(conf, c)
 	if err != nil {
 		return
 	}
 
-	tcs, err := timeConfig.GetAll(c.Ac)
+	tcs, err := timeConfig.GetAll(c)
 	if err != nil {
 		return
 	}
@@ -48,7 +48,7 @@ func ShowConfig(c util.Context) (err error) {
 
 //SetConfig handles saving the new configuration to Datastore.
 func SetConfig(c util.Context) (err error) {
-	conf, err := config.Get(c.Ac)
+	conf, err := config.Get(c)
 	if err != nil {
 		return
 	}
@@ -78,7 +78,7 @@ func SetConfig(c util.Context) (err error) {
 	conf.StandardOn = util.NormalizeTime(on)
 	conf.StandardOff = util.NormalizeTime(off)
 
-	err = conf.Save(c.Ac)
+	err = conf.Save(c)
 	if err != nil {
 		return
 	}
@@ -99,12 +99,12 @@ func TimeOverrideEdit(c util.Context) (err error) {
 			return
 		}
 
-		tc, err = timeConfig.GetByKey(k, c.Ac)
+		tc, err = timeConfig.GetByKey(k, c)
 		if err != nil {
 			return
 		}
 	}
-	c.Ac.Infof("%+v", tc)
+	c.Infof("%+v", tc)
 	util.RenderLayout("timeConfigEdit.html", "Úprava výnimky", tc, c, "/static/js/editTC.js")
 	return
 }
@@ -136,7 +136,7 @@ func TimeOverrideSubmit(c util.Context) (err error) {
 		k = nil
 	}
 	tc.SetKey(k)
-	err = tc.Save(c.Ac)
+	err = tc.Save(c)
 	if err != nil {
 		return
 	}
@@ -151,11 +151,11 @@ func TimeOverrideDelete(c util.Context) (err error) {
 		return
 	}
 
-	tc, err := timeConfig.GetByKey(key, c.Ac)
+	tc, err := timeConfig.GetByKey(key, c)
 	if err != nil {
 		return
 	}
-	err = tc.Delete(c.Ac)
+	err = tc.Delete(c)
 	if err != nil {
 		return
 	}

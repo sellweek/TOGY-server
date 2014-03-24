@@ -65,9 +65,10 @@ func parseFiles(t *template.Template, dir string) (temp *template.Template, err 
 	return
 }
 
-//Context is the type used for passing data to handlers
+//Context is the type used for passing data to handlers.
+//It embeds appengine.Context, so you can use it wherever you want.
 type Context struct {
-	Ac   appengine.Context
+	appengine.Context
 	W    http.ResponseWriter
 	R    *http.Request
 	Vars map[string]string
@@ -77,7 +78,7 @@ type Context struct {
 func Handler(hand func(Context) error) http.Handler {
 	return appstats.NewHandler(func(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		context := Context{Ac: c, W: w, R: r, Vars: vars}
+		context := Context{Context: c, W: w, R: r, Vars: vars}
 		err := hand(context)
 		if err != nil {
 			c.Errorf("Error 500. %v", err)
@@ -97,7 +98,7 @@ func RenderLayout(tmpl string, title string, data interface{}, c Context, jsIncl
 		JsIncludes []string
 		Admin      bool
 		AppName    string
-	}{title, jsIncludes, user.IsAdmin(c.Ac), C.Title}, c)
+	}{title, jsIncludes, user.IsAdmin(c), C.Title}, c)
 	RenderTemplate(tmpl, data, c)
 	RenderTemplate("footer.html", template.HTML(C.Footer), c)
 }
@@ -105,7 +106,7 @@ func RenderLayout(tmpl string, title string, data interface{}, c Context, jsIncl
 //renderTemplate renders a single template
 func RenderTemplate(tmpl string, data interface{}, c Context) {
 	if err := templates.ExecuteTemplate(c.W, tmpl, data); err != nil {
-		c.Ac.Errorf("Couldn't render template. %v", err)
+		c.Errorf("Couldn't render template. %v", err)
 		http.Error(c.W, err.Error(), http.StatusInternalServerError)
 	}
 }
