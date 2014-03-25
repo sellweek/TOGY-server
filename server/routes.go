@@ -41,7 +41,6 @@ func init() {
 	r.Handle("/admin/config/timeOverride/delete", util.Handler(admin.TimeOverrideDelete)).Methods("POST")
 
 	//Auxiliary admin routes
-	r.Handle("/admin/bootstrap", util.Handler(admin.Bootstrap))
 	r.Handle("/admin/migrate", util.Handler(admin.Migrate))
 
 	//Client API routes

@@ -21,7 +21,17 @@ const (
 func ShowConfig(c util.Context) (err error) {
 	conf, err := config.Get(c)
 	if err != nil {
-		return
+		if err == datastore.Done {
+			conf, err = mkConfig(c)
+			if err != nil {
+				c.Errorf("Error when creating new config: %v", err)
+			}
+			http.Redirect(c.W, c.R, "/admin/config", 303)
+			err = nil
+			return
+		} else {
+			return
+		}
 	}
 
 	as, err := action.GetFor(conf, c)
@@ -43,6 +53,22 @@ func ShowConfig(c util.Context) (err error) {
 		Tz       *time.Location
 		Tcs      []*timeConfig.TimeConfig
 	}{conf, a, time.Date(0001, 01, 01, 00, 00, 00, 00, utc), util.Tz, tcs}, c, "/static/js/config.js")
+	return
+}
+
+//Creates a default config
+func mkConfig(c util.Context) (conf *config.Config, err error) {
+	conf = &config.Config{
+		StandardOn:     time.Date(0, 0, 0, 6, 0, 0, 0, time.UTC),
+		StandardOff:    time.Date(0, 0, 0, 18, 0, 0, 0, time.UTC),
+		UpdateInterval: 300,
+		OverrideState:  0,
+		Weekends:       false,
+	}
+	err = conf.Save(c)
+	if err != nil {
+		return
+	}
 	return
 }
 

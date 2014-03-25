@@ -4,8 +4,6 @@ import (
 	"appengine/datastore"
 	"appengine/user"
 	"fmt"
-	"models/configuration/config"
-	"models/presentation"
 	"net/http"
 	"util"
 )
@@ -17,30 +15,6 @@ func Logout(c util.Context) (err error) {
 	}
 
 	http.Redirect(c.W, c.R, url, 303)
-	return
-}
-
-//Bootstrap inserts fake presentation and config into datastore.
-//Used when the system doesn't have any presentation inserted.
-func Bootstrap(c util.Context) (err error) {
-	p := presentation.New("test", "xxx", "DO NOT USE!", []byte("This is just a bootstrap presentation that can't be downloaded"), true)
-	_, err = datastore.Put(c, datastore.NewIncompleteKey(c, "Presentation", nil), p)
-	if err != nil {
-		fmt.Fprintln(c.W, "Error with presentation: ", err)
-		return nil
-	}
-
-	//	zeroTime := time.Date(0001, 01, 01, 00, 00, 00, 00, utc)
-
-	conf := new(config.Config)
-
-	err = conf.Save(c)
-
-	if err != nil {
-		fmt.Fprintln(c.W, "Error with config:", err)
-		return nil
-	}
-	fmt.Fprint(c.W, "OK")
 	return
 }
 
